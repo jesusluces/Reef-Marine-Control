@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
+<meta name="reef-marine-control-version" content="23">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#f8fbfc" />
 <title>Reef Marine Control · Gestión inteligente del arrecife</title>
@@ -2122,6 +2123,260 @@ main,.topbar,.bottom-nav{position:relative;z-index:2}
   .brand-name{font-size:25px !important;letter-spacing:.1px !important}
 }
 </style>
+
+<style id="reef-marine-control-v16-measurement-flow">
+.measure-save-confirm{position:fixed;left:50%;top:24%;z-index:1000;width:min(82vw,330px);transform:translate(-50%,-18px) scale(.88);opacity:0;pointer-events:none;padding:18px 20px;border-radius:26px;text-align:center;color:var(--navy);background:linear-gradient(145deg,rgba(255,255,255,.88),rgba(230,250,252,.64));border:1px solid rgba(255,255,255,.96);box-shadow:0 30px 80px rgba(30,105,132,.20),0 10px 28px rgba(41,145,165,.11),inset 0 1px 0 rgba(255,255,255,.99);-webkit-backdrop-filter:blur(30px) saturate(1.35);backdrop-filter:blur(30px) saturate(1.35)}
+.measure-save-confirm.show{animation:measureSavedInOut 2.15s cubic-bezier(.2,.85,.2,1) forwards}
+.measure-save-confirm .save-check{width:56px;height:56px;margin:0 auto 8px;border-radius:50%;display:grid;place-items:center;font-size:31px;color:#fff;background:linear-gradient(145deg,#63ddd4,#25b8c1);box-shadow:0 10px 22px rgba(39,181,190,.23),inset 0 1px 0 rgba(255,255,255,.55);animation:measureCheckPop .48s cubic-bezier(.2,1.4,.35,1) both}
+.measure-save-confirm strong{display:block;font-size:22px;line-height:1.05;margin-bottom:3px}.measure-save-confirm small{display:block;font-size:13px;color:var(--muted)}
+.measure-input-reset{animation:measurementResetFlash .56s ease}
+@keyframes measureSavedInOut{0%{opacity:0;transform:translate(-50%,-18px) scale(.88)}14%,72%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-10px) scale(.96)}}
+@keyframes measureCheckPop{0%{transform:scale(.45) rotate(-14deg);opacity:0}70%{transform:scale(1.12) rotate(3deg);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes measurementResetFlash{0%{box-shadow:0 0 0 0 rgba(44,195,202,0)}45%{box-shadow:0 0 0 4px rgba(44,195,202,.14)}100%{box-shadow:0 0 0 0 rgba(44,195,202,0)}}
+@media (prefers-reduced-motion:reduce){.measure-save-confirm.show{animation:none;opacity:1;transform:translate(-50%,0)}.measure-save-confirm .save-check,.measure-input-reset{animation:none}}
+</style>
+
+
+<style id="reef-marine-control-v17-auto-dose-style">
+.auto-dose-master-card{
+  background:
+    radial-gradient(circle at 12% 8%,rgba(89,218,217,.18),transparent 34%),
+    linear-gradient(145deg,rgba(255,255,255,.86),rgba(233,250,252,.54)) !important;
+}
+.auto-dose-badge{
+  padding:5px 9px;border-radius:999px;font-size:10px;font-weight:900;
+  color:var(--muted);background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.9)
+}
+.auto-dose-badge.ready{color:#267d72;background:rgba(219,250,240,.78)}
+.auto-dose-badge.low{color:#a46b18;background:rgba(255,244,217,.82)}
+.auto-dose-badge.blocked{color:#a54c5b;background:rgba(255,232,237,.82)}
+.auto-dose-main{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin:8px 0 7px}
+.auto-dose-number{font-size:34px;font-weight:1000;line-height:1;color:var(--navy)}
+.auto-dose-number small{font-size:14px;color:var(--muted)}
+.auto-dose-confidence{text-align:right;min-width:88px}
+.auto-dose-confidence strong{font-size:18px;color:var(--teal-deep)}
+.auto-dose-warning{margin:10px 0 0;padding:10px 11px;border-radius:14px;background:rgba(255,239,219,.78);border:1px solid rgba(240,183,101,.28);color:#8c601f;font-size:11px;line-height:1.35;font-weight:800}
+.auto-dose-current{margin:10px 0;padding:9px 11px;border-radius:14px;background:rgba(234,246,250,.70);font-size:11px;color:var(--muted);font-weight:800}
+#applyAutoDose:disabled{opacity:.48;filter:saturate(.5);cursor:not-allowed;transform:none !important}
+.auto-dose-settings-note{font-size:11px}
+#calcKhCurrent[readonly],#calcKhGoal[readonly]{opacity:.9;cursor:default}
+</style>
+
+
+<style id="reef-marine-control-v22-style">
+.reefdose-spec-grid,.prediction-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+  margin-top:10px;
+}
+.reefdose-spec-grid .info-card,.prediction-grid .info-card{min-width:0}
+.reefdose-spec-grid .value,.prediction-grid .value{font-size:20px !important}
+.reefdose-note{margin-top:10px;line-height:1.42}
+.reefdose-program-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-top:10px;padding:11px 13px;border-radius:16px;
+  background:linear-gradient(145deg,rgba(255,255,255,.76),rgba(225,250,251,.48));
+  border:1px solid rgba(255,255,255,.9);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 8px 18px rgba(47,113,140,.06);
+}
+.reefdose-program-row span{font-size:11px;color:var(--muted);font-weight:800}
+.reefdose-program-row strong{font-size:19px;color:var(--teal-deep);white-space:nowrap}
+.prediction-card{position:relative}
+.prediction-status{
+  margin-top:10px;padding:10px 12px;border-radius:15px;
+  background:rgba(234,249,250,.62);border:1px solid rgba(255,255,255,.86);
+  color:var(--navy);font-size:11px;font-weight:800;line-height:1.4;
+}
+.prediction-status.good{color:#377a54;background:rgba(232,250,238,.68)}
+.prediction-status.watch{color:#9a641e;background:rgba(255,247,226,.72)}
+.prediction-status.alert{color:#a74e62;background:rgba(255,235,240,.72)}
+.auto-dose-badge.programmed{background:rgba(228,250,239,.85);color:#3d8158}
+@media(max-width:410px){
+  .reefdose-spec-grid,.prediction-grid{grid-template-columns:1fr}
+  .reefdose-program-row{align-items:flex-start;flex-direction:column}
+}
+</style>
+
+
+<style id="reef-marine-control-v23-vivo-x300-pro">
+/* =========================================================
+   v23 · Optimización Vivo X300 Pro / Android PWA
+   Pantalla física: 1260 × 2800 · diseño CSS objetivo ~420 px
+   ========================================================= */
+html{
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+  color-scheme:light;
+}
+body{
+  width:100%;
+  min-width:320px;
+  overflow-x:hidden;
+  overscroll-behavior-y:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.app{
+  width:100% !important;
+  max-width:480px !important;
+  min-height:100dvh;
+  margin:0 auto;
+  padding-left:max(0px,env(safe-area-inset-left));
+  padding-right:max(0px,env(safe-area-inset-right));
+}
+.topbar{
+  padding-top:calc(11px + env(safe-area-inset-top)) !important;
+}
+.bottom-nav{
+  padding-bottom:calc(10px + env(safe-area-inset-bottom)) !important;
+}
+button,.nav-btn,.icon-btn,input,select{
+  touch-action:manipulation;
+}
+input,select{
+  min-height:48px;
+  font-size:16px !important;
+}
+.quick-btn{
+  min-height:54px;
+}
+.nav-btn{
+  min-height:68px !important;
+}
+.chart-wrap{
+  min-height:205px;
+}
+canvas{
+  display:block;
+  width:100% !important;
+}
+
+/* Ajuste específico para el viewport lógico del Vivo X300 Pro.
+   También funciona correctamente alrededor de 400–440 CSS px. */
+@media (min-width:400px) and (max-width:440px){
+  :root{
+    --panel-gap-v11:15px;
+  }
+  .app{
+    max-width:none !important;
+  }
+  main{
+    padding-left:15px !important;
+    padding-right:15px !important;
+  }
+  .topbar{
+    padding-left:16px !important;
+    padding-right:16px !important;
+  }
+  .brand-name{
+    font-size:28px !important;
+    letter-spacing:.22px !important;
+    white-space:nowrap;
+  }
+  .hero h1,.section-head h1{
+    font-size:30px !important;
+  }
+  .card,.input-card,.dose-card,.inventory-card{
+    border-radius:24px !important;
+  }
+  .card{
+    padding:15px !important;
+  }
+  .input-card{
+    padding:15px !important;
+  }
+  .dose-card{
+    padding:14px 13px !important;
+  }
+  .card-title .title{
+    font-size:18px !important;
+  }
+  .small{
+    font-size:11px !important;
+    line-height:1.35;
+  }
+  .metric .label,.field label,.parameter-row label{
+    font-size:11px !important;
+  }
+  .metric .value{
+    font-size:21px !important;
+  }
+  .kh-number{
+    font-size:48px !important;
+  }
+  .chart-wrap{
+    height:220px !important;
+    min-height:220px !important;
+  }
+  .bottom-nav{
+    width:calc(100% - 30px) !important;
+    max-width:none !important;
+    border-radius:27px !important;
+    margin-top:15px !important;
+  }
+  .nav-btn .ico{
+    font-size:21px !important;
+  }
+  .nav-btn span:last-child{
+    font-size:10.5px !important;
+  }
+  .history-summary-grid{
+    gap:10px;
+  }
+  .reefdose-spec-grid,.prediction-grid{
+    gap:10px;
+  }
+}
+
+/* En pantallas un poco más estrechas OriginOS puede exponer ~393 px.
+   Refluye sin perder legibilidad. */
+@media (max-width:399px){
+  main{
+    padding-left:12px !important;
+    padding-right:12px !important;
+  }
+  .brand-name{
+    font-size:25px !important;
+    white-space:nowrap;
+  }
+  .bottom-nav{
+    width:calc(100% - 24px) !important;
+  }
+  .nav-btn{
+    min-height:64px !important;
+  }
+  .chart-wrap{
+    height:205px !important;
+  }
+}
+
+/* Pantalla alta del X300 Pro: damos más aire sin desperdiciar espacio. */
+@media (min-height:800px) and (max-width:440px){
+  .view.active{
+    gap:16px !important;
+  }
+  .chart-wrap{
+    height:228px !important;
+  }
+}
+
+/* PWA instalada: respeta completamente las zonas de sistema. */
+@media (display-mode:standalone){
+  .topbar{
+    padding-top:calc(12px + env(safe-area-inset-top)) !important;
+  }
+  .app{
+    padding-bottom:calc(14px + env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* Evitar que un valor muy largo rompa una tarjeta */
+.value,.amount,.inv-meta,.reefdose-program-row strong{
+  overflow-wrap:anywhere;
+  min-width:0;
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -2172,7 +2427,7 @@ main,.topbar,.bottom-nav{position:relative;z-index:2}
             <div class="value"><span id="consumption">0,18</span> <small>dKH/día</small></div>
           </div>
           <div class="metric">
-            <div class="label">Dosis actual</div>
+            <div class="label">Dosis calculada</div>
             <div class="value"><span id="dailyDose">18</span> <small>ml/día</small></div>
           </div>
         </div>
@@ -2213,7 +2468,7 @@ main,.topbar,.bottom-nav{position:relative;z-index:2}
       <div class="input-card">
         <div class="value-input-wrap">
           <div class="value-input-label">KH <small>(dKH)</small></div>
-          <input class="value-input" id="khInput" inputmode="decimal" value="8.1" />
+          <input class="value-input" id="khInput" inputmode="decimal" value="0" />
         </div>
         <div class="goal-scale">
           <div class="goal-line"></div>
@@ -2228,11 +2483,11 @@ main,.topbar,.bottom-nav{position:relative;z-index:2}
       <div class="card" style="margin-top:12px">
         <div class="card-title"><div class="title">Medición completa <small>(opcional)</small></div></div>
         <div class="full-measure">
-          <div class="parameter-row"><label>🟢 Ca (ppm)</label><input id="caInput" inputmode="decimal" placeholder="420"></div>
-          <div class="parameter-row"><label>🟩 Mg (ppm)</label><input id="mgInput" inputmode="decimal" placeholder="1320"></div>
-          <div class="parameter-row"><label>🔴 NO₃ (ppm)</label><input id="no3Input" inputmode="decimal" placeholder="2.5"></div>
-          <div class="parameter-row"><label>🟣 PO₄ (ppm)</label><input id="po4Input" inputmode="decimal" placeholder="0.03"></div>
-          <div class="parameter-row"><label>🔵 Salinidad</label><input id="salInput" inputmode="decimal" placeholder="35.0"></div>
+          <div class="parameter-row"><label>🟢 Ca (ppm)</label><input id="caInput" inputmode="decimal" value="0"></div>
+          <div class="parameter-row"><label>🟩 Mg (ppm)</label><input id="mgInput" inputmode="decimal" value="0"></div>
+          <div class="parameter-row"><label>🔴 NO₃ (ppm)</label><input id="no3Input" inputmode="decimal" value="0"></div>
+          <div class="parameter-row"><label>🟣 PO₄ (ppm)</label><input id="po4Input" inputmode="decimal" value="0"></div>
+          <div class="parameter-row"><label>🔵 Salinidad</label><input id="salInput" inputmode="decimal" value="0"></div>
         </div>
       </div>
 
@@ -2242,24 +2497,67 @@ main,.topbar,.bottom-nav{position:relative;z-index:2}
 
     <section class="view" data-view="dose">
       <div class="section-head">
-        <div><div class="kicker">Balling</div><h1>Dosificación</h1></div>
+        <div><div class="kicker">Balling automático</div><h1>Dosificación</h1></div>
         <span style="font-size:30px">⚗️</span>
       </div>
 
       <div class="card">
         <div class="small">Método activo</div>
         <div class="dose-method">
-          <select id="methodSelect"><option>XEPTA Reef Balance Next</option></select>
+          <select id="methodSelect" disabled><option>XEPTA Reef Balance Next</option></select>
           <span>ⓘ</span>
         </div>
+        <div class="small" style="margin-top:8px">Sistema balanceado: Reef Marine Control calcula una única cantidad diaria y mantiene KH Part, Calcium Part y Trace Part estrictamente en relación 1:1:1.</div>
+      </div>
+
+      <div class="card reefdose4-card">
+        <div class="card-title"><div class="title">Red Sea ReefDose 4</div><span class="auto-dose-badge ready">Dosificadora fija</span></div>
+        <div class="reefdose-spec-grid">
+          <div class="info-card"><div class="label">Programa diario</div><div class="value">0,1 ml</div><div class="small">Resolución usada por la app</div></div>
+          <div class="info-card"><div class="label">Precisión del equipo</div><div class="value">±0,05 ml</div><div class="small">Por dosificación aprox.</div></div>
+          <div class="info-card"><div class="label">Repartos</div><div class="value">1–24</div><div class="small">Configurables por ti</div></div>
+        </div>
+        <div class="small reefdose-note">La app calcula el <strong>total diario programable</strong>. Tú solo lo copias a ReefDose 4 y eliges cuántas veces repartirlo. Reef Marine Control asume que programas inmediatamente el valor calculado; no existe sincronización manual de ml.</div>
+      </div>
+
+      <div class="card auto-dose-master-card">
+        <div class="card-title"><div class="title">Dosis automática calculada</div><span class="auto-dose-badge" id="autoDoseBadge">Esperando datos</span></div>
+        <div class="auto-dose-main">
+          <div>
+            <div class="small">Misma cantidad para KH + Ca + Trace</div>
+            <div class="auto-dose-number"><span id="autoDoseDaily">—</span> <small>ml/día</small></div>
+          </div>
+          <div class="auto-dose-confidence">
+            <div class="small">Confianza</div>
+            <strong id="autoDoseConfidence">—</strong>
+          </div>
+        </div>
+        <div class="small" id="autoDoseSource">Necesita mediciones suficientes para calcular el consumo.</div>
+        <div class="auto-dose-warning" id="autoDoseWarning" hidden></div>
+        <div class="auto-dose-current" id="autoDoseCurrent">Programa ReefDose 4: esperando cálculo fiable.</div>
+        <div class="reefdose-program-row">
+          <span>Programa que debes copiar en ReefBeat</span>
+          <strong id="reefDoseProgram">—</strong>
+        </div>
+        <div class="small" style="margin-top:8px">No hay confirmación ni sincronización de dosis: cuando el modelo genera un valor fiable, ese valor pasa a ser automáticamente la dosis modelada por Reef Marine Control.</div>
+      </div>
+
+      <div class="card prediction-card">
+        <div class="card-title"><div class="title">Predicción con el programa actual</div><span class="small">Modelo prospectivo</span></div>
+        <div class="prediction-grid">
+          <div class="info-card"><div class="label">KH en 24 h</div><div class="value" id="forecastKh1">—</div><div class="small" id="forecastKh1Range">Sin confianza suficiente</div></div>
+          <div class="info-card"><div class="label">KH en 72 h</div><div class="value" id="forecastKh3">—</div><div class="small" id="forecastKh3Range">Sin confianza suficiente</div></div>
+          <div class="info-card"><div class="label">Ca en 7 días</div><div class="value" id="forecastCa7">—</div><div class="small" id="forecastCa7Range">Necesita tendencia de Ca</div></div>
+        </div>
+        <div class="prediction-status" id="predictionStatus">La predicción aparecerá cuando el modelo tenga suficientes datos.</div>
       </div>
 
       <div class="dose-card teal">
         <div class="bottle"></div>
         <div class="dose-info">
           <div class="name">KH Part</div>
-          <div class="amount"><span id="khDoseCard">18 ml/día</span> · <span id="khDoseSplit">3 ml × 6 dosis</span></div>
-          <div class="note">Mantenimiento</div>
+          <div class="amount"><span id="khDoseCard">— ml/día</span> · <span id="khDoseSplit">—</span></div>
+          <div class="note">Dosis común 1:1:1 · calculada por KH</div>
         </div><span class="arrow">›</span>
       </div>
 
@@ -2267,8 +2565,8 @@ main,.topbar,.bottom-nav{position:relative;z-index:2}
         <div class="bottle"></div>
         <div class="dose-info">
           <div class="name">Calcium Part</div>
-          <div class="amount"><span id="caDoseCard">6 ml/día</span> · <span id="caDoseSplit">2 ml × 3 dosis</span></div>
-          <div class="note">Mantenimiento</div>
+          <div class="amount"><span id="caDoseCard">— ml/día</span> · <span id="caDoseSplit">—</span></div>
+          <div class="note">Exactamente los mismos ml que KH Part</div>
         </div><span class="arrow">›</span>
       </div>
 
@@ -2276,36 +2574,46 @@ main,.topbar,.bottom-nav{position:relative;z-index:2}
         <div class="bottle"></div>
         <div class="dose-info">
           <div class="name">Trace Part</div>
-          <div class="amount"><span id="traceDoseCard">6 ml/día</span> · <span id="traceDoseSplit">2 ml × 3 dosis</span></div>
-          <div class="note">Mantenimiento · no usar para corregir Mg</div>
+          <div class="amount"><span id="traceDoseCard">— ml/día</span> · <span id="traceDoseSplit">—</span></div>
+          <div class="note">Exactamente los mismos ml que KH Part · no usar para corregir Mg</div>
         </div><span class="arrow">›</span>
       </div>
 
       <div class="note-box">
-        <strong style="color:var(--navy)">Mantenimiento:</strong> compensa el consumo habitual.<br>
-        <strong style="color:var(--navy)">Corrección:</strong> ajuste temporal para alcanzar el objetivo.
+        <strong style="color:var(--navy)">Mantenimiento:</strong> la cantidad diaria se obtiene del consumo modelado del acuario y nunca es editable.<br>
+        <strong style="color:var(--navy)">Reparto:</strong> tú solo eliges cuántas dosis al día; Reef Marine Control calcula los ml de cada toma.
       </div>
 
       <div class="card math-recommend-card">
-        <div class="card-title"><div class="title">Estimación matemática de mantenimiento</div><span class="small">Datos válidos</span></div>
+        <div class="card-title"><div class="title">Cómo llega al cálculo</div><span class="small">Control cruzado</span></div>
         <div class="math-recommend-grid">
-          <div class="info-card"><div class="label">KH recomendado</div><div class="value" id="khRecommendedDose">—</div><div class="small" id="khRecommendedMeta">Aún sin estimación fiable</div></div>
-          <div class="info-card"><div class="label">Ca recomendado</div><div class="value" id="caRecommendedDose">—</div><div class="small" id="caRecommendedMeta">Necesita al menos 2 mediciones de Ca</div></div>
+          <div class="info-card">
+            <div class="label">Dosis común calculada por KH</div>
+            <div class="value" id="khRecommendedDose">—</div>
+            <div class="small" id="khRecommendedMeta">Aún sin estimación fiable</div>
+          </div>
+          <div class="info-card">
+            <div class="label">Control de coherencia con Ca</div>
+            <div class="value" id="caControlState">Sin datos</div>
+            <div class="small" id="caRecommendedMeta">El calcio solo valida la tendencia; nunca genera una dosis independiente.</div>
+          </div>
         </div>
-        <div class="small math-note">Trace no se calcula automáticamente a partir de Mg: se mantiene como dosificación configurada porque no existe una medición directa equivalente en esta app.</div>
+        <div class="small math-note"><strong>Regla fija 1:1:1:</strong> Reef Marine Control obtiene una única cantidad diaria y aplica exactamente esos mismos ml a KH Part, Calcium Part y Trace Part. El Ca se usa únicamente como control de coherencia del modelo.</div>
       </div>
 
       <div class="card" style="margin-top:12px">
-        <div class="card-title"><div class="title">Calculadora KH</div></div>
+        <div class="card-title"><div class="title">Corrección KH</div><span class="small">Automática</span></div>
         <div class="settings-grid">
-          <div class="field"><label>KH actual</label><input id="calcKhCurrent" inputmode="decimal" value="8.0"></div>
-          <div class="field"><label>KH objetivo</label><input id="calcKhGoal" inputmode="decimal" value="8.2"></div>
+          <div class="field"><label>KH actual (última medición)</label><input id="calcKhCurrent" inputmode="decimal" value="0" readonly></div>
+          <div class="field"><label>KH objetivo</label><input id="calcKhGoal" inputmode="decimal" value="8.2" readonly></div>
         </div>
         <div class="info-card" style="margin-top:10px">
-          <div class="label">Corrección calculada</div>
+          <div class="label">Corrección teórica calculada</div>
           <div class="value"><span id="correctionMl">0</span> ml KH Part</div>
         </div>
-        <div class="small" style="margin-top:8px">XEPTA KH Part: 10 ml aumentan 1 dKH en 100 L.</div>
+        <div class="small" style="margin-top:8px" id="correctionNote">La corrección se calcula desde la última medición y el objetivo configurado; no puedes introducir manualmente los ml.</div>
+        <button class="quick-btn secondary" style="margin-top:10px" id="registerCalculatedCorrection" disabled>Registrar corrección calculada</button>
+        <div class="small" style="margin-top:7px">Úsalo únicamente cuando hayas aplicado físicamente esa corrección (por ejemplo mediante Manual Dosing de ReefDose 4). La app registrará exactamente los ml calculados, sin permitir editarlos.</div>
       </div>
     </section>
 
@@ -2388,13 +2696,11 @@ main,.topbar,.bottom-nav{position:relative;z-index:2}
         <div class="form-grid">
           <div class="field"><label>Volumen neto (L)</label><input id="netVolume" inputmode="decimal" value="300"></div>
           <div class="field"><label>KH objetivo (dKH)</label><input id="goalKhSetting" inputmode="decimal" value="8.2"></div>
-          <div class="field"><label>Dosis KH al día</label><input id="khDosesPerDay" inputmode="numeric" value="6"></div>
-          <div class="field"><label>Dosis Ca/Trace al día</label><input id="otherDosesPerDay" inputmode="numeric" value="3"></div>
-          <div class="field"><label>KH Part actual (ml/día)</label><input id="khDailyDoseSetting" inputmode="decimal" value="18"></div>
-          <div class="field"><label>Calcium Part actual (ml/día)</label><input id="caDailyDoseSetting" inputmode="decimal" value="6"></div>
-          <div class="field"><label>Trace Part actual (ml/día)</label><input id="traceDailyDoseSetting" inputmode="decimal" value="6"></div>
+          <div class="field"><label>Repartos KH al día</label><input id="khDosesPerDay" type="number" inputmode="numeric" min="1" max="24" step="1" value="6"></div>
+          <div class="field"><label>Repartos Ca/Trace al día</label><input id="otherDosesPerDay" type="number" inputmode="numeric" min="1" max="24" step="1" value="3"></div>
         </div>
-        <button class="quick-btn" style="margin-top:12px" id="saveSettings">Guardar configuración</button>
+        <div class="note-box auto-dose-settings-note" style="margin-top:12px">Los <strong>ml/día no se configuran</strong>. Reef Marine Control los calcula y los redondea únicamente a valores físicamente programables por ReefDose 4 (pasos de 0,1 ml). Tú solo defines los repartos diarios (1–24).</div>
+        <button class="quick-btn" style="margin-top:12px" id="saveSettings">Guardar configuración y reparto</button>
       </div>
       <div class="card">
         <div class="card-title"><div class="title">Inventario inicial / actual</div></div>
@@ -2406,7 +2712,7 @@ main,.topbar,.bottom-nav{position:relative;z-index:2}
         <button class="quick-btn secondary" style="margin-top:12px" id="saveInventory">Actualizar inventario</button>
       </div>
       <div class="note-box">
-        El cálculo utiliza el <strong>volumen neto real</strong>, no los litros brutos de la urna.
+        El cálculo utiliza el <strong>volumen neto real</strong>, no los litros brutos de la urna. Para máxima precisión, calibra cada cabezal de ReefDose 4 en ReefBeat cuando cambies de líquido o sustituyas el tubo interno; Reef Marine Control no necesita que introduzcas esa calibración.
       </div>
     </section>
   </main>
@@ -2429,16 +2735,12 @@ main,.topbar,.bottom-nav{position:relative;z-index:2}
         <label>Tipo de evento</label>
         <select id="eventType">
           <option value="water">Cambio de agua</option>
-          <option value="dose">Cambio de dosificación</option>
-          <option value="correction">Corrección manual</option>
           <option value="balling">Nueva preparación Balling</option>
         </select>
       </div>
       <div class="field"><label>Fecha y hora</label><input type="datetime-local" id="eventDate"></div>
       <div class="field event-structured event-water-field"><label>Volumen cambiado (L, opcional)</label><input id="eventWaterLiters" inputmode="decimal" placeholder="Ej.: 40"></div>
       <div class="field event-structured event-product-field"><label>Producto</label><select id="eventProduct"><option value="kh">KH Part</option><option value="ca">Calcium Part</option><option value="trace">Trace Part</option></select></div>
-      <div class="field event-structured event-correction-field"><label>Cantidad usada (ml)</label><input id="eventCorrectionMl" inputmode="decimal" placeholder="Ej.: 12"></div>
-      <div class="field event-structured event-dose-field"><label>Nueva dosis diaria (ml/día)</label><input id="eventNewDailyDose" inputmode="decimal" placeholder="Ej.: 21"></div>
       <div class="field"><label>Detalle</label><input id="eventDetail" placeholder="Nota opcional"></div>
     </div>
     <button class="quick-btn" id="saveEvent">Guardar evento</button>
@@ -2456,24 +2758,44 @@ const nowLocal = ()=>{
   return {date:`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`, time:`${p(d.getHours())}:${p(d.getMinutes())}`};
 };
 const seed = {
-  settings:{volume:300,khGoal:8.2,khDoses:6,otherDoses:3},
-  doses:{kh:18,ca:6,trace:6},
-  inventory:{kh:1200,ca:900,trace:700,capacityKh:1800,capacityCa:1500,capacityTrace:1200},
-  measurements:[
-    {ts:"2026-08-21T20:00",kh:8.2,ca:420,mg:1320,no3:2.5,po4:.03,sal:35},
-    {ts:"2026-08-22T20:00",kh:8.1},
-    {ts:"2026-08-23T20:00",kh:8.0},
-    {ts:"2026-08-24T20:00",kh:8.1},
-    {ts:"2026-08-25T20:00",kh:8.0},
-    {ts:"2026-08-26T20:00",kh:7.9},
-    {ts:"2026-08-27T20:00",kh:8.1}
-  ],
-  events:[
-    {ts:"2026-08-24T10:00",type:"water",detail:"Cambio de agua · 40 L"},
-    {ts:"2026-08-26T09:00",type:"dose",detail:"KH Part · 18 ml/día"}
-  ]
+  settings:{volume:0,khGoal:8.2,khDoses:6,otherDoses:3},
+  doses:{kh:0,ca:0,trace:0},
+  inventory:{kh:0,ca:0,trace:0,capacityKh:0,capacityCa:0,capacityTrace:0},
+  measurements:[],
+  events:[]
 };
 let state = JSON.parse(localStorage.getItem('aquabalance-v1')||'null') || seed;
+
+/* v18: elimina únicamente los registros DEMO heredados de las versiones de desarrollo.
+   Esos valores de ejemplo no pueden participar en cálculos reales. */
+(function cleanLegacyDemoSeed(){
+  const demo = [
+    ["2026-08-21T20:00",8.2],["2026-08-22T20:00",8.1],["2026-08-23T20:00",8.0],
+    ["2026-08-24T20:00",8.1],["2026-08-25T20:00",8.0],["2026-08-26T20:00",7.9],
+    ["2026-08-27T20:00",8.1]
+  ];
+  const measurements = Array.isArray(state.measurements) ? state.measurements : [];
+  const hasFullDemoSignature = demo.every(([ts,kh]) =>
+    measurements.some(m => m.ts===ts && Number(m.kh)===kh)
+  );
+  if(!hasFullDemoSignature) return;
+
+  const demoTs = new Set(demo.map(x=>x[0]));
+  state.measurements = measurements.filter(m => !demoTs.has(m.ts));
+  state.events = (state.events||[]).filter(e =>
+    !(e.ts==="2026-08-24T10:00" && e.type==="water" && String(e.detail||"").includes("40 L")) &&
+    !(e.ts==="2026-08-26T09:00" && e.type==="dose" && String(e.detail||"").includes("18 ml"))
+  );
+
+  const structuredDoseHistory = (state.doseHistory||[]).some(h =>
+    h && h.assumed===false && h.source && h.source!=="migration"
+  );
+  if(!structuredDoseHistory){
+    state.doses={kh:0,ca:0,trace:0};
+    state.doseHistory=[];
+  }
+  state.mathMeta = {...(state.mathMeta||{}), demoSeedCleaned:true};
+})();
 
 function persist(){localStorage.setItem('aquabalance-v1',JSON.stringify(state))}
 function toast(msg){
@@ -2483,7 +2805,7 @@ function toast(msg){
 function switchView(name){
   $$('.view').forEach(v=>v.classList.toggle('active',v.dataset.view===name));
   $$('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.target===name));
-  if(name==='history') drawAllCharts();
+  if(name==='home' || name==='history') requestAnimationFrame(()=>drawAllCharts());
   scrollTo({top:0,behavior:'smooth'});
 }
 window.switchView=switchView;
@@ -2724,7 +3046,7 @@ window.addEventListener('resize',drawAllCharts);
 
 (function init(){
   const n=nowLocal();$('#measureDate').value=n.date;$('#measureTime').value=n.time;
-  const last=latestMeasurement();if(last)$('#khInput').value=last.kh;
+  $('#khInput').value='0';
   updateUI();
 })();
 </script>
@@ -2773,7 +3095,7 @@ window.addEventListener('resize',drawAllCharts);
     canvas.width=W;canvas.height=H;ctx.setTransform(dpr,0,0,dpr,0,0);
     const w=canvas.clientWidth,h=canvas.clientHeight;
     ctx.clearRect(0,0,w,h);
-    const pad={l:35,r:11,t:15,b:25};
+    const pad={l:35,r:11,t:28,b:28};
     let data=normalizedMeasurements();
     if(days){
       const cutoff=Date.now()-days*86400000;
@@ -2817,9 +3139,13 @@ window.addEventListener('resize',drawAllCharts);
     ctx.strokeStyle=stroke;ctx.lineWidth=3;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke(path);
 
     pts.forEach((p,i)=>{
-      ctx.fillStyle='rgba(255,255,255,.98)';ctx.beginPath();ctx.arc(p.x,p.y,5.1,0,Math.PI*2);ctx.fill();
-      ctx.strokeStyle=i===pts.length-1?'#35c6ca':'#66aaf1';ctx.lineWidth=2.5;ctx.stroke();
-      if(i===pts.length-1){ctx.fillStyle='rgba(53,198,202,.13)';ctx.beginPath();ctx.arc(p.x,p.y,9,0,Math.PI*2);ctx.fill()}
+      const pointValue = nf(data[i].kh,1);
+      if(typeof window.drawChartValueBubble==='function'){
+        window.drawChartValueBubble(ctx,p.x,p.y,pointValue,{fillA:'#ff9db5',fillB:'#ffc6d0',stroke:'#f17897'});
+      }else{
+        ctx.fillStyle='rgba(255,255,255,.98)';ctx.beginPath();ctx.arc(p.x,p.y,5.1,0,Math.PI*2);ctx.fill();
+        ctx.strokeStyle='#f17897';ctx.lineWidth=2.3;ctx.stroke();
+      }
     });
 
     ctx.fillStyle='#7a8da2';ctx.font='600 10px "Patrick Hand SC",cursive';
@@ -3588,53 +3914,127 @@ window.addEventListener('resize',drawAllCharts);
     for(let i=1;i<data.length;i++){
       const a=data[i-1], b=data[i];
       const days=(new Date(b.ts)-new Date(a.ts))/DAY;
-      if(days<.5 || days>7) continue; // 12 h to 7 d: avoids very noisy or overly coarse intervals
+      if(days<.5 || days>(param==='ca'?14:7)) continue;
+
       const model=intervalIsModelable(a.ts,b.ts,CHEM[param]?.product);
       if(!model.ok) continue;
+
+      /* Si conocemos salinidad en ambos extremos y cambió mucho,
+         no usamos el intervalo para KH/Ca porque concentración/dilución
+         puede confundirse con consumo biológico. */
+      const salA=Number(a.sal),salB=Number(b.sal);
+      const salKnown=Number.isFinite(salA)&&Number.isFinite(salB)&&salA>0&&salB>0;
+      if(salKnown && Math.abs(salB-salA)>.5) continue;
+
       const add=integratedChemicalAddition(param,a.ts,b.ts);
       if(!add.known) continue;
+
       const start=Number(a[param]), end=Number(b[param]);
       const consumption=(start + add.units - end)/days;
-      if(!Number.isFinite(consumption) || consumption<0) continue;
-      // deliberately loose sanity ceilings: reject obvious data/model errors, not normal variation.
+      if(!Number.isFinite(consumption)) continue;
+
+      /* No eliminamos consumos ligeramente negativos: pueden ser ruido de test.
+         Solo descartamos resultados físicamente extremos. */
+      const minReasonable=param==='kh'?-1.5:-30;
       const maxReasonable=param==='kh'?5:80;
-      if(consumption>maxReasonable) continue;
-      rows.push({startTs:a.ts,endTs:b.ts,days,consumption,added:add.units,totalMl:add.totalMl,assumed:add.assumed});
+      if(consumption<minReasonable || consumption>maxReasonable) continue;
+
+      rows.push({
+        startTs:a.ts,endTs:b.ts,days,consumption,
+        depletion:consumption*days,
+        added:add.units,totalMl:add.totalMl,assumed:add.assumed,
+        salinityKnown:salKnown
+      });
     }
     return rows;
   }
 
   function robustConsumption(param){
     const raw=buildConsumptionIntervals(param);
-    if(!raw.length) return {value:null,label:'baja',score:0,raw:[],used:[],mad:null,assumed:false,spanDays:0};
-    const vals=raw.map(r=>r.consumption);
-    const med=median(vals);
-    const mad=median(vals.map(v=>Math.abs(v-med)));
+    if(!raw.length) return {value:null,label:'baja',score:0,raw:[],used:[],mad:null,sigma:null,assumed:false,spanDays:0,method:'Theil–Sen'};
+
+    /* Los eventos no modelables rompen la continuidad. Usamos el segmento
+       contiguo más reciente, porque es el que mejor describe el estado actual. */
+    const segments=[];
+    let current=[];
+    raw.forEach(row=>{
+      if(!current.length || current[current.length-1].endTs===row.startTs) current.push(row);
+      else{segments.push(current);current=[row]}
+    });
+    if(current.length)segments.push(current);
+    const segment=segments[segments.length-1] || raw;
+
+    const points=[{t:0,d:0,ts:segment[0].startTs}];
+    let elapsed=0,cumulative=0;
+    segment.forEach(r=>{
+      elapsed+=r.days;
+      cumulative+=r.depletion;
+      points.push({t:elapsed,d:cumulative,ts:r.endTs});
+    });
+
+    const minPair=param==='ca'?2:.5;
+    const slopes=[];
+    for(let i=0;i<points.length-1;i++){
+      for(let j=i+1;j<points.length;j++){
+        const dt=points[j].t-points[i].t;
+        if(dt<minPair)continue;
+        const slope=(points[j].d-points[i].d)/dt;
+        if(Number.isFinite(slope))slopes.push(slope);
+      }
+    }
+
+    if(!slopes.length){
+      const fallback=segment.map(r=>r.consumption);
+      if(!fallback.length)return {value:null,label:'baja',score:0,raw,used:[],mad:null,sigma:null,assumed:false,spanDays:0,method:'Theil–Sen'};
+      slopes.push(...fallback);
+    }
+
+    const med=median(slopes);
+    const mad=median(slopes.map(v=>Math.abs(v-med)));
     const sigma=Number.isFinite(mad)?1.4826*mad:0;
-    const floor=param==='kh'?.12:2.5;
+    const floor=param==='kh'?.10:1.5;
     const threshold=Math.max(3*sigma,floor);
-    let used=raw.filter(r=>Math.abs(r.consumption-med)<=threshold);
-    if(!used.length) used=raw;
-    const weights=used.map(r=>clamp(r.days,.5,2));
-    const value=used.reduce((s,r,i)=>s+r.consumption*weights[i],0)/weights.reduce((a,b)=>a+b,0);
-    const usedVals=used.map(r=>r.consumption);
-    const usedMed=median(usedVals);
-    const usedMad=median(usedVals.map(v=>Math.abs(v-usedMed)));
-    const first=Math.min(...used.map(r=>+new Date(r.startTs))), last=Math.max(...used.map(r=>+new Date(r.endTs)));
-    const spanDays=(last-first)/DAY;
+    let usedSlopes=slopes.filter(v=>Math.abs(v-med)<=threshold);
+    if(!usedSlopes.length)usedSlopes=slopes;
+
+    /* Theil–Sen: la mediana de pendientes es resistente a lecturas aisladas. */
+    const rawEstimate=median(usedSlopes);
+    const value=Math.max(0,rawEstimate);
+    const usedMad=median(usedSlopes.map(v=>Math.abs(v-rawEstimate)));
+    const robustSigma=Number.isFinite(usedMad)?1.4826*usedMad:0;
+    const first=+new Date(segment[0].startTs),last=+new Date(segment[segment.length-1].endTs);
+    const spanDays=Math.max(0,(last-first)/DAY);
     const latestAge=Math.max(0,(Date.now()-last)/DAY);
-    const relMad=usedMad/Math.max(Math.abs(value),param==='kh'?.15:5);
+    const assumed=segment.some(r=>r.assumed);
+
+    const scale=Math.max(Math.abs(value),param==='kh'?.15:4);
+    const relNoise=robustSigma/scale;
+
     let score=0;
-    score += Math.min(40,used.length*10);
-    score += 30*(1-clamp(relMad/.35,0,1));
-    score += Math.min(20,spanDays/7*20);
+    score += Math.min(35,segment.length*9);
+    score += 30*(1-clamp(relNoise/.40,0,1));
+    score += Math.min(25,spanDays/(param==='ca'?14:7)*25);
     score += 10*(1-clamp((latestAge-2)/12,0,1));
-    const assumed=used.some(r=>r.assumed);
-    if(assumed) score-=15;
-    if(used.length===1) score=Math.min(score,30);
+    if(assumed)score-=15;
+
+    /* Ca necesita una ventana más larga porque su variación diaria es menor.
+       Dos lecturas de Ca en muy poco tiempo nunca pueden dar confianza alta. */
+    if(param==='ca'){
+      if(spanDays<4)score=Math.min(score,35);
+      else if(spanDays<7)score=Math.min(score,55);
+    }
+    if(segment.length===1)score=Math.min(score,30);
+    if(rawEstimate<0)score=Math.min(score,35);
+
     score=clamp(Math.round(score),0,100);
     const label=score>=75?'alta':score>=50?'media':'baja';
-    return {value,score,label,raw,used,mad:usedMad,assumed,spanDays};
+
+    return {
+      value,score,label,raw,
+      used:segment,mad:usedMad,sigma:robustSigma,
+      assumed,spanDays,method:'Theil–Sen',
+      rawEstimate,pairCount:usedSlopes.length
+    };
   }
 
   estimateConsumption = function(){return robustConsumption('kh').value ?? 0};
@@ -3789,6 +4189,30 @@ window.addEventListener('resize',drawAllCharts);
   }
 
   /* ---------- Strict history filters and real-scale charts ---------- */
+  window.drawChartValueBubble = function(ctx,x,y,text,{fillA='#ff9db5',fillB='#ffc0cd',stroke='#f17697'}={}){
+    const label=String(text);
+    const len=label.length;
+    const fontSize=len>=5?8.2:len>=4?8.8:10;
+    const font=`700 ${fontSize}px "Patrick Hand SC",cursive`;
+    ctx.save();
+    ctx.font=font;
+    const textW=ctx.measureText(label).width;
+    const radius=Math.max(11, Math.min(20, textW/2 + 6));
+    const cx=Math.max(radius+2, Math.min(ctx.canvas.clientWidth-radius-2, x));
+    const cy=Math.max(radius+2, Math.min(ctx.canvas.clientHeight-radius-18, y));
+    const grad=ctx.createLinearGradient(cx-radius,cy-radius,cx+radius,cy+radius);
+    grad.addColorStop(0,fillA); grad.addColorStop(1,fillB);
+    ctx.shadowColor='rgba(240,118,151,.22)';
+    ctx.shadowBlur=12;
+    ctx.fillStyle=grad;
+    ctx.beginPath(); ctx.arc(cx,cy,radius,0,Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.lineWidth=1.8; ctx.strokeStyle=stroke; ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.98)';
+    ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font=font;
+    ctx.fillText(label,cx,cy+0.5);
+    ctx.restore();
+  };
   function selectedDays(){return Number(document.querySelector('.tab.active')?.dataset.days||7)}
   function strictSeries(key,days){
     const cutoff=Date.now()-days*DAY;
@@ -3808,7 +4232,7 @@ window.addEventListener('resize',drawAllCharts);
     if(!canvas)return;
     const ctx=canvas.getContext('2d'),dpr=Math.min(devicePixelRatio||1,2);
     canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
-    const w=canvas.clientWidth,h=canvas.clientHeight,pad={l:38,r:11,t:14,b:24},data=strictSeries(key,days),rule=PARAM_RULES[key];
+    const w=canvas.clientWidth,h=canvas.clientHeight,pad={l:38,r:11,t:26,b:28},data=strictSeries(key,days),rule=PARAM_RULES[key];
     ctx.clearRect(0,0,w,h);
     const statEl=document.getElementById(key+'ChartStats'),latestEl=document.getElementById(key+'ChartLatest');
     if(latestEl)latestEl.textContent=data.length?`${nf(data[data.length-1].value,rule.decimals)} ${rule.unit}`:'—';
@@ -3830,10 +4254,10 @@ window.addEventListener('resize',drawAllCharts);
       ctx.strokeStyle=rule.color;ctx.lineWidth=2.6;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();
       data.forEach((p,i)=>{const xx=x(+new Date(p.ts)),yy=y(p.value);if(i===0)ctx.moveTo(xx,yy);else ctx.lineTo(xx,yy)});ctx.stroke();
     }
-    data.forEach(p=>{const xx=x(+new Date(p.ts)),yy=y(p.value);ctx.fillStyle='rgba(255,255,255,.96)';ctx.beginPath();ctx.arc(xx,yy,4.5,0,Math.PI*2);ctx.fill();ctx.strokeStyle=rule.color;ctx.lineWidth=2.2;ctx.stroke()});
+    data.forEach(p=>{const xx=x(+new Date(p.ts)),yy=y(p.value);window.drawChartValueBubble(ctx,xx,yy,nf(p.value,rule.decimals))});
     const labelCount=Math.min(5,Math.max(2,Math.round((w-pad.l-pad.r)/75)));
     for(let i=0;i<labelCount;i++){const t=t0+(t1-t0)*i/(labelCount-1||1),d=new Date(t);ctx.fillStyle='#6e7f98';ctx.fillText(`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`,x(t)-10,h-5)}
-    if(data.length===1){ctx.fillStyle='#6e7f98';ctx.font='10px "Patrick Hand SC",cursive';ctx.fillText('Solo hay una medición en este periodo.',pad.l,20)}
+    if(data.length===1){ctx.fillStyle='#6e7f98';ctx.font='10px "Patrick Hand SC",cursive';ctx.fillText('Solo hay una medición en este periodo.',pad.l,16)}
   }
 
   drawHistoryChart = function(days){
@@ -3846,8 +4270,38 @@ window.addEventListener('resize',drawAllCharts);
   }
   drawAllCharts = function(){
     requestAnimationFrame(()=>{
-      const home=document.getElementById('homeChart');if(home)drawChart(home,7);
-      drawHistoryChart();drawParameterCharts();
+      const safeDraw=(fn,name)=>{
+        try{fn()}catch(err){console.error('Error al dibujar '+name,err)}
+      };
+      const drawable=canvas=>canvas && canvas.clientWidth>1 && canvas.clientHeight>1;
+
+      /* Inicio usa exactamente el mismo motor estable y de escala real que Historial.
+         Además, un canvas oculto NO se redibuja a tamaño 0; se dibuja al entrar en la vista. */
+      const home=document.getElementById('homeChart');
+      if(drawable(home)){
+        safeDraw(
+          ()=>drawRealChart(home,'kh',7,{goal:Number(state.settings.khGoal)}),
+          'Inicio KH'
+        );
+      }
+
+      const history=document.getElementById('historyChart');
+      if(drawable(history)){
+        safeDraw(
+          ()=>drawRealChart(history,'kh',selectedDays(),{goal:Number(state.settings.khGoal)}),
+          'Historial KH'
+        );
+      }
+
+      ['ca','mg','no3','po4','sal'].forEach(k=>{
+        const canvas=document.getElementById(k+'HistoryChart');
+        if(drawable(canvas)){
+          safeDraw(
+            ()=>drawRealChart(canvas,k,selectedDays()),
+            'Historial '+k.toUpperCase()
+          );
+        }
+      });
     });
   };
   document.querySelectorAll('.tab').forEach(b=>{
@@ -3884,9 +4338,22 @@ window.addEventListener('resize',drawAllCharts);
     const khRec=document.getElementById('khRecommendedDose'),khMeta=document.getElementById('khRecommendedMeta');
     if(khRec)khRec.textContent=khDose===null?'—':`${nf(khDose,1)} ml/día`;
     if(khMeta)khMeta.textContent=kh.value===null?'Necesita al menos 2 lecturas KH modelables':`${nf(kh.value,2)} dKH/día · confianza ${kh.label} (${kh.score}/100)${kh.assumed?' · dosis histórica inicial asumida':''}`;
-    const caRec=document.getElementById('caRecommendedDose'),caMeta=document.getElementById('caRecommendedMeta');
-    if(caRec)caRec.textContent=caDose===null?'—':`${nf(caDose,1)} ml/día`;
-    if(caMeta)caMeta.textContent=ca.value===null?'Necesita al menos 2 lecturas Ca modelables':`${nf(ca.value,1)} ppm/día · confianza ${ca.label} (${ca.score}/100)${ca.assumed?' · dosis histórica inicial asumida':''}`;
+    const caState=document.getElementById('caControlState'),caMeta=document.getElementById('caRecommendedMeta');
+    if(caState||caMeta){
+      if(ca.value===null){
+        if(caState)caState.textContent='Sin datos';
+        if(caMeta)caMeta.textContent='Necesita al menos 2 lecturas de Ca modelables. El calcio solo valida el modelo 1:1:1.';
+      }else if(khDose===null||caDose===null){
+        if(caState)caState.textContent='Tendencia registrada';
+        if(caMeta)caMeta.textContent=`${nf(ca.value,1)} ppm/día · confianza ${ca.label} (${ca.score}/100). No se usa para dosificar Ca de forma independiente.`;
+      }else{
+        const mean=Math.max((khDose+caDose)/2,.05);
+        const disagreement=Math.abs(khDose-caDose)/mean;
+        const reliable=ca.score>=50;
+        if(caState)caState.textContent=!reliable?'Datos débiles':disagreement<=.25?'Compatible':'Revisar';
+        if(caMeta)caMeta.textContent=`Tendencia Ca: ${nf(ca.value,1)} ppm/día · confianza ${ca.label} (${ca.score}/100). ${!reliable?'Todavía no modifica la confianza del cálculo KH.':disagreement<=.25?'Es coherente con la dosis común calculada por KH.':'No concuerda con KH; repite mediciones antes de confirmar cambios.'}`;
+      }
+    }
 
     const insight=document.getElementById('insights');
     if(insight){
@@ -3899,11 +4366,11 @@ window.addEventListener('resize',drawAllCharts);
       }
       if(kh.value!==null){
         list.push(`<strong>Consumo KH modelado:</strong> ${nf(kh.value,2)} dKH/día usando ${kh.used.length} intervalo${kh.used.length===1?'':'s'} válido${kh.used.length===1?'':'s'} · confianza ${kh.label} (${kh.score}/100).`);
-        list.push(`<strong>Mantenimiento KH calculado:</strong> ${nf(khDose,1)} ml/día para ${nf(state.settings.volume,0)} L, frente a ${nf(state.doses.kh,1)} ml/día configurados.`);
+        list.push(`<strong>Dosis balanceada calculada:</strong> ${nf(khDose,1)} ml/día por cada componente (KH, Ca y Trace) para ${nf(state.settings.volume,0)} L · relación fija 1:1:1.`);
       }else list.push('<strong>Consumo KH:</strong> todavía no hay intervalos suficientes y modelables. Cambios de agua y correcciones no cuantificadas se excluyen.');
-      if(ca.value!==null)list.push(`<strong>Consumo Ca modelado:</strong> ${nf(ca.value,1)} ppm/día · mantenimiento matemático ${nf(caDose,1)} ml/día · confianza ${ca.label} (${ca.score}/100).`);
+      if(ca.value!==null)list.push(`<strong>Control de Ca:</strong> tendencia modelada ${nf(ca.value,1)} ppm/día · confianza ${ca.label} (${ca.score}/100). Se usa como validación del modelo; nunca para establecer una dosis de Ca distinta.`);
       else list.push('<strong>Calcio:</strong> se calculará el consumo cuando existan al menos dos mediciones modelables de Ca.');
-      list.push('<strong>Control de calidad:</strong> la estimación descarta intervalos de menos de 12 h o más de 7 días, cambios de agua, eventos no cuantificados y valores atípicos detectados mediante mediana + MAD.');
+      list.push('<strong>Control de calidad:</strong> la estimación usa regresión robusta Theil–Sen sobre el tramo modelable más reciente, conserva pequeñas variaciones negativas como ruido, descarta cambios de agua no modelados y penaliza incertidumbre/antigüedad. Ca exige una ventana temporal mayor que KH.');
       insight.innerHTML=list.map((x,i)=>`<div class="insight ${i>=1?'math-detail':''}">${x}</div>`).join('');
     }
     const next=document.getElementById('nextAction');
@@ -3933,6 +4400,16 @@ window.addEventListener('resize',drawAllCharts);
   updateMathUI();
   drawAllCharts();
   persist();
+  window.ReefMath = {
+    robustConsumption,
+    maintenanceDoseFromConsumption,
+    recordDoseSnapshot,
+    doseAt,
+    volumeAt,
+    ensureStrictState,
+    PARAM_RULES,
+    CHEM
+  };
 })();
 </script>
 
@@ -3946,5 +4423,357 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+
+<script id="reef-marine-control-v16-measurement-flow-script">
+(function(){
+  const measurementIds=['khInput','caInput','mgInput','no3Input','po4Input','salInput'];
+  const optionalRules={ca:{min:100,max:800,label:'CA',unit:'ppm'},mg:{min:500,max:2500,label:'MG',unit:'ppm'},no3:{min:0,max:500,label:'NO₃',unit:'ppm'},po4:{min:0,max:10,label:'PO₄',unit:'ppm'},sal:{min:20,max:50,label:'SALINIDAD',unit:'ppt'}};
+  function num(v){const s=String(v??'').trim().replace(',','.');if(!s)return NaN;return Number(s)}
+  function refreshMeasureDateTime(){const n=nowLocal();const date=document.getElementById('measureDate');const time=document.getElementById('measureTime');if(date)date.value=n.date;if(time)time.value=n.time}
+  function resetMeasurementInputs(animate=true){measurementIds.forEach(id=>{const el=document.getElementById(id);if(!el)return;el.value='0';el.dataset.userEdited='0';if(animate){el.classList.remove('measure-input-reset');void el.offsetWidth;el.classList.add('measure-input-reset')}});refreshMeasureDateTime()}
+  function ensureSuccessMessage(){let box=document.getElementById('measureSaveConfirm');if(box)return box;box=document.createElement('div');box.id='measureSaveConfirm';box.className='measure-save-confirm';box.setAttribute('role','status');box.setAttribute('aria-live','polite');box.innerHTML='<div class="save-check">✓</div><strong>Medición guardada</strong><small>Los datos se registraron correctamente</small>';document.body.appendChild(box);return box}
+  function showMeasurementSaved(updated){const box=ensureSuccessMessage();const strong=box.querySelector('strong');if(strong)strong.textContent=updated?'Medición actualizada':'Medición guardada';box.classList.remove('show');void box.offsetWidth;box.classList.add('show');clearTimeout(window.__measureSavedClass);window.__measureSavedClass=setTimeout(()=>box.classList.remove('show'),2200)}
+  function setupInputBehavior(){measurementIds.forEach(id=>{const el=document.getElementById(id);if(!el||el.dataset.v16measureReady)return;el.dataset.userEdited='0';el.dataset.v16measureReady='1';el.addEventListener('focus',()=>{if(String(el.value).trim()==='0')requestAnimationFrame(()=>el.select())});el.addEventListener('input',()=>{el.dataset.userEdited='1'});el.addEventListener('blur',()=>{if(String(el.value).trim()===''){el.value='0';el.dataset.userEdited='0'}})})}
+  saveMeasurement=function(full){
+    const khEl=document.getElementById('khInput');const kh=num(khEl?.value);
+    if(!Number.isFinite(kh)||kh<3||kh>15){toast('Introduce un KH válido entre 3 y 15 dKH');khEl?.focus();return}
+    const date=document.getElementById('measureDate')?.value,time=document.getElementById('measureTime')?.value||'00:00';
+    if(!date){toast('Selecciona una fecha');return}
+    const ts=`${date}T${time}`,t=+new Date(ts);if(!Number.isFinite(t)){toast('Fecha u hora no válida');return}if(t>Date.now()+300000){toast('La medición no puede estar en el futuro');return}
+    const m={ts,kh};
+    if(full){for(const [id,key] of [['caInput','ca'],['mgInput','mg'],['no3Input','no3'],['po4Input','po4'],['salInput','sal']]){const el=document.getElementById(id);if(!el)continue;const edited=el.dataset.userEdited==='1',raw=String(el.value??'').trim();if(!edited&&(raw===''||raw==='0'||raw==='0.0'||raw==='0,0'))continue;if(raw==='')continue;const val=num(raw),rule=optionalRules[key];if(!Number.isFinite(val)||val<rule.min||val>rule.max){toast(`${rule.label} fuera del rango admitido (${rule.min}–${rule.max} ${rule.unit})`);el.focus();return}m[key]=val}}
+    const idx=state.measurements.findIndex(x=>x.ts===ts);if(idx>=0)state.measurements[idx]={...state.measurements[idx],...m};else state.measurements.push(m);
+    persist();updateUI();showMeasurementSaved(idx>=0);clearTimeout(window.__measureResetTimer);window.__measureResetTimer=setTimeout(()=>resetMeasurementInputs(true),420)
+  };
+  setupInputBehavior();resetMeasurementInputs(false);ensureSuccessMessage();
+})();
+</script>
+
+
+<script id="reef-marine-control-v22-controller">
+(function(){
+  const MIN_ACTION_SCORE=55;
+  const REEFDOSE_STEP=.1;
+  const REEFDOSE_MIN=.2;
+  const REEFDOSE_MAX=1000;
+
+  function n(v){return Number(v)}
+  function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+  function getMath(){return window.ReefMath||null}
+  function sameDose(a,b,tol=.049){return Math.abs(n(a)-n(b))<=tol}
+  function roundReefDose(v){return Math.round(Number(v)*10)/10}
+
+  function latestParam(key){
+    return [...(state.measurements||[])]
+      .filter(m=>Number.isFinite(Number(m[key])))
+      .sort((a,b)=>new Date(a.ts)-new Date(b.ts))
+      .at(-1)||null;
+  }
+
+  function reefDoseProgram(raw){
+    if(!Number.isFinite(raw))return {value:null,ok:false,reason:'Sin cálculo'};
+    if(raw<=0)return {value:0,ok:true,reason:''};
+    const value=roundReefDose(raw);
+    if(value<REEFDOSE_MIN)return {value,ok:false,reason:`La dosis calculada (${nf(raw,2)} ml/día) queda por debajo del mínimo diario programable de ReefDose 4 (${nf(REEFDOSE_MIN,1)} ml).`};
+    if(value>REEFDOSE_MAX)return {value,ok:false,reason:`La dosis calculada supera el máximo diario programable de ReefDose 4 (${nf(REEFDOSE_MAX,0)} ml).`};
+    return {value,ok:true,reason:''};
+  }
+
+  function estimateBalancedDose(){
+    const M=getMath();
+    if(!M)return {raw:null,program:null,score:0,label:'baja',actionable:false,source:'Motor matemático no disponible',warning:'',kh:null,ca:null,caDrift:null};
+
+    const volume=Number(state.settings?.volume||0);
+    if(!(volume>0))return {raw:null,program:null,score:0,label:'baja',actionable:false,source:'Configura primero el volumen neto real del sistema.',warning:'',kh:null,ca:null,caDrift:null};
+
+    const kh=M.robustConsumption('kh');
+    const ca=M.robustConsumption('ca');
+    const raw=kh.value===null?null:M.maintenanceDoseFromConsumption('kh',kh.value);
+
+    if(!Number.isFinite(raw)){
+      return {raw:null,program:null,score:0,label:'baja',actionable:false,source:'Necesita suficientes mediciones de KH modelables para calcular el mantenimiento.',warning:'',kh,ca,caDrift:null};
+    }
+
+    const pump=reefDoseProgram(Math.max(0,raw));
+    let score=kh.score;
+    let actionable=kh.score>=MIN_ACTION_SCORE && pump.ok;
+    let warning=pump.reason||'';
+    let source=`KH es el controlador principal · ${nf(kh.value,2)} dKH/día · ${kh.method||'modelo robusto'}.`;
+    let caDrift=null,caTolerance=null;
+
+    /* Ca no produce una segunda dosis. Predice qué ocurrirá con Ca si
+       aplicamos exactamente la misma dosis diaria 1:1:1 calculada por KH. */
+    if(pump.value!==null && ca.value!==null){
+      const caAdded=pump.value*60/volume;
+      caDrift=caAdded-ca.value; // ppm/día: + sube, - baja
+
+      if(ca.score>=MIN_ACTION_SCORE){
+        const sigma=Math.max(0,Number(ca.sigma||0));
+        caTolerance=Math.max(.5,2*sigma);
+
+        if(Math.abs(caDrift)>caTolerance){
+          actionable=false;
+          score=clamp(Math.min(score,ca.score)-10,0,100);
+          warning=`El programa 1:1:1 predice una deriva de Ca de ${caDrift>=0?'+':''}${nf(caDrift,1)} ppm/día, mayor que la incertidumbre aceptada del modelo (±${nf(caTolerance,1)} ppm/día). Repite KH y Ca antes de cambiar el programa.`;
+          source='KH calcula la dosis común, pero el modelo de Ca no confirma todavía que vaya a mantener el equilibrio.';
+        }else{
+          score=clamp(Math.round(score+Math.min(10,ca.score/10)),0,100);
+          source=`KH calcula la dosis común y Ca la valida: deriva prevista ${caDrift>=0?'+':''}${nf(caDrift,1)} ppm/día.`;
+          actionable=score>=MIN_ACTION_SCORE && pump.ok;
+        }
+      }else{
+        source+=' Ca ya aporta tendencia, pero todavía no tiene confianza suficiente para bloquear o validar el cambio.';
+      }
+    }else if(ca.value===null){
+      source+=' El Ca se incorporará como control predictivo cuando disponga de una tendencia temporal suficiente.';
+    }
+
+    const label=score>=75?'alta':score>=50?'media':'baja';
+    return {raw,program:pump.value,score,label,actionable,source,warning,kh,ca,caDrift,caTolerance,pump};
+  }
+
+  function currentProgram(){
+    return {
+      kh:Number(state.doses?.kh||0),
+      ca:Number(state.doses?.ca||0),
+      trace:Number(state.doses?.trace||0)
+    };
+  }
+
+  function autoAdoptProgram(result){
+    if(!result.actionable || !Number.isFinite(result.program))return false;
+    const M=getMath();if(!M)return false;
+    const p=result.program,cur=currentProgram();
+
+    /* Histeresis natural de ReefDose: solo existe un cambio si cambia
+       el valor programable de 0,1 ml. */
+    if(sameDose(cur.kh,p)&&sameDose(cur.ca,p)&&sameDose(cur.trace,p))return false;
+
+    const ts=new Date().toISOString();
+    M.recordDoseSnapshot(ts,{kh:p,ca:p,trace:p},'reefdose4-auto');
+    state.doses={kh:p,ca:p,trace:p};
+    state.events ||= [];
+    state.events.push({
+      ts,type:'dose',product:'balanced',newDailyDose:p,
+      detail:`Programa ReefDose 4 calculado · ${nf(p,1)} ml/día por componente · 1:1:1`
+    });
+    state.mathMeta ||= {};
+    state.mathMeta.lastAutoProgram={ts,raw:result.raw,program:p,score:result.score};
+    persist();
+    return true;
+  }
+
+  function formatRange(center,sigma,days,decimals,unit){
+    if(!Number.isFinite(center))return '—';
+    if(!Number.isFinite(sigma))return `${nf(center,decimals)} ${unit}`;
+    const spread=1.96*Math.max(0,sigma)*days;
+    return `${nf(center-spread,decimals)}–${nf(center+spread,decimals)} ${unit}`;
+  }
+
+  function renderPrediction(result){
+    const M=getMath(),volume=Number(state.settings?.volume||0);
+    const khLast=latestParam('kh'),caLast=latestParam('ca');
+    const kh1=document.getElementById('forecastKh1'),kh3=document.getElementById('forecastKh3'),ca7=document.getElementById('forecastCa7');
+    const kh1r=document.getElementById('forecastKh1Range'),kh3r=document.getElementById('forecastKh3Range'),ca7r=document.getElementById('forecastCa7Range');
+    const status=document.getElementById('predictionStatus');
+
+    if(!M||!result||!Number.isFinite(result.program)||!(volume>0)||!khLast||result.kh?.value===null){
+      if(kh1)kh1.textContent='—';if(kh3)kh3.textContent='—';if(ca7)ca7.textContent='—';
+      if(status){status.className='prediction-status';status.textContent='La predicción aparecerá cuando el modelo tenga suficientes datos.'}
+      return;
+    }
+
+    const khAdd=result.program*10/volume;
+    const khNet=khAdd-result.kh.value;
+    const f1=Number(khLast.kh)+khNet;
+    const f3=Number(khLast.kh)+khNet*3;
+    if(kh1)kh1.textContent=`${nf(f1,2)} dKH`;
+    if(kh3)kh3.textContent=`${nf(f3,2)} dKH`;
+    if(kh1r)kh1r.textContent=`Rango modelo: ${formatRange(f1,result.kh.sigma,1,2,'dKH')}`;
+    if(kh3r)kh3r.textContent=`Rango modelo: ${formatRange(f3,result.kh.sigma,3,2,'dKH')}`;
+
+    if(caLast && result.ca?.value!==null){
+      const caAdd=result.program*60/volume;
+      const caNet=caAdd-result.ca.value;
+      const f7=Number(caLast.ca)+caNet*7;
+      if(ca7)ca7.textContent=`${nf(f7,0)} ppm`;
+      if(ca7r)ca7r.textContent=`Rango modelo: ${formatRange(f7,result.ca.sigma,7,0,'ppm')}`;
+    }else{
+      if(ca7)ca7.textContent='—';
+      if(ca7r)ca7r.textContent='Necesita una tendencia temporal de Ca suficientemente larga.';
+    }
+
+    const goal=Number(state.settings.khGoal||0);
+    const deviation=Math.abs(f3-goal);
+    if(status){
+      if(!result.actionable){
+        status.className='prediction-status alert';
+        status.textContent='La predicción es informativa: el modelo todavía no autoriza un cambio automático del programa.';
+      }else if(deviation<=.2){
+        status.className='prediction-status good';
+        status.textContent=`Con ${nf(result.program,1)} ml/día por componente, el KH se proyecta estable alrededor del objetivo durante las próximas 72 h.`;
+      }else{
+        status.className='prediction-status watch';
+        status.textContent=`El mantenimiento compensa consumo, pero el KH actual está separado del objetivo. Usa la corrección calculada de KH si procede; no alteres el 1:1:1 para corregirlo.`;
+      }
+    }
+  }
+
+  function renderAutoDose(){
+    let result=estimateBalancedDose();
+    const changed=autoAdoptProgram(result);
+    if(changed)result=estimateBalancedDose();
+
+    const dailyEl=document.getElementById('autoDoseDaily');
+    const confEl=document.getElementById('autoDoseConfidence');
+    const sourceEl=document.getElementById('autoDoseSource');
+    const warnEl=document.getElementById('autoDoseWarning');
+    const badge=document.getElementById('autoDoseBadge');
+    const currentEl=document.getElementById('autoDoseCurrent');
+    const reefProgram=document.getElementById('reefDoseProgram');
+
+    const kd=clamp(parseInt(state.settings?.khDoses||1)||1,1,24);
+    const od=clamp(parseInt(state.settings?.otherDoses||1)||1,1,24);
+    const daily=Number.isFinite(result.program)?result.program:null;
+
+    if(dailyEl)dailyEl.textContent=daily===null?'—':nf(daily,1);
+    if(confEl)confEl.textContent=result.raw===null?'—':`${result.label} · ${result.score}/100`;
+    if(sourceEl)sourceEl.textContent=result.source;
+    if(warnEl){warnEl.hidden=!result.warning;warnEl.textContent=result.warning||''}
+
+    if(badge){
+      badge.className='auto-dose-badge '+(result.actionable?'programmed':result.raw===null?'low':'blocked');
+      badge.textContent=result.actionable?'Programa calculado':result.raw===null?'Esperando datos':'Revisar modelo';
+    }
+
+    const txt=daily===null?'— ml/día':`${nf(daily,1)} ml/día`;
+    const khSplit=daily===null?'—':`≈ ${nf(daily/kd,2)} ml × ${kd} dosis`;
+    const otherSplit=daily===null?'—':`≈ ${nf(daily/od,2)} ml × ${od} dosis`;
+    const setText=(id,text)=>{const el=document.getElementById(id);if(el)el.textContent=text};
+
+    setText('khDoseCard',txt);setText('caDoseCard',txt);setText('traceDoseCard',txt);
+    setText('khDoseSplit',khSplit);setText('caDoseSplit',otherSplit);setText('traceDoseSplit',otherSplit);
+
+    const homeDose=document.getElementById('dailyDose');
+    if(homeDose)homeDose.textContent=daily===null?'—':nf(daily,1);
+
+    if(reefProgram)reefProgram.textContent=daily===null?'—':`${nf(daily,1)} ml/día × 3 canales`;
+    if(currentEl){
+      const cur=currentProgram();
+      currentEl.textContent=sameDose(cur.kh,cur.ca)&&sameDose(cur.ca,cur.trace)
+        ?`Programa modelado activo: ${nf(cur.kh,1)} ml/día en KH, Ca y Trace.`
+        :`Historial anterior no balanceado detectado. En cuanto exista un cálculo fiable, Reef Marine Control lo sustituirá automáticamente por un programa 1:1:1.`;
+    }
+
+    // Explain calculation / Ca control.
+    const khRec=document.getElementById('khRecommendedDose'),khMeta=document.getElementById('khRecommendedMeta');
+    if(khRec)khRec.textContent=result.raw===null?'—':`${nf(result.raw,2)} ml/día teóricos`;
+    if(khMeta)khMeta.textContent=result.kh?.value===null
+      ?'Necesita tendencia KH modelable'
+      :`${nf(result.kh.value,2)} dKH/día · ${result.kh.method||'modelo robusto'} · confianza ${result.kh.label} (${result.kh.score}/100) · ReefDose ${daily===null?'—':nf(daily,1)+' ml/día'}`;
+
+    const caState=document.getElementById('caControlState'),caMeta=document.getElementById('caRecommendedMeta');
+    if(caState||caMeta){
+      if(result.ca?.value===null){
+        if(caState)caState.textContent='Sin tendencia';
+        if(caMeta)caMeta.textContent='Ca necesita una ventana temporal mayor; nunca genera una dosis independiente.';
+      }else{
+        const drift=result.caDrift;
+        if(caState)caState.textContent=result.ca.score<MIN_ACTION_SCORE?'Datos débiles':Math.abs(drift||0)<=Number(result.caTolerance||Infinity)?'Compatible':'Revisar';
+        if(caMeta)caMeta.textContent=`Consumo Ca ${nf(result.ca.value,1)} ppm/día · confianza ${result.ca.label} (${result.ca.score}/100) · deriva prevista con 1:1:1: ${Number.isFinite(drift)?(drift>=0?'+':'')+nf(drift,1)+' ppm/día':'—'}.`;
+      }
+    }
+
+    // Data-driven correction, never editable.
+    const last=latestParam('kh');
+    const currentKh=document.getElementById('calcKhCurrent');
+    const goalKh=document.getElementById('calcKhGoal');
+    if(currentKh)currentKh.value=last?Number(last.kh).toFixed(1):'0';
+    if(goalKh)goalKh.value=Number(state.settings.khGoal||0).toFixed(1);
+    updateCorrection();
+
+    const correction=last&&Number(state.settings.volume)>0
+      ?Math.max(0,correctionMl(Number(last.kh),Number(state.settings.khGoal)))
+      :0;
+    const corrBtn=document.getElementById('registerCalculatedCorrection');
+    const corrNote=document.getElementById('correctionNote');
+    if(corrBtn){
+      corrBtn.disabled=!(correction>0);
+      corrBtn.dataset.ml=String(correction);
+      corrBtn.textContent=correction>0?`Registrar ${nf(correction,1)} ml de corrección`:'No hay corrección positiva';
+    }
+    if(corrNote){
+      const delta=last?Number(state.settings.khGoal)-Number(last.kh):0;
+      corrNote.textContent=delta>.5
+        ?`Corrección teórica total: ${nf(correction,1)} ml. La concentración de XEPTA permite calcularla, pero Reef Marine Control no asume que una corrección grande deba administrarse de una sola vez.`
+        :'La corrección se calcula desde la última medición y el objetivo configurado; los ml nunca son editables.';
+    }
+
+    renderPrediction(result);
+    return result;
+  }
+
+  function registerCorrection(){
+    const btn=document.getElementById('registerCalculatedCorrection');
+    const ml=Number(btn?.dataset.ml||0);
+    const last=latestParam('kh');
+    if(!(ml>0)||!last){toast('No hay una corrección calculada para registrar');return}
+
+    const ts=new Date().toISOString();
+    state.manualUses ||= [];
+    state.manualUses.push({ts,product:'kh',amountMl:ml,source:'calculated-correction'});
+    state.events ||= [];
+    state.events.push({
+      ts,type:'correction',product:'kh',amountMl:ml,
+      detail:`Corrección KH calculada · ${nf(ml,1)} ml KH Part`
+    });
+    persist();updateUI();toast(`Corrección registrada: ${nf(ml,1)} ml KH Part`);
+  }
+
+  // Settings: only physical aquarium model + number of ReefDose distributions.
+  const settingsBtn=document.getElementById('saveSettings');
+  if(settingsBtn){
+    settingsBtn.onclick=()=>{
+      const volume=parseNum(document.getElementById('netVolume').value);
+      const goal=parseNum(document.getElementById('goalKhSetting').value);
+      const kd=parseInt(document.getElementById('khDosesPerDay').value);
+      const od=parseInt(document.getElementById('otherDosesPerDay').value);
+      const M=getMath();
+
+      if(!(volume>0&&goal>=3&&goal<=15&&kd>=1&&kd<=24&&od>=1&&od<=24)){
+        toast('Revisa volumen, KH objetivo y repartos ReefDose 4 (1–24)');
+        return;
+      }
+
+      const oldVol=Number(state.settings.volume||0),ts=new Date().toISOString();
+      if(M&&Math.abs(oldVol-volume)>.0001){
+        state.volumeHistory ||= [];
+        state.volumeHistory.push({ts,volume:Number(volume),assumed:false,source:'settings'});
+        state.volumeHistory.sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+      }
+
+      state.settings={...state.settings,volume,khGoal:goal,khDoses:kd,otherDoses:od};
+      persist();updateUI();toast('Configuración ReefDose 4 guardada · modelo recalculado');
+    };
+  }
+
+  document.getElementById('registerCalculatedCorrection')?.addEventListener('click',registerCorrection);
+
+  // Event modal: dose and correction are never user-defined.
+  const eventType=document.getElementById('eventType');
+  if(eventType){
+    [...eventType.options].forEach(o=>{if(o.value==='dose'||o.value==='correction')o.remove()});
+  }
+
+  const previousUpdateUI=updateUI;
+  updateUI=function(){
+    previousUpdateUI();
+    renderAutoDose();
+  };
+
+  renderAutoDose();
+})();
+</script>
+
 </body>
 </html>

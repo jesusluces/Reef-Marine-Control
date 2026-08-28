@@ -1,11 +1,12 @@
-const CACHE_NAME = 'reef-marine-control-v1';
+const CACHE_NAME = 'reef-marine-control-v23';
 const APP_SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icon-180.png',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './icon-maskable-512.png'
 ];
 
 self.addEventListener('install', event => {
