@@ -1,0 +1,17 @@
+{
+  "name": "Reef Marine Control",
+  "short_name": "Reef Control",
+  "description": "Gestión inteligente de parámetros, dosificación e historial para acuarios marinos de arrecife.",
+  "lang": "es",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#eef9fc",
+  "theme_color": "#22a9b7",
+  "icons": [
+    {"src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}

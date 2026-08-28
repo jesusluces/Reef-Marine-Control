@@ -1,0 +1,3950 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#f8fbfc" />
+<title>Reef Marine Control · Gestión inteligente del arrecife</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Reef Marine Control">
+<meta name="mobile-web-app-capable" content="yes">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.cdnfonts.com/css/banana-cupcake" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#f8fbfc;
+  --paper:#ffffff;
+  --navy:#102b56;
+  --text:#18345e;
+  --muted:#6e7f98;
+  --teal:#22a9b7;
+  --teal-2:#69cad0;
+  --teal-soft:#eaf8f9;
+  --blue:#2584d8;
+  --green:#78a52e;
+  --green-soft:#f1f7e5;
+  --purple:#7458b5;
+  --purple-soft:#f3effa;
+  --orange:#ec8223;
+  --red:#d95563;
+  --line:#dbe6eb;
+  --shadow:0 7px 24px rgba(16,43,86,.09);
+  --radius:18px;
+  --scribble: 2px solid currentColor;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif}
+body{display:flex;justify-content:center}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{
+  width:100%;
+  max-width:480px;
+  min-height:100dvh;
+  background:
+    radial-gradient(circle at 8% 11%, rgba(34,169,183,.07) 0 2px, transparent 3px),
+    radial-gradient(circle at 90% 18%, rgba(37,132,216,.06) 0 2px, transparent 3px),
+    linear-gradient(#fff,#fbfdfe 68%,#f4fafb);
+  position:relative;
+  overflow-x:hidden;
+  padding-bottom:90px;
+}
+.topbar{
+  position:sticky;top:0;z-index:10;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px 10px;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(16,43,86,.06);
+}
+.brand{
+  display:flex;align-items:center;gap:10px;
+  font-weight:900;color:var(--navy);
+}
+.brand-fish{width:38px;height:38px;border:2px solid var(--navy);border-radius:55% 45% 50% 50%;position:relative;background:#bfeef0}
+.brand-fish:after{
+  content:"";position:absolute;left:-12px;top:10px;width:14px;height:14px;border:2px solid var(--navy);transform:rotate(45deg);background:#d7f7f8
+}
+.brand-fish:before{content:"";position:absolute;right:7px;top:10px;width:5px;height:5px;border-radius:50%;background:var(--navy)}
+.brand-name{font-size:22px;letter-spacing:.2px}
+.brand-name span{color:var(--teal)}
+.icon-btn{
+  width:40px;height:40px;border:0;background:transparent;color:var(--navy);font-size:24px;border-radius:50%;
+}
+main{padding:8px 14px 18px}
+.view{display:none;animation:fade .18s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:.3;transform:translateY(4px)}to{opacity:1;transform:none}}
+.hero{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin:6px 2px 14px;
+}
+.kicker{font-size:13px;color:var(--teal);font-weight:800;letter-spacing:.2px}
+h1,h2,h3,p{margin:0}
+h1{font-size:24px;line-height:1.08;color:var(--navy);font-weight:900}
+h2{font-size:18px;color:var(--navy);font-weight:900}
+h3{font-size:15px;color:var(--navy)}
+.status-pill{
+  white-space:nowrap;padding:8px 10px;border-radius:999px;background:var(--green-soft);color:var(--green);font-weight:900;font-size:12px;border:1.5px solid #bfd788
+}
+.card{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:14px;
+  margin-bottom:12px;
+  position:relative;
+}
+.card.scribble{
+  border:2px solid var(--teal);
+  border-radius:20px 16px 22px 17px / 18px 22px 16px 20px;
+}
+.card-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.card-title .title{font-weight:900;color:var(--teal);font-size:15px}
+.big-kh{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kh-main{display:flex;align-items:center;gap:10px}
+.badge{
+  min-width:54px;height:54px;border-radius:50%;display:grid;place-items:center;background:var(--teal);color:#fff;font-weight:1000;font-size:18px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.08)
+}
+.kh-number{font-size:44px;line-height:.9;font-weight:1000;color:var(--navy)}
+.kh-unit{font-size:13px;color:var(--navy);font-weight:900;margin-top:5px}
+.objective{border-left:1px solid var(--line);padding-left:12px}
+.objective .label{font-size:11px;color:var(--muted);font-weight:700}
+.objective .value{font-size:22px;font-weight:1000;color:var(--navy);margin-top:3px}
+.stable{color:var(--green);font-weight:900;font-size:14px;margin-top:8px}
+.metric-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;padding-top:12px;border-top:1px dashed #cfdde2}
+.metric{min-width:0}
+.metric + .metric{border-left:1px solid var(--line);padding-left:12px}
+.metric .label{font-size:11px;color:var(--muted);font-weight:800}
+.metric .value{font-size:17px;font-weight:1000;color:var(--navy);margin-top:3px}
+.updated{text-align:right;font-size:10px;color:var(--muted);margin-top:8px}
+.chart-card{padding-bottom:10px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:10px;color:var(--muted);margin:4px 0 8px}
+.legend span{display:flex;align-items:center;gap:4px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;background:var(--blue)}
+.drop{width:8px;height:11px;border:2px solid var(--teal);border-radius:50% 50% 50% 0;transform:rotate(-45deg)}
+.drop.green{border-color:var(--green)}
+.chart-wrap{width:100%;height:190px}
+canvas{width:100%;height:100%}
+.action-card{display:flex;align-items:center;gap:12px}
+.action-ico{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:var(--teal-soft);font-size:21px}
+.action-copy{flex:1}
+.action-copy strong{display:block;color:var(--navy);font-size:14px}
+.action-copy small{color:var(--muted);font-size:11px}
+.arrow{font-size:22px;color:var(--teal);font-weight:900}
+.quick-btn{
+  width:100%;border:0;border-radius:16px;padding:15px 16px;
+  background:linear-gradient(180deg,#2bb5c1,#159cac);
+  color:#fff;font-size:17px;font-weight:1000;box-shadow:0 6px 14px rgba(34,169,183,.22)
+}
+.quick-btn.secondary{background:#fff;color:var(--teal);border:2px solid var(--teal);box-shadow:none}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin:5px 2px 10px}
+.section-head .sub{font-size:11px;color:var(--muted)}
+.input-card{border:2px solid var(--teal);border-radius:20px;padding:14px;background:linear-gradient(#fff,#f7fcfd)}
+.value-input-wrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.value-input-label{font-weight:900;color:var(--teal);font-size:18px}
+.value-input{
+  width:145px;text-align:center;border:2px solid var(--teal);border-radius:14px;padding:9px 10px;
+  font-size:34px;font-weight:1000;color:var(--navy);outline:none;background:#fff;
+}
+.goal-scale{margin:10px 4px 2px}
+.goal-line{height:8px;border-top:2px dashed var(--teal-2);position:relative}
+.goal-line:after{content:"";position:absolute;left:44%;top:-7px;width:2px;height:12px;background:var(--teal)}
+.goal-labels{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);font-weight:700}
+.dt-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-size:10px;color:var(--muted);font-weight:800}
+.field input,.field select{
+  min-width:0;border:1.5px solid #c8d8df;border-radius:11px;padding:10px 9px;background:#fff;color:var(--navy);font-weight:800;outline:none
+}
+.full-measure{display:grid;gap:8px}
+.parameter-row{display:grid;grid-template-columns:86px 1fr;align-items:center;gap:10px}
+.parameter-row label{font-weight:900;color:var(--navy);font-size:13px}
+.parameter-row input{width:100%;border:1.5px solid #c8d8df;border-radius:10px;padding:9px 10px;text-align:right;color:var(--navy);font-weight:800}
+.dose-method{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.dose-method select{flex:1;border:1.5px solid #b9cbda;border-radius:12px;padding:11px;color:var(--navy);font-weight:900;background:#fff}
+.dose-card{
+  display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;
+  border:2px solid currentColor;border-radius:18px 15px 20px 16px;padding:12px;margin-bottom:10px;background:#fff
+}
+.dose-card.teal{color:var(--teal)}
+.dose-card.green{color:var(--green)}
+.dose-card.purple{color:var(--purple)}
+.bottle{
+  width:38px;height:58px;border:2px solid currentColor;border-radius:7px 7px 9px 9px;position:relative;background:currentColor;color:inherit;opacity:.82
+}
+.bottle:before{content:"";position:absolute;left:9px;right:9px;top:-9px;height:9px;border:2px solid currentColor;border-bottom:0;border-radius:3px 3px 0 0;background:#fff}
+.bottle:after{content:"";position:absolute;left:5px;right:5px;top:20px;height:18px;background:#fff;border-radius:5px;opacity:.9}
+.dose-info{color:var(--navy)}
+.dose-info .name{font-size:20px;font-weight:1000;line-height:1}
+.dose-info .amount{font-size:13px;font-weight:1000;margin-top:5px}
+.dose-info .note{font-size:10px;color:var(--teal);font-weight:800;margin-top:3px}
+.note-box{background:#f7fafb;border:1px solid var(--line);border-radius:14px;padding:11px;font-size:11px;color:var(--muted);line-height:1.35}
+.inventory-card{
+  display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:center;
+  border:1.5px solid currentColor;border-radius:17px;padding:11px;margin-bottom:9px;background:#fff
+}
+.inventory-card.teal{color:var(--teal)}
+.inventory-card.green{color:var(--green)}
+.inventory-card.purple{color:var(--purple)}
+.inv-main{color:var(--navy)}
+.inv-name{font-size:18px;font-weight:1000}
+.progress{height:7px;background:#e8edf0;border-radius:999px;margin:7px 0 5px;overflow:hidden}
+.progress > div{height:100%;background:currentColor;border-radius:999px}
+.inv-meta{font-size:11px;font-weight:800;color:var(--navy)}
+.tabs{display:flex;border:1px solid var(--line);border-radius:12px;padding:2px;background:#fff;overflow:hidden}
+.tab{flex:1;border:0;background:transparent;padding:8px 4px;color:var(--navy);font-weight:900;font-size:11px;border-radius:10px}
+.tab.active{background:var(--teal);color:#fff}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.info-card{padding:12px;border-radius:15px;background:var(--teal-soft);border:1px solid #ccecef}
+.info-card .label{font-size:10px;color:var(--muted);font-weight:800}
+.info-card .value{font-size:18px;color:var(--navy);font-weight:1000;margin-top:3px}
+.insight{
+  border-left:5px solid var(--green);background:#fbfdf8;padding:12px 13px;border-radius:12px;margin-bottom:10px;font-size:12px;line-height:1.45
+}
+.insight strong{color:var(--navy)}
+.event-list{display:grid;gap:8px}
+.event{
+  display:flex;gap:10px;align-items:center;padding:10px;border-radius:13px;border:1px solid var(--line);background:#fff
+}
+.event .when{font-size:10px;color:var(--muted)}
+.event .what{font-size:13px;font-weight:900;color:var(--navy)}
+.bottom-nav{
+  position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+  width:min(100%,480px);
+  display:grid;grid-template-columns:repeat(4,1fr);
+  padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+  background:rgba(255,255,255,.96);backdrop-filter:blur(15px);
+  border-top:1px solid #dfe7ec;z-index:20;
+}
+.nav-btn{
+  border:0;background:transparent;color:var(--navy);display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px;border-radius:12px;font-size:10px;font-weight:900
+}
+.nav-btn .ico{font-size:21px;line-height:1}
+.nav-btn.active{color:var(--teal);background:var(--teal-soft)}
+.fab{
+  position:fixed;right:max(18px,calc((100vw - 480px)/2 + 18px));bottom:88px;z-index:15;
+  width:54px;height:54px;border-radius:50%;border:0;background:var(--teal);color:#fff;font-size:28px;box-shadow:0 8px 18px rgba(34,169,183,.3)
+}
+.modal-backdrop{
+  display:none;position:fixed;inset:0;background:rgba(5,20,40,.35);z-index:40;align-items:flex-end;justify-content:center
+}
+.modal-backdrop.open{display:flex}
+.modal{
+  width:min(100%,480px);max-height:86dvh;overflow:auto;background:#fff;border-radius:24px 24px 0 0;padding:18px 16px 28px;
+  box-shadow:0 -12px 40px rgba(16,43,86,.22)
+}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.close-btn{width:36px;height:36px;border:0;border-radius:50%;background:#eff5f7;color:var(--navy);font-size:20px}
+.form-grid{display:grid;gap:10px}
+.modal .quick-btn{margin-top:12px}
+.small{font-size:10px;color:var(--muted)}
+.sep{height:1px;background:var(--line);margin:12px 0}
+.toast{
+  position:fixed;left:50%;bottom:96px;transform:translateX(-50%) translateY(20px);opacity:0;
+  background:var(--navy);color:#fff;padding:10px 14px;border-radius:999px;font-size:12px;font-weight:800;z-index:60;transition:.2s
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (min-width:700px){
+  body{padding:18px 0;background:#eef4f6}
+  .app{min-height:calc(100dvh - 36px);border-radius:28px;box-shadow:0 18px 55px rgba(16,43,86,.16);overflow:hidden}
+  .bottom-nav{bottom:18px;border-radius:0 0 28px 28px}
+}
+</style>
+
+<style id="aquabalance-kawaii-v2">
+/* =========================================================
+   AQUABALANCE · KAWAII OCEAN UI v2
+   Capa visual: conserva lógica y estructura de la app.
+   ========================================================= */
+:root{
+  --bg:#eefcff;
+  --paper:rgba(255,255,255,.90);
+  --navy:#173765;
+  --text:#23466f;
+  --muted:#7187a1;
+  --teal:#35c6ca;
+  --teal-deep:#169eaa;
+  --teal-2:#91e4df;
+  --teal-soft:#e8fbfb;
+  --blue:#66aaf1;
+  --green:#8fcf72;
+  --green-soft:#effbe9;
+  --purple:#a78ae4;
+  --purple-soft:#f5f0ff;
+  --orange:#ffb66f;
+  --red:#f47d8d;
+  --pink:#ff9fbe;
+  --pink-soft:#fff0f6;
+  --yellow:#ffd96e;
+  --sand:#fff5dd;
+  --line:rgba(65,126,157,.14);
+  --shadow:0 18px 38px rgba(53,115,145,.13), 0 4px 12px rgba(38,77,110,.06);
+  --shadow-hover:0 24px 50px rgba(53,115,145,.18), 0 8px 18px rgba(38,77,110,.08);
+  --radius:25px;
+}
+
+html{scroll-behavior:smooth}
+html,body{
+  background:
+    radial-gradient(circle at 13% 14%, rgba(145,228,223,.38), transparent 26%),
+    radial-gradient(circle at 88% 24%, rgba(255,159,190,.18), transparent 20%),
+    linear-gradient(180deg,#edfaff 0%,#f9feff 43%,#eaf9fb 100%);
+  color:var(--text);
+  font-family:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+}
+body{overflow-x:hidden}
+button,input,select{font-family:inherit}
+button{-webkit-tap-highlight-color:transparent}
+button:focus-visible,input:focus-visible,select:focus-visible{
+  outline:3px solid rgba(53,198,202,.26);
+  outline-offset:3px;
+}
+
+/* Ambient ocean world */
+.app{
+  max-width:490px;
+  background:
+    radial-gradient(circle at 14% 8%,rgba(255,255,255,.98) 0 4px,transparent 5px),
+    radial-gradient(circle at 82% 13%,rgba(255,255,255,.9) 0 3px,transparent 4px),
+    radial-gradient(circle at 18% 41%,rgba(53,198,202,.07) 0 2px,transparent 3px),
+    radial-gradient(circle at 77% 48%,rgba(167,138,228,.06) 0 2px,transparent 3px),
+    linear-gradient(180deg,#fafdff 0%,#f2fcfd 46%,#ecf9fb 100%);
+  padding-bottom:108px;
+  isolation:isolate;
+}
+.app:before,.app:after{
+  content:"";
+  position:fixed;
+  z-index:-2;
+  pointer-events:none;
+  filter:blur(.2px);
+}
+.app:before{
+  width:220px;height:220px;left:calc(50% - 245px);top:150px;
+  border-radius:52% 48% 62% 38% / 43% 54% 46% 57%;
+  background:linear-gradient(145deg,rgba(107,223,213,.13),rgba(102,170,241,.05));
+  animation:oceanBlob 11s ease-in-out infinite alternate;
+}
+.app:after{
+  width:190px;height:190px;right:calc(50% - 255px);top:460px;
+  border-radius:45% 55% 39% 61% / 58% 37% 63% 42%;
+  background:linear-gradient(145deg,rgba(255,159,190,.10),rgba(167,138,228,.06));
+  animation:oceanBlob 13s ease-in-out -4s infinite alternate-reverse;
+}
+.ocean-ambient{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:-1}
+.bubble{
+  position:absolute;border-radius:50%;
+  border:1.5px solid rgba(83,190,205,.22);
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.92) 0 10%,rgba(255,255,255,.22) 12% 35%,rgba(93,207,213,.07) 70%);
+  box-shadow:inset 0 0 9px rgba(255,255,255,.8);
+  animation:bubbleRise var(--dur,11s) ease-in-out infinite;
+  opacity:.75;
+}
+.bubble.b1{width:15px;height:15px;left:7%;top:23%;--dur:9s}
+.bubble.b2{width:25px;height:25px;right:7%;top:16%;--dur:12s;animation-delay:-3s}
+.bubble.b3{width:10px;height:10px;left:14%;top:64%;--dur:8s;animation-delay:-5s}
+.bubble.b4{width:19px;height:19px;right:12%;top:57%;--dur:10s;animation-delay:-7s}
+.bubble.b5{width:8px;height:8px;right:30%;top:33%;--dur:7s;animation-delay:-1s}
+.reef-corner{position:absolute;bottom:86px;opacity:.22;z-index:-1;filter:saturate(.85)}
+.reef-corner.left{left:-7px;transform:rotate(-5deg)}
+.reef-corner.right{right:-9px;transform:scaleX(-1) rotate(-7deg)}
+.reef-plant{width:58px;height:98px;position:relative}
+.reef-plant:before,.reef-plant:after{
+  content:"";position:absolute;bottom:0;border-radius:60% 40% 20% 20%;transform-origin:bottom center;
+}
+.reef-plant:before{left:7px;width:15px;height:88px;background:linear-gradient(#87d8bc,#5bbba3);transform:rotate(-14deg);animation:sway 4.5s ease-in-out infinite}
+.reef-plant:after{right:8px;width:18px;height:71px;background:linear-gradient(#b9e790,#7cc57c);transform:rotate(16deg);animation:sway 5.2s ease-in-out -1s infinite reverse}
+
+/* Top bar */
+.topbar{
+  top:0;
+  padding:13px 16px 12px;
+  background:rgba(250,254,255,.78);
+  border-bottom:1px solid rgba(79,155,172,.10);
+  backdrop-filter:blur(20px) saturate(1.35);
+  box-shadow:0 8px 30px rgba(73,128,150,.05);
+}
+.topbar:after{
+  content:"";position:absolute;left:16px;right:16px;bottom:-1px;height:2px;border-radius:99px;
+  background:linear-gradient(90deg,transparent,rgba(53,198,202,.25),rgba(255,159,190,.18),transparent);
+}
+.brand{gap:11px;transform-origin:center}
+.brand-fish{
+  width:42px;height:36px;border:2.4px solid #214873;border-radius:57% 43% 52% 48%;
+  background:linear-gradient(145deg,#c9f5f0,#77ddd6 76%);
+  box-shadow:inset 0 -5px 0 rgba(42,151,161,.08),0 7px 16px rgba(56,160,171,.17);
+  transform-origin:60% 50%;animation:fishHello 4.8s ease-in-out infinite;
+}
+.brand-fish:after{
+  left:-12px;top:8px;width:15px;height:15px;border:2.4px solid #214873;
+  border-radius:3px 9px 3px 9px;background:#a9eee8;
+}
+.brand-fish:before{right:8px;top:8px;width:5px;height:5px;background:#173765;box-shadow:2px 8px 0 -1px rgba(255,116,157,.5)}
+.brand-name{
+  font-family:"Fredoka","Baloo 2",sans-serif;font-size:22px;font-weight:700;letter-spacing:.1px;color:var(--navy);
+  display:flex;align-items:center;
+}
+.brand-name .letter{display:inline-block;transform-origin:50% 90%;animation:brandWave 3.2s ease-in-out infinite;animation-delay:calc(var(--i)*.055s)}
+.brand-name .letter:nth-child(-n+4){color:var(--teal-deep)}
+.icon-btn{
+  width:41px;height:41px;border:1px solid rgba(65,126,157,.10);
+  background:rgba(255,255,255,.66);color:var(--navy);font-size:22px;
+  box-shadow:0 5px 14px rgba(70,121,145,.08),inset 0 1px 0 #fff;
+  transition:transform .18s ease,box-shadow .18s ease,background .18s ease;
+}
+.icon-btn:hover{transform:translateY(-2px) rotate(-3deg);box-shadow:0 9px 18px rgba(70,121,145,.13);background:#fff}
+.icon-btn:active{transform:translateY(1px) scale(.94)}
+
+main{padding:13px 14px 24px}
+.view{animation:viewEnter .42s cubic-bezier(.2,.8,.2,1)}
+
+/* Headings */
+.hero{margin:8px 3px 17px;align-items:center}
+.hero>div:first-child,.section-head>div:first-child{position:relative}
+.kicker{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 9px;border-radius:999px;
+  background:rgba(232,251,251,.74);border:1px solid rgba(53,198,202,.14);
+  color:var(--teal-deep);font-size:11px;font-weight:800;letter-spacing:.35px;
+  box-shadow:inset 0 1px 0 #fff;
+}
+.kicker:before{content:"✦";font-size:9px;color:var(--yellow);filter:drop-shadow(0 1px 0 rgba(0,0,0,.08));animation:twinkle 2.4s ease-in-out infinite}
+h1,h2,h3{font-family:"Fredoka","Baloo 2",sans-serif}
+h1{font-size:27px;line-height:1.05;margin-top:6px;letter-spacing:-.4px;text-shadow:0 2px 0 rgba(255,255,255,.85)}
+h1 .letter{display:inline-block;animation:letterPop .55s cubic-bezier(.2,.9,.25,1.2) both;animation-delay:calc(var(--i)*.032s);transform-origin:50% 90%}
+h2{font-size:20px}
+.section-head{margin:8px 2px 12px}
+.section-head>span{filter:drop-shadow(0 6px 8px rgba(54,101,135,.13));animation:iconFloat 3.8s ease-in-out infinite}
+.status-pill{
+  position:relative;overflow:hidden;padding:8px 12px;border:0;
+  background:linear-gradient(180deg,#f1ffe9,#e9f9df)!important;
+  color:#68a954!important;
+  box-shadow:0 7px 16px rgba(113,170,86,.11),inset 0 1px 0 #fff;
+}
+.status-pill:after{content:"";position:absolute;inset:-20% auto -20% -35%;width:24%;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);animation:shine 5.5s ease-in-out infinite}
+
+/* Cards become soft floating objects */
+.card{
+  border:1px solid rgba(96,156,180,.13);
+  border-radius:26px 23px 28px 22px / 23px 27px 22px 29px;
+  background:
+    linear-gradient(160deg,rgba(255,255,255,.97),rgba(253,255,255,.88)),
+    var(--paper);
+  box-shadow:var(--shadow);
+  padding:15px;
+  margin-bottom:14px;
+  transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s ease,border-color .22s ease;
+  overflow:hidden;
+}
+.card:before{
+  content:"";position:absolute;width:120px;height:120px;right:-62px;top:-70px;border-radius:50%;
+  background:radial-gradient(circle,rgba(118,220,218,.13),rgba(118,220,218,0) 68%);pointer-events:none;
+}
+.card:hover{transform:translateY(-2px);box-shadow:var(--shadow-hover);border-color:rgba(53,198,202,.20)}
+.card.scribble{
+  border:0;
+  border-radius:30px 25px 32px 24px / 25px 33px 24px 32px;
+  background:
+    radial-gradient(circle at 84% 14%,rgba(255,255,255,.9) 0 4px,transparent 5px),
+    linear-gradient(145deg,#e7fbfb 0%,#f7ffff 55%,#eef7ff 100%);
+  box-shadow:0 20px 42px rgba(39,146,160,.15),0 4px 12px rgba(25,75,100,.06),inset 0 0 0 1.5px rgba(53,198,202,.25),inset 0 1px 0 #fff;
+  padding:18px 16px 14px;
+}
+.card.scribble:after{
+  content:"";position:absolute;left:-35px;bottom:-47px;width:125px;height:91px;border-radius:50%;
+  background:radial-gradient(circle at 50% 0,rgba(255,159,190,.13),transparent 68%);transform:rotate(18deg)
+}
+.card-title{margin-bottom:11px}
+.card-title .title{font-family:"Fredoka","Baloo 2";font-size:15px;color:var(--teal-deep);letter-spacing:.05px}
+.card-title .title:before{content:"✦ ";color:var(--yellow);font-size:11px}
+
+/* KH hero */
+.big-kh{gap:14px}
+.kh-main{gap:11px}
+.badge{
+  min-width:59px;height:59px;
+  background:linear-gradient(145deg,#65ddd6,#25b6bf);
+  color:#fff;border:3px solid rgba(255,255,255,.88);
+  box-shadow:0 9px 20px rgba(45,171,182,.21),inset 0 -5px 0 rgba(19,126,137,.10),inset 0 2px 0 rgba(255,255,255,.35);
+  text-shadow:0 2px 0 rgba(20,105,120,.13);
+  animation:badgeBreath 3.8s ease-in-out infinite;
+}
+.kh-number{
+  font-family:"Fredoka","Baloo 2";font-size:48px;letter-spacing:-2px;
+  text-shadow:0 3px 0 rgba(255,255,255,.85),0 7px 16px rgba(38,86,118,.08)
+}
+.kh-unit{margin-top:4px;color:#4e7291}
+.objective{border-left:2px dotted rgba(67,157,173,.19);padding-left:14px}
+.objective .label,.metric .label{letter-spacing:.2px}
+.objective .value{font-family:"Fredoka";font-size:23px}
+.stable{display:inline-flex;align-items:center;background:rgba(239,251,233,.78);border-radius:999px;padding:3px 7px;margin-top:7px}
+.metric-row{border-top:2px dashed rgba(78,154,173,.13)}
+.metric + .metric{border-left:1px dashed rgba(78,154,173,.18)}
+.metric .value{font-family:"Fredoka"}
+.updated{opacity:.85}
+
+/* Charts */
+.chart-card{background:linear-gradient(180deg,#fff,#fbfeff)}
+.chart-wrap{
+  height:196px;border-radius:19px;padding:4px 3px 0;
+  background:
+    radial-gradient(circle at 15% 15%,rgba(145,228,223,.17),transparent 25%),
+    linear-gradient(180deg,rgba(240,252,253,.75),rgba(255,255,255,.2));
+  border:1px solid rgba(79,157,179,.08);
+}
+.legend{font-family:"Baloo 2";font-weight:700}
+.dot{box-shadow:0 0 0 3px rgba(102,170,241,.12)}
+
+/* Action card */
+.action-card{background:linear-gradient(135deg,#fffdfb,#f8ffff);cursor:pointer}
+.action-card:hover .arrow{transform:translateX(4px)}
+.action-ico{
+  width:47px;height:47px;background:linear-gradient(145deg,#e7fbfb,#dff6ff);
+  border:1px solid rgba(53,198,202,.14);
+  box-shadow:0 8px 16px rgba(68,151,170,.10),inset 0 1px 0 #fff;
+  animation:iconFloat 4.4s ease-in-out infinite;
+}
+.action-copy strong{font-family:"Fredoka";font-size:15px}
+.arrow{transition:transform .18s ease;color:var(--teal-deep)}
+
+/* Buttons */
+.quick-btn{
+  position:relative;isolation:isolate;overflow:hidden;
+  border-radius:19px;padding:15px 17px;
+  background:linear-gradient(180deg,#55d6d4 0%,#22b5bd 100%);
+  border:1px solid rgba(20,136,147,.12);
+  color:#fff;font-family:"Fredoka","Baloo 2";font-size:16px;font-weight:700;
+  box-shadow:0 10px 0 #15959f,0 16px 24px rgba(39,165,175,.20),inset 0 2px 0 rgba(255,255,255,.35);
+  text-shadow:0 2px 0 rgba(17,102,112,.14);
+  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease;
+}
+.quick-btn:before{content:"";position:absolute;z-index:-1;inset:-30% auto -30% -35%;width:25%;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);animation:buttonShine 5.7s ease-in-out infinite}
+.quick-btn:hover{transform:translateY(-2px);filter:saturate(1.05);box-shadow:0 12px 0 #15959f,0 19px 27px rgba(39,165,175,.23),inset 0 2px 0 rgba(255,255,255,.35)}
+.quick-btn:active{transform:translateY(7px) scale(.99);box-shadow:0 3px 0 #15959f,0 8px 14px rgba(39,165,175,.16),inset 0 2px 0 rgba(255,255,255,.35)}
+.quick-btn.secondary{
+  background:linear-gradient(180deg,#fff,#f7ffff);color:var(--teal-deep);
+  border:1.5px solid rgba(53,198,202,.42);
+  box-shadow:0 7px 0 rgba(53,198,202,.12),0 12px 20px rgba(65,150,165,.08),inset 0 1px 0 #fff;
+  text-shadow:none;
+}
+.quick-btn.secondary:active{box-shadow:0 2px 0 rgba(53,198,202,.12),0 6px 12px rgba(65,150,165,.08)}
+
+/* Inputs */
+.input-card{
+  position:relative;border:0;border-radius:29px 24px 31px 23px;
+  padding:17px;
+  background:linear-gradient(145deg,#ecfdfb,#f9ffff 58%,#f2f5ff);
+  box-shadow:0 18px 38px rgba(54,145,158,.13),inset 0 0 0 1.5px rgba(53,198,202,.22),inset 0 1px 0 #fff;
+  overflow:hidden;
+}
+.input-card:after{content:"🫧";position:absolute;right:12px;bottom:7px;font-size:28px;opacity:.23;animation:iconFloat 4s ease-in-out infinite}
+.value-input-label{font-family:"Fredoka";color:var(--teal-deep)}
+.value-input{
+  border:2px solid rgba(53,198,202,.42);border-radius:17px;
+  font-family:"Fredoka";font-size:35px;
+  background:rgba(255,255,255,.92);
+  box-shadow:inset 0 2px 8px rgba(68,130,154,.06),0 8px 18px rgba(68,148,164,.08);
+  transition:border-color .18s ease,transform .18s ease,box-shadow .18s ease;
+}
+.value-input:focus{border-color:var(--teal);transform:translateY(-1px);box-shadow:0 10px 22px rgba(53,198,202,.15),inset 0 2px 8px rgba(68,130,154,.04)}
+.goal-line{border-top:2px dashed rgba(53,198,202,.55)}
+.goal-line:after{width:3px;background:var(--pink);border-radius:9px;box-shadow:0 0 0 4px rgba(255,159,190,.13)}
+.field input,.field select,.parameter-row input,.dose-method select{
+  border:1.5px solid rgba(89,148,174,.19);border-radius:14px;
+  background:rgba(255,255,255,.91);box-shadow:inset 0 2px 7px rgba(59,102,128,.035);
+  transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+.field input:focus,.field select:focus,.parameter-row input:focus,.dose-method select:focus{
+  border-color:rgba(53,198,202,.65);box-shadow:0 0 0 4px rgba(53,198,202,.09),inset 0 1px 0 #fff;transform:translateY(-1px)
+}
+.field label{font-size:11px;color:#7189a0}
+.parameter-row{padding:5px 0}
+.parameter-row label{font-size:13px}
+
+/* Dosing cards */
+.dose-card{
+  position:relative;overflow:hidden;
+  grid-template-columns:54px 1fr auto;gap:11px;
+  border:0;border-radius:27px 22px 28px 22px / 23px 29px 22px 30px;
+  padding:14px 13px;margin-bottom:13px;
+  box-shadow:var(--shadow);background:#fff;
+  transition:transform .2s ease,box-shadow .2s ease;
+}
+.dose-card:hover{transform:translateY(-3px) rotate(-.25deg);box-shadow:var(--shadow-hover)}
+.dose-card:before{content:"";position:absolute;inset:0;opacity:.14;pointer-events:none}
+.dose-card.teal:before{background:linear-gradient(110deg,#76ddd8,transparent 55%)}
+.dose-card.green:before{background:linear-gradient(110deg,#b8e58f,transparent 55%)}
+.dose-card.purple:before{background:linear-gradient(110deg,#c8b2ef,transparent 55%)}
+.bottle{
+  width:42px;height:61px;border:2px solid currentColor;border-radius:9px 9px 11px 11px;
+  opacity:1;background:linear-gradient(180deg,currentColor,color-mix(in srgb,currentColor 70%,#fff 30%));
+  box-shadow:0 8px 13px color-mix(in srgb,currentColor 16%,transparent);
+  animation:bottleFloat 4.6s ease-in-out infinite;
+}
+.bottle:after{left:5px;right:5px;top:22px;height:18px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.03)}
+.dose-info .name,.inv-name{font-family:"Fredoka";letter-spacing:-.2px}
+.dose-info .note{display:inline-flex;padding:2px 7px;border-radius:999px;background:rgba(232,251,251,.9);font-size:9px}
+.note-box{
+  border:1px dashed rgba(87,153,175,.20);border-radius:18px;
+  background:linear-gradient(135deg,#fbfeff,#f4fbfc);
+  box-shadow:inset 0 1px 0 #fff;
+}
+.info-card{border-radius:18px;border:1px solid rgba(53,198,202,.12);background:linear-gradient(145deg,#eafafa,#f6ffff)}
+.info-card .value{font-family:"Fredoka"}
+
+/* Inventory */
+.inventory-card{
+  border:0;border-radius:22px 19px 23px 18px;padding:12px;
+  background:linear-gradient(145deg,#fff,#fbfeff);
+  box-shadow:0 9px 21px rgba(57,110,138,.08),inset 0 0 0 1px rgba(84,145,168,.10);
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+.inventory-card:hover{transform:translateX(2px);box-shadow:0 12px 26px rgba(57,110,138,.12)}
+.progress{height:9px;background:#edf3f5;border:2px solid #fff;box-shadow:inset 0 2px 5px rgba(47,93,118,.07),0 0 0 1px rgba(79,142,164,.08)}
+.progress>div{position:relative;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+.progress>div:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.46),transparent);transform:translateX(-100%);animation:progressGlow 4.8s ease-in-out infinite}
+
+/* Tabs */
+.tabs{border:0;border-radius:16px;padding:4px;background:#f0f8fa;box-shadow:inset 0 2px 8px rgba(57,108,132,.05)}
+.tab{padding:9px 5px;border-radius:13px;transition:.18s ease}
+.tab.active{background:linear-gradient(180deg,#5fd9d5,#27b8c0);box-shadow:0 6px 14px rgba(46,171,181,.18),inset 0 1px 0 rgba(255,255,255,.3)}
+.tab:not(.active):hover{background:rgba(255,255,255,.75)}
+
+/* Insights & events */
+.insight{
+  border:0;border-radius:17px;padding:12px 13px 12px 15px;
+  background:linear-gradient(135deg,#f7fff2,#fcfffa);
+  box-shadow:inset 4px 0 0 var(--green),0 7px 16px rgba(76,126,78,.05);
+}
+.event{border:0;border-radius:17px;padding:10px;background:linear-gradient(145deg,#fff,#fbfeff);box-shadow:0 7px 17px rgba(56,107,134,.07),inset 0 0 0 1px rgba(88,150,173,.09)}
+.event .what{font-family:"Fredoka";font-size:13px}
+
+/* Floating action button */
+.fab{
+  width:59px;height:59px;right:max(18px,calc((100vw - 490px)/2 + 18px));bottom:102px;
+  border:3px solid rgba(255,255,255,.9);
+  background:linear-gradient(145deg,#5adbd6,#21b1bb);
+  box-shadow:0 10px 0 #15949e,0 18px 30px rgba(41,160,171,.26),inset 0 2px 0 rgba(255,255,255,.4);
+  transition:transform .18s ease,box-shadow .18s ease;
+  animation:fabBreath 4s ease-in-out infinite;
+}
+.fab:hover{transform:translateY(-3px) rotate(4deg)}
+.fab:active{transform:translateY(7px);box-shadow:0 3px 0 #15949e,0 9px 16px rgba(41,160,171,.20)}
+
+/* Bottom nav = soft floating dock */
+.bottom-nav{
+  bottom:10px;width:min(calc(100% - 16px),474px);
+  grid-template-columns:repeat(4,1fr);
+  margin:0 auto;padding:7px 7px calc(7px + env(safe-area-inset-bottom));
+  border:1px solid rgba(77,144,168,.12);border-radius:24px;
+  background:rgba(255,255,255,.86);backdrop-filter:blur(22px) saturate(1.4);
+  box-shadow:0 17px 35px rgba(42,94,122,.14),inset 0 1px 0 rgba(255,255,255,.92);
+}
+.nav-btn{position:relative;gap:1px;padding:7px 3px;border-radius:17px;color:#56718d;transition:transform .18s ease,color .18s ease,background .18s ease}
+.nav-btn .ico{font-size:22px;transition:transform .22s cubic-bezier(.2,.8,.2,1)}
+.nav-btn.active{background:linear-gradient(180deg,#e9fbfb,#effcff);color:var(--teal-deep);box-shadow:inset 0 0 0 1px rgba(53,198,202,.10),0 5px 11px rgba(47,153,167,.07)}
+.nav-btn.active .ico{transform:translateY(-2px) scale(1.08);filter:drop-shadow(0 4px 5px rgba(39,157,169,.18))}
+.nav-btn.active:after{content:"";position:absolute;bottom:2px;width:16px;height:3px;border-radius:99px;background:var(--teal)}
+.nav-btn:hover .ico{transform:translateY(-2px) rotate(-4deg)}
+
+/* Modal */
+.modal-backdrop{background:rgba(18,58,82,.25);backdrop-filter:blur(8px)}
+.modal{
+  border-radius:31px 31px 0 0;padding:20px 16px 32px;
+  background:linear-gradient(180deg,#ffffff,#f7fdfe);
+  box-shadow:0 -22px 55px rgba(27,72,100,.20);
+  animation:modalPop .32s cubic-bezier(.2,.85,.2,1);
+}
+.modal:before{content:"";display:block;width:42px;height:5px;background:#dbe9ed;border-radius:99px;margin:-8px auto 14px}
+.close-btn{background:#f0f7f8;box-shadow:inset 0 0 0 1px rgba(76,136,158,.08)}
+
+/* Toast */
+.toast{
+  bottom:118px;padding:10px 15px;border-radius:16px;
+  background:linear-gradient(145deg,#21466f,#17375f);
+  box-shadow:0 14px 30px rgba(26,63,91,.23),inset 0 1px 0 rgba(255,255,255,.12);
+}
+.toast.show{animation:toastBounce .32s cubic-bezier(.2,.8,.2,1)}
+
+/* Tiny decorative faces */
+.card.scribble .badge:after{content:"• ᴗ •";position:absolute;font-size:7px;bottom:7px;letter-spacing:1px;opacity:.7}
+.badge{position:relative}
+.dose-card .bottle:before{box-shadow:0 -2px 0 rgba(255,255,255,.5)}
+
+/* Animations */
+@keyframes oceanBlob{from{transform:translate3d(-8px,-4px,0) rotate(-4deg) scale(.98)}to{transform:translate3d(10px,15px,0) rotate(5deg) scale(1.06)}}
+@keyframes bubbleRise{0%,100%{transform:translateY(16px) translateX(0) scale(.92);opacity:.28}50%{transform:translateY(-34px) translateX(7px) scale(1.05);opacity:.78}}
+@keyframes sway{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(4deg)}}
+@keyframes fishHello{0%,100%{transform:translateY(0) rotate(0)}10%{transform:translateY(-2px) rotate(-4deg)}18%{transform:translateY(1px) rotate(3deg)}28%,80%{transform:translateY(0) rotate(0)}}
+@keyframes brandWave{0%,78%,100%{transform:translateY(0) rotate(0)}84%{transform:translateY(-3px) rotate(-2deg)}90%{transform:translateY(1px) rotate(1deg)}}
+@keyframes letterPop{0%{opacity:0;transform:translateY(9px) scale(.8) rotate(-4deg)}70%{opacity:1;transform:translateY(-2px) scale(1.04) rotate(1deg)}100%{opacity:1;transform:none}}
+@keyframes twinkle{0%,100%{transform:scale(.78) rotate(0);opacity:.55}50%{transform:scale(1.2) rotate(24deg);opacity:1}}
+@keyframes shine{0%,55%{left:-35%;opacity:0}68%{opacity:1}83%,100%{left:125%;opacity:0}}
+@keyframes badgeBreath{0%,100%{transform:scale(1) rotate(-1deg)}50%{transform:scale(1.035) rotate(1deg)}}
+@keyframes iconFloat{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-4px) rotate(2deg)}}
+@keyframes buttonShine{0%,60%{left:-35%;opacity:0}72%{opacity:.8}86%,100%{left:125%;opacity:0}}
+@keyframes bottleFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-3px) rotate(1.5deg)}}
+@keyframes progressGlow{0%,58%{transform:translateX(-100%)}78%,100%{transform:translateX(120%)}}
+@keyframes fabBreath{0%,100%{filter:saturate(1)}50%{filter:saturate(1.12) brightness(1.03)}}
+@keyframes modalPop{from{transform:translateY(24px);opacity:.5}to{transform:none;opacity:1}}
+@keyframes toastBounce{0%{transform:translateX(-50%) translateY(14px) scale(.94)}100%{transform:translateX(-50%) translateY(0) scale(1)}}
+@keyframes viewEnter{from{opacity:0;transform:translateY(8px) scale(.992)}to{opacity:1;transform:none}}
+
+/* Desktop frame */
+@media (min-width:700px){
+  body{padding:22px 0;background:radial-gradient(circle at 25% 15%,#e7faf8,transparent 29%),radial-gradient(circle at 78% 70%,#eef0ff,transparent 28%),#edf7f9}
+  .app{min-height:calc(100dvh - 44px);border-radius:34px;box-shadow:0 28px 80px rgba(30,85,112,.18),0 0 0 1px rgba(255,255,255,.75);overflow:hidden}
+  .bottom-nav{bottom:31px;border-radius:24px}
+  .fab{bottom:121px}
+}
+
+/* Keep it pleasant, not nauseating */
+@media (prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}
+}
+</style>
+
+
+<style id="aquabalance-kawaii-v3">
+/* =========================================================
+   AQUABALANCE · KAWAII OCEAN UI v3
+   Más ambientación marina + wordmark potente + stock visual
+   ========================================================= */
+.brand-fish{display:none !important}
+.brand{gap:0!important;justify-content:center;min-height:52px}
+.brand-name{
+  font-family:"Baloo 2","Fredoka",cursive !important;
+  font-size:32px !important;
+  font-weight:800 !important;
+  line-height:1 !important;
+  letter-spacing:.2px !important;
+  color:transparent !important;
+  background:linear-gradient(180deg,#10305c 0%,#1b4e8e 34%,#27aebb 70%,#7ce1da 100%);
+  -webkit-background-clip:text;background-clip:text;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.96),
+    0 3px 0 rgba(23,74,117,.08),
+    0 11px 18px rgba(41,140,167,.20);
+  filter:drop-shadow(0 6px 10px rgba(30,114,148,.16));
+}
+.brand-name .letter{padding-inline:.25px}
+.topbar{
+  background:linear-gradient(180deg,rgba(255,255,255,.94),rgba(246,253,255,.90)) !important;
+}
+.topbar:after{
+  content:"";position:absolute;left:14px;right:14px;bottom:0;height:10px;
+  background:linear-gradient(90deg,transparent,rgba(96,212,220,.16),transparent);
+  filter:blur(6px);pointer-events:none;
+}
+.ocean-ambient{overflow:hidden;pointer-events:none}
+.ocean-ambient:after{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 12% 28%, rgba(255,255,255,.65) 0 1.3px, transparent 2px),
+    radial-gradient(circle at 18% 32%, rgba(255,255,255,.45) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 81% 22%, rgba(255,255,255,.6) 0 1.2px, transparent 1.8px),
+    radial-gradient(circle at 87% 18%, rgba(255,255,255,.4) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 9% 62%, rgba(255,255,255,.45) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 92% 58%, rgba(255,255,255,.42) 0 1px, transparent 1.7px);
+  opacity:.8;z-index:0;
+}
+.bubble.tiny{
+  width:9px;height:9px;border-color:rgba(105,202,208,.44);opacity:.58;
+}
+.bubble.micro{
+  width:6px;height:6px;border-color:rgba(122,215,224,.36);opacity:.5;
+}
+.coral-border{
+  position:absolute;bottom:88px;z-index:0;display:flex;flex-direction:column-reverse;gap:8px;
+  width:46px;pointer-events:none;opacity:.95;
+}
+.coral-left{left:-2px;align-items:flex-start}
+.coral-right{right:-2px;align-items:flex-end}
+.mini-coral{
+  --stem:#84d59e;--head:#ff8aa0;--head-2:#ffb0c1;--base-coral:rotate(0deg);
+  position:relative;display:block;width:22px;height:46px;
+  transform-origin:bottom center;animation:coralWiggle var(--cw,5.6s) ease-in-out infinite;
+}
+.mini-coral:before{
+  content:"";position:absolute;left:8px;bottom:0;width:6px;height:100%;
+  background:linear-gradient(180deg,#d8f8ef,#8ad7a0 36%,#55be83 100%);
+  border-radius:999px;box-shadow:0 0 0 1px rgba(255,255,255,.28) inset;
+}
+.mini-coral:after{
+  content:"";position:absolute;left:0;top:3px;width:18px;height:18px;border-radius:58% 42% 66% 34%;
+  background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.8), transparent 38%), var(--head);
+  box-shadow:
+    7px 9px 0 -5px var(--head-2),
+    -4px 13px 0 -4px var(--head),
+    5px 20px 0 -6px var(--head-2),
+    0 4px 10px rgba(255,130,155,.18);
+}
+.mini-coral.c1{--head:#ff8ea6;--head-2:#ffc0cf;--base-coral:rotate(-7deg);transform:var(--base-coral);--cw:5.1s}
+.mini-coral.c2{--head:#8bde88;--head-2:#c7f1ae;--base-coral:rotate(5deg);transform:var(--base-coral);--cw:6.1s}
+.mini-coral.c3{--head:#a990ff;--head-2:#d0c0ff;--base-coral:rotate(-4deg);transform:var(--base-coral);--cw:5.8s}
+.mini-coral.c4{--head:#ffa969;--head-2:#ffd0b1;--base-coral:rotate(7deg);transform:var(--base-coral);--cw:6.4s}
+.mini-coral.short{height:34px;width:18px}
+.ambient-fish{
+  --base-fish:scale(1) rotate(0deg);
+  position:absolute;z-index:0;pointer-events:none;opacity:.95;
+  filter:drop-shadow(0 10px 12px rgba(23,102,126,.16));
+  animation:fishFloat var(--fd,16s) ease-in-out infinite;
+}
+.ambient-fish.clownfish{
+  width:60px;height:31px;border-radius:55% 45% 48% 52% / 60% 54% 46% 40%;
+  background:
+    radial-gradient(circle at 73% 42%, #183b61 0 2px, transparent 2.8px),
+    linear-gradient(90deg,
+      transparent 0 7%, #15263a 7% 10%, #fff 10% 24%, #15263a 24% 27%,
+      transparent 27% 40%, #15263a 40% 43%, #fff 43% 58%, #15263a 58% 61%,
+      transparent 61% 74%, #15263a 74% 77%, #fff 77% 91%, #15263a 91% 94%, transparent 94% 100%),
+    linear-gradient(180deg,#ffbe68,#ff8c52 52%,#ff7b6a 100%);
+}
+.ambient-fish.clownfish:before{
+  content:"";position:absolute;left:-11px;top:7px;width:15px;height:15px;
+  background:linear-gradient(180deg,#ff935b,#ffb76a);
+  clip-path:polygon(0 50%,100% 0,100% 100%);
+  border-radius:2px;
+}
+.ambient-fish.clownfish:after{
+  content:"";position:absolute;right:14px;top:-5px;width:18px;height:10px;
+  background:linear-gradient(180deg,#fff,#ffd8d0);
+  border-radius:55% 45% 0 0;transform:rotate(-8deg);
+  box-shadow:-12px 16px 0 -3px rgba(255,255,255,.95);
+}
+.ambient-fish.chelmon{
+  width:84px;height:40px;border-radius:58% 42% 60% 40% / 62% 46% 54% 38%;
+  background:
+    radial-gradient(circle at 71% 42%, #17385d 0 2px, transparent 2.8px),
+    repeating-linear-gradient(90deg,#ffd457 0 9px,#f59f3a 9px 12px);
+}
+.ambient-fish.chelmon:before{
+  content:"";position:absolute;right:-18px;top:13px;width:24px;height:6px;
+  background:linear-gradient(90deg,#f8c84f,#f09a38);border-radius:999px;transform:rotate(-9deg);
+}
+.ambient-fish.chelmon:after{
+  content:"";position:absolute;left:-13px;top:9px;width:16px;height:21px;
+  background:linear-gradient(180deg,#ffd967,#ffb94a);
+  clip-path:polygon(0 50%,100% 0,100% 100%);
+  border-radius:2px;
+}
+.ambient-fish.fish-a{top:112px;right:-8px;--base-fish:scale(.82) rotate(-4deg);transform:var(--base-fish);--fd:18s}
+.ambient-fish.fish-b{top:326px;left:-8px;--base-fish:scale(.76) rotateY(180deg) rotate(3deg);transform:var(--base-fish);--fd:15s;animation-delay:-5s}
+.ambient-fish.fish-c{top:520px;right:-10px;--base-fish:scale(.92) rotate(-2deg);transform:var(--base-fish);--fd:22s;animation-delay:-8s}
+@keyframes fishFloat{
+  0%,100%{transform:var(--base-fish) translateY(0) translateX(0)}
+  25%{transform:var(--base-fish) translateY(-10px) translateX(-3px)}
+  50%{transform:var(--base-fish) translateY(7px) translateX(6px)}
+  75%{transform:var(--base-fish) translateY(-6px) translateX(1px)}
+}
+@keyframes coralWiggle{0%,100%{transform:var(--base-coral) rotate(-1deg)}50%{transform:var(--base-coral) rotate(5deg)}}
+
+.dose-info{display:flex;flex-direction:column;gap:4px}
+.dose-volume{
+  margin-top:7px;padding-top:8px;border-top:1px dashed rgba(16,43,86,.12);
+}
+.dose-liquid-label{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  font-size:10px;font-weight:800;color:var(--muted);margin-bottom:6px;
+}
+.dose-liquid-bar{
+  height:11px;border-radius:999px;overflow:hidden;position:relative;
+  background:rgba(255,255,255,.75);border:1px solid rgba(71,121,148,.14);
+  box-shadow:inset 0 2px 4px rgba(16,43,86,.08);
+}
+.dose-liquid-bar > span{
+  display:block;height:100%;width:0;border-radius:999px;transition:width .45s ease, filter .3s ease;
+  box-shadow:inset 0 -2px 0 rgba(255,255,255,.28), 0 1px 6px rgba(16,43,86,.12);
+}
+.dose-card.teal .dose-liquid-bar > span{background:linear-gradient(90deg,#78e1db,#29b6c0)}
+.dose-card.green .dose-liquid-bar > span{background:linear-gradient(90deg,#c8eba3,#81bf4e)}
+.dose-card.purple .dose-liquid-bar > span{background:linear-gradient(90deg,#dbcaf8,#8f73d8)}
+.dose-liquid-meta{
+  display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;
+  margin-top:6px;font-size:11px;font-weight:900;color:var(--navy);
+}
+.dose-liquid-meta small{font-size:10px;color:var(--muted);font-weight:800}
+.stock-helper{
+  margin-top:10px;padding:10px 12px;border-radius:14px;
+  background:linear-gradient(180deg,#f7fdff,#edf7fb);border:1px solid rgba(50,166,183,.16);
+  color:var(--muted);font-size:10px;line-height:1.4;font-weight:700;
+}
+.stock-block-title{
+  margin:10px 0 8px;color:var(--teal);font-size:12px;font-weight:900;
+}
+@media (max-width:420px){
+  .brand-name{font-size:28px !important}
+  .ambient-fish.fish-c{top:560px;--base-fish:scale(.82) rotate(-2deg)}
+}
+</style>
+
+
+<style id="aquabalance-banana-cupcake-theme">
+/* Banana Cupcake integration */
+:root{
+  --display-font:"Banana Cupcake","Baloo 2","Fredoka",cursive;
+}
+.brand-name,
+.brand-name .letter{
+  font-family:var(--display-font) !important;
+  letter-spacing:.35px !important;
+}
+.brand-name{
+  font-size:35px !important;
+  line-height:.92 !important;
+  background:linear-gradient(180deg,#143766 0%,#2369a0 35%,#27afbb 70%,#90efe2 100%) !important;
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  color:transparent !important;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.98),
+    0 3px 0 rgba(19,66,106,.08),
+    0 10px 16px rgba(41,140,167,.18) !important;
+  filter:drop-shadow(0 6px 10px rgba(30,114,148,.14));
+}
+.brand-name .letter{
+  animation:brandWave 3.4s ease-in-out infinite;
+  animation-delay:calc(var(--i)*.05s);
+}
+.hero h1,
+.section-head h1,
+.modal-head h2,
+.card-title .title,
+.dose-info .name,
+.inv-name,
+.objective .value,
+.info-card .value,
+.action-copy strong{
+  font-family:var(--display-font) !important;
+  letter-spacing:.15px;
+}
+.hero h1,
+.section-head h1{
+  font-size:30px !important;
+  line-height:1 !important;
+  letter-spacing:.1px !important;
+  text-shadow:0 2px 0 rgba(255,255,255,.88), 0 8px 16px rgba(59,136,170,.10);
+}
+.card-title .title{
+  font-size:18px !important;
+}
+.dose-info .name,
+.inv-name{
+  font-size:24px !important;
+  line-height:.98;
+}
+.objective .value{font-size:24px !important}
+.info-card .value{font-size:21px !important}
+.action-copy strong{font-size:17px !important}
+.quick-btn,
+.quick-btn.secondary{
+  font-family:"Fredoka","Baloo 2",sans-serif !important;
+}
+.kicker,
+.status-pill,
+.metric .label,
+.metric .value small,
+.updated,
+.note-box,
+.small,
+.field label,
+.inv-meta,
+.dose-info .amount,
+.dose-info .note,
+.dose-liquid-label,
+.dose-liquid-meta,
+.nav-btn,
+.legend,
+.tab,
+.value-input,
+.value-input-label,
+.parameter-row label,
+.info-card .label,
+.event .what,
+.event .when{
+  font-family:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+}
+@media (max-width:420px){
+  .brand-name{font-size:31px !important}
+  .hero h1,.section-head h1{font-size:27px !important}
+  .card-title .title{font-size:17px !important}
+}
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand+SC&display=swap" rel="stylesheet">
+
+<style id="aquabalance-handlettered-bubbles">
+:root{
+  --display-font-hand:"Patrick Hand SC","Baloo 2","Fredoka",cursive;
+}
+/* tipografía similar a la referencia, integrada sin romper legibilidad */
+.brand-name,
+.brand-name .letter,
+.hero h1,
+.hero h1 .letter,
+.section-head h1,
+.section-head h1 .letter,
+.modal-head h2,
+.card-title .title,
+.dose-info .name,
+.inv-name,
+.objective .value,
+.action-copy strong,
+.info-card .value{
+  font-family:var(--display-font-hand) !important;
+  letter-spacing:.45px !important;
+}
+.brand-name{
+  font-size:34px !important;
+  line-height:.92 !important;
+  background:linear-gradient(180deg,#173763 0%,#26659e 38%,#2db9c0 70%,#8be8dd 100%) !important;
+  -webkit-background-clip:text !important;
+  background-clip:text !important;
+  color:transparent !important;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.98),
+    0 3px 0 rgba(21,63,103,.08),
+    0 10px 18px rgba(47,136,169,.16) !important;
+}
+.hero h1,.section-head h1{
+  font-size:31px !important;
+  line-height:1.02 !important;
+  color:#183a67 !important;
+}
+.modal-head h2{font-size:24px !important}
+.card-title .title{font-size:18px !important;color:var(--teal-deep) !important}
+.dose-info .name,.inv-name{font-size:24px !important;line-height:.98 !important}
+.objective .value{font-size:24px !important}
+.action-copy strong{font-size:17px !important}
+.info-card .value{font-size:21px !important}
+/* quitar peces del fondo */
+.ambient-fish{display:none !important}
+/* muchas más burbujas y en paleta dosificación */
+.bubble{
+  background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.9) 0 18%, transparent 24%), rgba(255,255,255,.08);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.35);
+}
+.bubble.tint-blue{
+  border-color:rgba(78,186,223,.40) !important;
+  box-shadow:0 0 14px rgba(78,186,223,.12), inset 0 0 0 1px rgba(255,255,255,.35);
+}
+.bubble.tint-green{
+  border-color:rgba(129,191,78,.38) !important;
+  box-shadow:0 0 14px rgba(129,191,78,.12), inset 0 0 0 1px rgba(255,255,255,.35);
+}
+.bubble.tint-purple{
+  border-color:rgba(143,115,216,.38) !important;
+  box-shadow:0 0 14px rgba(143,115,216,.12), inset 0 0 0 1px rgba(255,255,255,.35);
+}
+.bubble.tiny{opacity:.58}
+.bubble.micro{opacity:.5}
+.bubble.nano{width:5px;height:5px;opacity:.42}
+@media (max-width:420px){
+  .brand-name{font-size:30px !important}
+  .hero h1,.section-head h1{font-size:28px !important}
+  .card-title .title{font-size:17px !important}
+}
+</style>
+
+
+<style id="aquabalance-v5-unified-font-and-bubbles">
+:root{
+  --ui-hand-font:"Patrick Hand SC","Baloo 2","Fredoka","Trebuchet MS",system-ui,sans-serif;
+}
+/* misma tipografía en toda la app */
+html,body,button,input,select,textarea,
+h1,h2,h3,h4,h5,h6,p,span,div,small,strong,label,a,li,option{
+  font-family:var(--ui-hand-font) !important;
+}
+.brand-name,.brand-name .letter,
+.hero h1,.hero h1 .letter,
+.section-head h1,.section-head h1 .letter,
+.modal-head h2,
+.card-title .title,
+.dose-info .name,
+.inv-name,
+.objective .value,
+.action-copy strong,
+.info-card .value,
+.kh-number,
+.metric .value,
+.value-input,
+.nav-btn,
+.tab,
+.quick-btn,
+.status-pill,
+.note-box,
+.field label,
+.event .what,
+.event .when,
+.inv-meta,
+.dose-info .amount,
+.dose-info .note,
+.dose-liquid-label,
+.dose-liquid-meta{
+  font-family:var(--ui-hand-font) !important;
+}
+.brand-name{font-size:34px !important;line-height:.92 !important;letter-spacing:.42px !important}
+.hero h1,.section-head h1{font-size:31px !important;line-height:1.02 !important;letter-spacing:.28px !important}
+.card-title .title{font-size:18px !important;letter-spacing:.24px !important}
+.quick-btn,.quick-btn.secondary{font-size:17px !important;letter-spacing:.24px !important}
+.dose-info .name,.inv-name{font-size:24px !important}
+.kh-number{letter-spacing:-.5px !important}
+/* quitar cualquier pez */
+.ambient-fish{display:none !important}
+/* más burbujas del estilo original, sin colorines */
+.bubble,
+.bubble.tint-blue,
+.bubble.tint-green,
+.bubble.tint-purple,
+.bubble.nano,
+.bubble.micro,
+.bubble.tiny{
+  border-color:rgba(87,203,210,.36) !important;
+  background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.9) 0 18%, transparent 24%), rgba(255,255,255,.06) !important;
+  box-shadow:0 0 12px rgba(64,191,197,.08), inset 0 0 0 1px rgba(255,255,255,.3) !important;
+}
+.bubble.tiny{width:9px;height:9px;opacity:.56 !important}
+.bubble.micro{width:6px;height:6px;opacity:.48 !important}
+.bubble.nano{width:5px;height:5px;opacity:.42 !important}
+@media (max-width:420px){
+  .brand-name{font-size:30px !important}
+  .hero h1,.section-head h1{font-size:28px !important}
+}
+</style>
+
+
+<style id="aquabalance-v6-clean-bubbles">
+/* v6: sin FAB ni elementos laterales de color, solo burbujas en movimiento */
+.fab,
+.reef-corner,
+.coral-border,
+.mini-coral,
+.ambient-fish{
+  display:none !important;
+}
+/* refuerzo visual de burbujas acuáticas limpias */
+.bubble,
+.bubble.tiny,
+.bubble.micro,
+.bubble.nano,
+.bubble.b1,
+.bubble.b2,
+.bubble.b3,
+.bubble.b4,
+.bubble.b5{
+  border-color:rgba(102, 214, 222, .34) !important;
+  background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.94) 0 18%, transparent 24%), rgba(255,255,255,.045) !important;
+  box-shadow:0 0 12px rgba(58,188,199,.08), inset 0 0 0 1px rgba(255,255,255,.34) !important;
+}
+.bubble.tiny{opacity:.58 !important}
+.bubble.micro{opacity:.5 !important}
+.bubble.nano{opacity:.44 !important}
+</style>
+
+
+<style id="aquabalance-v7-liquid-glass">
+/* =========================================================
+   v7 · Muchísimas burbujas + toque Liquid Glass
+   ========================================================= */
+:root{
+  --glass-bg:rgba(255,255,255,.64);
+  --glass-bg-strong:rgba(255,255,255,.76);
+  --glass-border:rgba(255,255,255,.72);
+  --glass-edge:rgba(78,170,196,.14);
+  --glass-shadow:0 18px 45px rgba(31,94,123,.13),0 4px 12px rgba(41,111,139,.07);
+  --glass-inset:inset 0 1px 0 rgba(255,255,255,.96),inset 0 -1px 0 rgba(54,142,169,.07);
+}
+
+/* Fondo más acuático y con profundidad */
+.app{
+  background:
+    radial-gradient(circle at 16% 9%, rgba(125,231,232,.16), transparent 24%),
+    radial-gradient(circle at 88% 25%, rgba(105,193,235,.13), transparent 26%),
+    radial-gradient(circle at 46% 68%, rgba(157,236,224,.11), transparent 31%),
+    linear-gradient(180deg,#f9feff 0%,#eefbfc 48%,#eaf8fb 100%) !important;
+}
+.ocean-ambient{
+  z-index:0 !important;
+  opacity:1;
+}
+main,.topbar,.bottom-nav{position:relative;z-index:2}
+
+/* Glass base */
+.card,
+.input-card,
+.dose-card,
+.inventory-card,
+.note-box,
+.info-card,
+.event,
+.tabs,
+.modal{
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.82),rgba(244,253,255,.56)) !important;
+  border:1px solid var(--glass-border) !important;
+  box-shadow:var(--glass-shadow),var(--glass-inset) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(1.18);
+  backdrop-filter:blur(18px) saturate(1.18);
+}
+
+.card,
+.input-card,
+.dose-card,
+.inventory-card,
+.note-box,
+.info-card,
+.event{
+  overflow:hidden;
+}
+
+/* brillo interior tipo cristal */
+.card:after,
+.input-card:before,
+.inventory-card:before,
+.note-box:before,
+.info-card:before,
+.event:before{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+  inset:1px;
+  border-radius:inherit;
+  background:
+    linear-gradient(125deg,rgba(255,255,255,.50) 0%,rgba(255,255,255,.12) 30%,transparent 50%,rgba(115,220,225,.055) 100%);
+  opacity:.78;
+  z-index:0;
+}
+.card > *,
+.input-card > *,
+.inventory-card > *,
+.note-box > *,
+.info-card > *,
+.event > *{position:relative;z-index:1}
+
+/* Las tarjetas de dosificación conservan su tinte pero en cristal */
+.dose-card{
+  background:linear-gradient(145deg,rgba(255,255,255,.79),rgba(246,253,255,.52)) !important;
+  border-color:rgba(255,255,255,.80) !important;
+}
+.dose-card:before{
+  content:"" !important;
+  position:absolute !important;
+  inset:0 !important;
+  pointer-events:none;
+  opacity:.23 !important;
+  z-index:0;
+}
+.dose-card.teal:before{background:radial-gradient(circle at 7% 22%,rgba(71,211,211,.42),transparent 35%) !important}
+.dose-card.green:before{background:radial-gradient(circle at 7% 22%,rgba(142,205,93,.37),transparent 35%) !important}
+.dose-card.purple:before{background:radial-gradient(circle at 7% 22%,rgba(152,125,221,.35),transparent 35%) !important}
+.dose-card > *{position:relative;z-index:1}
+
+/* borde inferior/reflejo muy sutil */
+.card:before{
+  content:"";
+  position:absolute;
+  left:12%;right:12%;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),transparent);
+  pointer-events:none;
+  z-index:3;
+}
+
+.card:hover,
+.dose-card:hover,
+.inventory-card:hover{
+  transform:translateY(-2px) !important;
+  box-shadow:0 22px 50px rgba(29,100,129,.15),0 6px 16px rgba(44,118,147,.08),var(--glass-inset) !important;
+}
+
+/* topbar y dock con cristal más marcado */
+.topbar{
+  background:rgba(249,254,255,.68) !important;
+  border-bottom:1px solid rgba(255,255,255,.72) !important;
+  -webkit-backdrop-filter:blur(24px) saturate(1.25);
+  backdrop-filter:blur(24px) saturate(1.25);
+  box-shadow:0 8px 24px rgba(38,111,139,.08),inset 0 -1px 0 rgba(64,163,188,.06);
+}
+.bottom-nav{
+  background:rgba(255,255,255,.67) !important;
+  border:1px solid rgba(255,255,255,.78) !important;
+  -webkit-backdrop-filter:blur(24px) saturate(1.24);
+  backdrop-filter:blur(24px) saturate(1.24);
+  box-shadow:0 15px 40px rgba(30,96,126,.17),inset 0 1px 0 rgba(255,255,255,.98) !important;
+}
+.nav-btn.active{
+  background:linear-gradient(145deg,rgba(218,252,252,.80),rgba(236,253,255,.53)) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 5px 12px rgba(58,179,190,.09);
+}
+
+/* Inputs también se integran en el cristal */
+.field input,.field select,.parameter-row input,.value-input,.dose-method select{
+  background:rgba(255,255,255,.70) !important;
+  border-color:rgba(255,255,255,.88) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 4px 12px rgba(43,107,136,.055);
+  -webkit-backdrop-filter:blur(9px);
+  backdrop-filter:blur(9px);
+}
+
+/* Burbujas: mismo estilo transparente/cian, con más variedad de tamaños */
+.bubble,
+.bubble.tiny,
+.bubble.micro,
+.bubble.nano,
+.bubble.mini,
+.bubble.medium,
+.bubble.large{
+  border:1.4px solid rgba(92,205,214,.34) !important;
+  background:
+    radial-gradient(circle at 30% 25%,rgba(255,255,255,.95) 0 12%,rgba(255,255,255,.35) 13% 20%,transparent 25%),
+    rgba(219,250,252,.08) !important;
+  box-shadow:
+    0 2px 9px rgba(48,184,195,.07),
+    inset 0 0 0 1px rgba(255,255,255,.28) !important;
+  will-change:transform,opacity;
+}
+.bubble.nano{width:4px;height:4px;opacity:.38 !important}
+.bubble.micro{width:6px;height:6px;opacity:.46 !important}
+.bubble.tiny{width:9px;height:9px;opacity:.52 !important}
+.bubble.mini{width:12px;height:12px;opacity:.47 !important}
+.bubble.medium{width:17px;height:17px;opacity:.40 !important}
+.bubble.large{width:24px;height:24px;opacity:.30 !important}
+
+@keyframes bubbleRiseDeep{
+  0%{transform:translate3d(0,34px,0) scale(.88);opacity:.10}
+  20%{opacity:.40}
+  50%{transform:translate3d(var(--drift,7px),-34px,0) scale(1.02);opacity:.56}
+  80%{opacity:.35}
+  100%{transform:translate3d(calc(var(--drift,7px) * -.45),-98px,0) scale(1.08);opacity:.04}
+}
+.ocean-ambient .bubble{
+  animation-name:bubbleRiseDeep !important;
+  animation-timing-function:ease-in-out !important;
+  animation-iteration-count:infinite !important;
+}
+
+@media (prefers-reduced-motion:reduce){
+  .ocean-ambient .bubble{animation:none !important}
+}
+</style>
+
+
+<style id="aquabalance-v8-fix-dock-liquidglass">
+/* =========================================================
+   v8 · corrige solape del botón con el dock + liquid glass más marcado
+   ========================================================= */
+:root{
+  --dock-offset:18px;
+  --dock-height:96px;
+  --glass-bg-v8:rgba(255,255,255,.50);
+  --glass-bg-strong-v8:rgba(255,255,255,.58);
+  --glass-border-v8:rgba(255,255,255,.86);
+  --glass-shadow-v8:0 22px 55px rgba(31,94,123,.15),0 8px 22px rgba(41,111,139,.08),inset 0 1px 0 rgba(255,255,255,.98),inset 0 -1px 0 rgba(92,191,214,.09);
+}
+/* evita que el dock se monte con el contenido */
+.app{padding-bottom:calc(var(--dock-height) + var(--dock-offset) + 42px) !important}
+main{padding:13px 14px calc(var(--dock-height) + 34px) !important}
+.view{padding-bottom:8px}
+.view .quick-btn:last-child{margin-bottom:10px}
+.card:last-child,.input-card:last-child,.dose-card:last-child,.inventory-card:last-child{margin-bottom:12px}
+
+/* dock más separado y con altura definida */
+.bottom-nav{
+  left:50% !important;
+  transform:translateX(-50%) !important;
+  width:min(calc(100% - 28px),454px) !important;
+  bottom:var(--dock-offset) !important;
+  min-height:var(--dock-height);
+  padding:10px 8px calc(10px + env(safe-area-inset-bottom)) !important;
+  border-radius:28px !important;
+  overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.58),rgba(244,252,255,.42)) !important;
+  border:1px solid var(--glass-border-v8) !important;
+  -webkit-backdrop-filter:blur(34px) saturate(1.35) !important;
+  backdrop-filter:blur(34px) saturate(1.35) !important;
+  box-shadow:0 24px 52px rgba(28,96,126,.19),0 10px 24px rgba(47,128,160,.08),inset 0 1px 0 rgba(255,255,255,.98),inset 0 -1px 0 rgba(64,163,188,.08) !important;
+}
+.bottom-nav:before{
+  content:"";position:absolute;inset:1px;border-radius:inherit;pointer-events:none;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.60),rgba(255,255,255,.14) 34%,transparent 54%,rgba(129,219,232,.10) 100%),
+    radial-gradient(circle at 18% 10%,rgba(255,255,255,.72),transparent 28%);
+  opacity:.95;
+}
+.bottom-nav > *{position:relative;z-index:1}
+.nav-btn{
+  min-height:70px;
+  justify-content:center;
+  gap:4px;
+  border-radius:18px !important;
+}
+.nav-btn.active{
+  background:linear-gradient(145deg,rgba(220,252,253,.72),rgba(240,254,255,.36)) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 7px 16px rgba(58,179,190,.12) !important;
+}
+.nav-btn .ico{font-size:20px !important}
+.nav-btn span:last-child{line-height:1.05}
+
+/* más sensación liquid glass en paneles */
+.card,
+.input-card,
+.dose-card,
+.inventory-card,
+.note-box,
+.info-card,
+.event,
+.tabs,
+.modal,
+.topbar{
+  background:linear-gradient(145deg,var(--glass-bg-strong-v8),var(--glass-bg-v8)) !important;
+  border:1px solid var(--glass-border-v8) !important;
+  -webkit-backdrop-filter:blur(28px) saturate(1.34) !important;
+  backdrop-filter:blur(28px) saturate(1.34) !important;
+  box-shadow:var(--glass-shadow-v8) !important;
+}
+.card:after,
+.input-card:before,
+.inventory-card:before,
+.note-box:before,
+.info-card:before,
+.event:before,
+.tabs:before,
+.modal:before{
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:inherit;
+  pointer-events:none;
+  background:
+    linear-gradient(130deg,rgba(255,255,255,.66) 0%,rgba(255,255,255,.18) 28%,transparent 53%,rgba(105,214,226,.07) 100%),
+    radial-gradient(circle at 16% 10%,rgba(255,255,255,.70),transparent 24%);
+  opacity:.92;
+  z-index:0;
+}
+.card > *, .input-card > *, .inventory-card > *, .note-box > *, .info-card > *, .event > *, .tabs > *, .modal > *{position:relative;z-index:1}
+.dose-card{
+  background:linear-gradient(145deg,rgba(255,255,255,.56),rgba(244,252,255,.42)) !important;
+}
+.dose-card:after{
+  content:"";position:absolute;inset:1px;border-radius:inherit;pointer-events:none;z-index:0;
+  background:linear-gradient(130deg,rgba(255,255,255,.52),rgba(255,255,255,.10) 30%,transparent 54%,rgba(105,214,226,.06) 100%);
+  opacity:.95;
+}
+.dose-card > *{position:relative;z-index:1}
+
+.topbar{
+  border-radius:0 0 24px 24px;
+  box-shadow:0 14px 34px rgba(38,111,139,.10),inset 0 -1px 0 rgba(64,163,188,.06),inset 0 1px 0 rgba(255,255,255,.98) !important;
+}
+
+/* escritorio */
+@media (min-width:700px){
+  .app{padding-bottom:calc(var(--dock-height) + 54px) !important}
+  main{padding-bottom:calc(var(--dock-height) + 46px) !important}
+  .bottom-nav{bottom:22px !important}
+}
+</style>
+
+
+<style id="aquabalance-v9-dock-placement-fix">
+/* =========================================================
+   v9 · Dock correctamente colocado debajo de Nueva medición
+   ========================================================= */
+:root{
+  --dock-gap-v9:18px;
+}
+/* el contenido ya no necesita un gran colchón inferior */
+.app{
+  padding-bottom:26px !important;
+}
+main{
+  padding:13px 14px 10px !important;
+}
+.view{
+  padding-bottom:0 !important;
+}
+.view .quick-btn:last-child{
+  margin-bottom:0 !important;
+}
+
+/* convertir el dock en flotante dentro del flujo, justo debajo del contenido */
+.bottom-nav{
+  position:sticky !important;
+  left:auto !important;
+  transform:none !important;
+  bottom:14px !important;
+  width:min(calc(100% - 28px),454px) !important;
+  margin:var(--dock-gap-v9) auto 0 !important;
+  min-height:94px !important;
+  padding:10px 8px calc(10px + env(safe-area-inset-bottom)) !important;
+  border-radius:28px !important;
+}
+
+/* en móvil, que quede centrado y pegado visualmente al CTA */
+.view[data-view="home"].active + .bottom-nav,
+main + .bottom-nav{
+  margin-top:16px !important;
+}
+
+/* refuerzo visual del liquid glass en el dock */
+.bottom-nav{
+  background:linear-gradient(180deg,rgba(255,255,255,.62),rgba(243,252,255,.40)) !important;
+  border:1px solid rgba(255,255,255,.90) !important;
+  -webkit-backdrop-filter:blur(36px) saturate(1.38) !important;
+  backdrop-filter:blur(36px) saturate(1.38) !important;
+  box-shadow:
+    0 24px 58px rgba(28,96,126,.18),
+    0 10px 24px rgba(47,128,160,.08),
+    inset 0 1px 0 rgba(255,255,255,.99),
+    inset 0 -1px 0 rgba(64,163,188,.08) !important;
+}
+.bottom-nav:before{
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:inherit;
+  pointer-events:none;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.66),rgba(255,255,255,.14) 32%,transparent 55%,rgba(129,219,232,.10) 100%),
+    radial-gradient(circle at 18% 10%,rgba(255,255,255,.76),transparent 28%);
+  opacity:.96;
+}
+.bottom-nav > *{position:relative;z-index:1}
+.nav-btn{min-height:70px !important}
+.nav-btn.active{
+  background:linear-gradient(145deg,rgba(225,253,253,.74),rgba(240,254,255,.34)) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 8px 18px rgba(58,179,190,.11) !important;
+}
+
+/* asegurar buen espaciado debajo del botón principal */
+.quick-btn{display:block}
+main .view[data-view="home"] > .quick-btn:last-child{
+  margin-top:2px !important;
+}
+
+@media (min-width:700px){
+  .app{padding-bottom:32px !important}
+  .bottom-nav{bottom:18px !important}
+}
+</style>
+
+
+<style id="aquabalance-v10-spacing-and-bubbles">
+/* =========================================================
+   v10 · corrige separación del dock y añade más burbujas tintadas
+   ========================================================= */
+:root{
+  --dock-gap-v10:16px;
+}
+/* El dock vuelve al flujo normal para no montar paneles */
+.app{
+  display:flex;
+  flex-direction:column;
+  padding-bottom:16px !important;
+}
+main{
+  flex:1 1 auto;
+  padding:13px 14px 0 !important;
+}
+.view{padding-bottom:0 !important}
+.view.active{display:block}
+main .quick-btn:last-child,
+main .note-box:last-child,
+main .card:last-child,
+main .input-card:last-child{
+  margin-bottom:0 !important;
+}
+.bottom-nav{
+  position:relative !important;
+  left:auto !important;
+  right:auto !important;
+  bottom:auto !important;
+  transform:none !important;
+  width:calc(100% - 28px) !important;
+  max-width:454px !important;
+  min-height:94px !important;
+  margin:var(--dock-gap-v10) auto 18px !important;
+  padding:10px 8px calc(10px + env(safe-area-inset-bottom)) !important;
+  border-radius:28px !important;
+  overflow:hidden;
+  align-self:center;
+}
+/* Ajuste fino de separación en el home y medición */
+.view[data-view="home"] .quick-btn,
+.view[data-view="measure"] .quick-btn.secondary{
+  margin-bottom:0 !important;
+}
+/* Glass del dock más limpio */
+.bottom-nav{
+  background:linear-gradient(180deg,rgba(255,255,255,.65),rgba(241,252,255,.43)) !important;
+  border:1px solid rgba(255,255,255,.90) !important;
+  -webkit-backdrop-filter:blur(34px) saturate(1.35) !important;
+  backdrop-filter:blur(34px) saturate(1.35) !important;
+  box-shadow:
+    0 22px 52px rgba(30,96,126,.16),
+    0 8px 20px rgba(47,128,160,.08),
+    inset 0 1px 0 rgba(255,255,255,.98),
+    inset 0 -1px 0 rgba(64,163,188,.08) !important;
+}
+.bottom-nav:before{
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:inherit;
+  pointer-events:none;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.66),rgba(255,255,255,.16) 34%,transparent 55%,rgba(129,219,232,.10) 100%),
+    radial-gradient(circle at 18% 10%,rgba(255,255,255,.74),transparent 28%);
+  opacity:.96;
+}
+.bottom-nav > *{position:relative;z-index:1}
+.nav-btn{min-height:70px !important}
+.nav-btn.active{
+  background:linear-gradient(145deg,rgba(222,252,253,.78),rgba(239,254,255,.38)) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 8px 18px rgba(58,179,190,.12) !important;
+}
+/* Nuevos colores sutiles para burbujas */
+.bubble.tint-turquoise,
+.bubble.tint-green,
+.bubble.tint-purple{
+  background:
+    radial-gradient(circle at 30% 25%,rgba(255,255,255,.95) 0 12%,rgba(255,255,255,.35) 13% 20%,transparent 25%),
+    rgba(255,255,255,.06) !important;
+}
+.bubble.tint-turquoise{
+  border-color:rgba(82,207,214,.40) !important;
+  box-shadow:0 2px 10px rgba(56,189,197,.10), inset 0 0 0 1px rgba(255,255,255,.28) !important;
+}
+.bubble.tint-green{
+  border-color:rgba(143,210,123,.38) !important;
+  box-shadow:0 2px 10px rgba(121,189,102,.10), inset 0 0 0 1px rgba(255,255,255,.28) !important;
+}
+.bubble.tint-purple{
+  border-color:rgba(163,138,224,.38) !important;
+  box-shadow:0 2px 10px rgba(133,107,200,.10), inset 0 0 0 1px rgba(255,255,255,.28) !important;
+}
+.bubble.mini{width:12px;height:12px;opacity:.47 !important}
+.bubble.medium{width:17px;height:17px;opacity:.40 !important}
+.bubble.large{width:24px;height:24px;opacity:.30 !important}
+@media (min-width:700px){
+  .app{padding-bottom:18px !important}
+  .bottom-nav{margin:18px auto 20px !important}
+}
+</style>
+
+
+<style id="aquabalance-v11-uniform-spacing-fix">
+/* =========================================================
+   v11 · separación uniforme real entre paneles y menú inferior
+   ========================================================= */
+:root{
+  --panel-gap-v11:16px;
+}
+
+/* Estructura general */
+.app{
+  display:flex;
+  flex-direction:column;
+  min-height:100dvh;
+  padding-bottom:16px !important;
+}
+main{
+  flex:1 1 auto;
+  padding:13px 14px 0 !important;
+}
+
+/* Cada vista usa el MISMO espaciado entre bloques */
+.view.active{
+  display:flex !important;
+  flex-direction:column;
+  align-items:stretch;
+  gap:var(--panel-gap-v11);
+}
+.view.active > *{
+  flex:0 0 auto;
+  margin:0 !important;
+}
+
+/* Ajustes de elementos que antes metían su propio espacio */
+.view .hero,
+.view .section-head,
+.view .card,
+.view .input-card,
+.view .note-box,
+.view .quick-btn,
+.view .quick-btn.secondary{
+  margin:0 !important;
+}
+
+/* El menú inferior deja exactamente el mismo hueco que el resto */
+.bottom-nav{
+  position:relative !important;
+  left:auto !important;
+  right:auto !important;
+  bottom:auto !important;
+  transform:none !important;
+  align-self:center;
+  width:calc(100% - 28px) !important;
+  max-width:454px !important;
+  min-height:94px !important;
+  margin:var(--panel-gap-v11) auto 18px !important;
+  padding:10px 8px calc(10px + env(safe-area-inset-bottom)) !important;
+  border-radius:28px !important;
+  overflow:hidden;
+}
+
+/* Quitamos reglas antiguas que apretaban el final de algunas vistas */
+.view .quick-btn:last-child,
+.view .card:last-child,
+.view .input-card:last-child,
+.view .note-box:last-child{
+  margin-bottom:0 !important;
+}
+
+/* En escritorio mantenemos la misma lógica visual */
+@media (min-width:700px){
+  :root{ --panel-gap-v11:18px; }
+  .app{padding-bottom:18px !important}
+  .bottom-nav{margin:var(--panel-gap-v11) auto 20px !important}
+}
+</style>
+
+
+<style id="aquabalance-v12-premium-liquid-glass">
+/* =========================================================
+   v12 · más detalles, degradados, sombras y liquid glass premium
+   ========================================================= */
+:root{
+  --glass-v12-bg:linear-gradient(145deg,rgba(255,255,255,.76),rgba(240,251,255,.40));
+  --glass-v12-border:rgba(255,255,255,.90);
+  --glass-v12-shadow:
+    0 26px 70px rgba(24,90,121,.14),
+    0 10px 24px rgba(49,126,156,.08),
+    inset 0 1px 0 rgba(255,255,255,.99),
+    inset 0 -1px 0 rgba(79,180,202,.08);
+}
+
+/* fondo con más profundidad y atmósfera */
+.app{
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 12% 14%, rgba(137,234,232,.25), transparent 23%),
+    radial-gradient(circle at 84% 19%, rgba(120,191,240,.18), transparent 25%),
+    radial-gradient(circle at 30% 78%, rgba(171,234,220,.16), transparent 29%),
+    radial-gradient(circle at 75% 70%, rgba(188,170,244,.12), transparent 24%),
+    linear-gradient(180deg,#fafdff 0%,#eff9fc 42%,#e8f4f8 100%) !important;
+}
+.app:before,
+.app:after{
+  content:"";
+  position:absolute;
+  border-radius:50%;
+  filter:blur(24px);
+  pointer-events:none;
+  z-index:0;
+}
+.app:before{
+  width:180px;height:180px;left:-45px;top:105px;
+  background:radial-gradient(circle, rgba(147,226,234,.23), transparent 70%);
+}
+.app:after{
+  width:210px;height:210px;right:-70px;bottom:120px;
+  background:radial-gradient(circle, rgba(169,190,245,.18), transparent 72%);
+}
+main,.topbar,.bottom-nav{position:relative;z-index:2}
+
+/* vidrio más intenso en casi todo */
+.topbar,
+.bottom-nav,
+.card,
+.input-card,
+.dose-card,
+.inventory-card,
+.note-box,
+.info-card,
+.event,
+.tabs,
+.modal,
+.status-pill,
+.icon-btn{
+  background:var(--glass-v12-bg) !important;
+  border:1px solid var(--glass-v12-border) !important;
+  -webkit-backdrop-filter:blur(34px) saturate(1.36) !important;
+  backdrop-filter:blur(34px) saturate(1.36) !important;
+  box-shadow:var(--glass-v12-shadow) !important;
+}
+
+.topbar,
+.bottom-nav,
+.card,
+.input-card,
+.dose-card,
+.inventory-card,
+.note-box,
+.info-card,
+.event,
+.tabs,
+.modal,
+.status-pill,
+.icon-btn{position:relative;overflow:hidden}
+
+.topbar:before,
+.bottom-nav:before,
+.card:before,
+.input-card:before,
+.dose-card:after,
+.inventory-card:before,
+.note-box:before,
+.info-card:before,
+.event:before,
+.tabs:before,
+.modal:before,
+.status-pill:before,
+.icon-btn:before{
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:inherit;
+  pointer-events:none;
+  background:
+    linear-gradient(130deg,rgba(255,255,255,.72) 0%,rgba(255,255,255,.24) 28%,transparent 56%,rgba(126,228,234,.08) 100%),
+    radial-gradient(circle at 18% 10%,rgba(255,255,255,.78),transparent 28%);
+  opacity:.95;
+  z-index:0;
+}
+.topbar > *,
+.bottom-nav > *,
+.card > *,
+.input-card > *,
+.dose-card > *,
+.inventory-card > *,
+.note-box > *,
+.info-card > *,
+.event > *,
+.tabs > *,
+.modal > *,
+.status-pill > *,
+.icon-btn > *{position:relative;z-index:1}
+
+/* tinte más rico en tarjetas especiales */
+.card.scribble{
+  background:
+    radial-gradient(circle at 84% 20%, rgba(124,224,231,.14), transparent 28%),
+    linear-gradient(150deg,rgba(255,255,255,.82),rgba(238,251,255,.47)) !important;
+}
+.chart-card,
+.action-card,
+.input-card{
+  background:
+    radial-gradient(circle at 10% 12%, rgba(165,233,238,.10), transparent 24%),
+    linear-gradient(150deg,rgba(255,255,255,.80),rgba(239,251,255,.44)) !important;
+}
+.dose-card.teal{
+  background:
+    radial-gradient(circle at 12% 22%, rgba(83,216,217,.18), transparent 32%),
+    linear-gradient(150deg,rgba(255,255,255,.80),rgba(239,252,252,.46)) !important;
+}
+.dose-card.green{
+  background:
+    radial-gradient(circle at 12% 22%, rgba(150,215,113,.16), transparent 32%),
+    linear-gradient(150deg,rgba(255,255,255,.80),rgba(246,253,241,.46)) !important;
+}
+.dose-card.purple{
+  background:
+    radial-gradient(circle at 12% 22%, rgba(170,145,233,.16), transparent 32%),
+    linear-gradient(150deg,rgba(255,255,255,.80),rgba(247,243,255,.46)) !important;
+}
+
+/* más brillo, profundidad y elevación */
+.card:hover,
+.input-card:hover,
+.dose-card:hover,
+.inventory-card:hover,
+.note-box:hover,
+.info-card:hover,
+.event:hover{
+  transform:translateY(-3px) !important;
+  box-shadow:
+    0 30px 78px rgba(24,90,121,.17),
+    0 12px 28px rgba(49,126,156,.10),
+    inset 0 1px 0 rgba(255,255,255,.99),
+    inset 0 -1px 0 rgba(79,180,202,.08) !important;
+}
+
+/* botones más espectaculares */
+.quick-btn{
+  background:
+    linear-gradient(180deg,#5ad7dc 0%,#36c7d0 42%,#24b4bf 100%) !important;
+  border:1px solid rgba(255,255,255,.58) !important;
+  box-shadow:
+    0 10px 0 #15939d,
+    0 20px 34px rgba(40,168,179,.26),
+    inset 0 1px 0 rgba(255,255,255,.55),
+    inset 0 -1px 0 rgba(0,0,0,.06) !important;
+}
+.quick-btn.secondary{
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.82),rgba(240,251,255,.58)) !important;
+  border:1px solid rgba(255,255,255,.92) !important;
+  box-shadow:
+    0 12px 26px rgba(76,146,168,.10),
+    inset 0 1px 0 rgba(255,255,255,.98),
+    inset 0 -1px 0 rgba(79,180,202,.06) !important;
+}
+.quick-btn:before,
+.quick-btn.secondary:before{
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:inherit;
+  background:linear-gradient(120deg,rgba(255,255,255,.45),rgba(255,255,255,.06) 35%,transparent 55%);
+  opacity:.95;
+}
+.quick-btn > *,
+.quick-btn.secondary > *{position:relative;z-index:1}
+
+/* navegación inferior aún más glass */
+.bottom-nav{
+  box-shadow:
+    0 26px 64px rgba(28,96,126,.18),
+    0 10px 24px rgba(47,128,160,.09),
+    inset 0 1px 0 rgba(255,255,255,.99),
+    inset 0 -1px 0 rgba(64,163,188,.08) !important;
+}
+.nav-btn.active{
+  background:linear-gradient(145deg,rgba(225,253,253,.82),rgba(240,254,255,.42)) !important;
+  border:1px solid rgba(255,255,255,.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.99),
+    0 10px 22px rgba(58,179,190,.11) !important;
+}
+.nav-btn.active .ico,
+.nav-btn.active span:last-child{
+  filter:drop-shadow(0 2px 5px rgba(63,190,198,.18));
+}
+
+/* badges y métricas */
+.badge,
+.action-ico,
+.icon-btn,
+.status-pill{
+  box-shadow:
+    0 10px 24px rgba(71,160,181,.12),
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -1px 0 rgba(79,180,202,.05) !important;
+}
+.big-kh{
+  position:relative;
+}
+.big-kh:after{
+  content:"";
+  position:absolute;
+  right:-24px;top:-22px;
+  width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle, rgba(115,222,229,.12), transparent 70%);
+  pointer-events:none;
+}
+
+/* inputs y barras con más detalle */
+.field input,.field select,.parameter-row input,.value-input,.dose-method select{
+  background:linear-gradient(145deg,rgba(255,255,255,.88),rgba(243,252,255,.58)) !important;
+  border:1px solid rgba(255,255,255,.92) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.98),
+    0 8px 18px rgba(47,113,140,.06) !important;
+}
+.progress,
+.dose-liquid-bar{
+  background:linear-gradient(180deg,rgba(233,244,247,.92),rgba(248,252,253,.86)) !important;
+  border:1px solid rgba(255,255,255,.85) !important;
+  box-shadow:
+    inset 0 2px 6px rgba(47,93,118,.08),
+    0 2px 6px rgba(95,153,176,.05) !important;
+}
+.progress > div,
+.dose-liquid-bar > span{
+  position:relative;
+  overflow:hidden;
+}
+.progress > div:after,
+.dose-liquid-bar > span:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(110deg,transparent 0%,rgba(255,255,255,.42) 42%,transparent 68%);
+  animation:glassSweep 4.2s ease-in-out infinite;
+}
+@keyframes glassSweep{
+  0%,100%{transform:translateX(-120%)}
+  50%{transform:translateX(120%)}
+}
+
+/* detalles ambientales extra */
+.glass-sparkle{
+  position:absolute;
+  width:9px;height:9px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(255,255,255,.95) 0 28%, rgba(186,239,242,.28) 45%, transparent 72%);
+  filter:blur(.2px);
+  pointer-events:none;
+  opacity:.65;
+  animation:sparklePulse var(--sp,5.6s) ease-in-out infinite;
+  z-index:0;
+}
+@keyframes sparklePulse{
+  0%,100%{transform:scale(.82);opacity:.26}
+  50%{transform:scale(1.18);opacity:.72}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .progress > div:after,
+  .dose-liquid-bar > span:after,
+  .glass-sparkle{animation:none !important}
+}
+</style>
+
+
+<style id="aquabalance-v13-history-style">
+.history-legend{
+  margin-top:8px;
+  row-gap:8px;
+}
+.legend-line{
+  width:16px;
+  height:4px;
+  border-radius:999px;
+  display:inline-block;
+  vertical-align:middle;
+  margin-right:3px;
+  box-shadow:0 1px 4px rgba(31,94,123,.10);
+}
+.legend-line.ca{background:linear-gradient(90deg,#29c4bb,#67e1d8)}
+.legend-line.mg{background:linear-gradient(90deg,#85b84d,#c9eba4)}
+.legend-line.no3{background:linear-gradient(90deg,#ff8672,#ffb18f)}
+.legend-line.po4{background:linear-gradient(90deg,#9579dd,#cbbcf7)}
+.legend-line.sal{background:linear-gradient(90deg,#5f8cf0,#8cb8ff)}
+.history-chart-note{
+  margin-top:4px;
+  line-height:1.35;
+}
+.history-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.history-summary-grid .param-card{
+  min-height:96px;
+}
+.history-summary-grid .param-card.sal{
+  grid-column:1 / -1;
+}
+.param-card .value{
+  margin-top:4px;
+}
+.param-card.ca{background:linear-gradient(145deg,rgba(255,255,255,.84),rgba(238,251,249,.56)) !important}
+.param-card.mg{background:linear-gradient(145deg,rgba(255,255,255,.84),rgba(245,252,236,.56)) !important}
+.param-card.no3{background:linear-gradient(145deg,rgba(255,255,255,.84),rgba(255,244,238,.58)) !important}
+.param-card.po4{background:linear-gradient(145deg,rgba(255,255,255,.84),rgba(247,241,255,.58)) !important}
+.param-card.sal{background:linear-gradient(145deg,rgba(255,255,255,.84),rgba(239,246,255,.58)) !important}
+@media (max-width:420px){
+  .history-summary-grid{grid-template-columns:1fr}
+  .history-summary-grid .param-card.sal{grid-column:auto}
+}
+</style>
+
+
+<style id="aquabalance-v14-strict-math-style">
+/* =========================================================
+   v14 · matemáticas estrictas + gráficas separadas y escalas reales
+   ========================================================= */
+.parameter-history-card .param-latest{
+  font-weight:900;
+  color:var(--navy);
+  white-space:nowrap;
+}
+.param-chart-stats{
+  font-size:11px;
+  color:var(--muted);
+  font-weight:800;
+  margin-top:-3px;
+}
+.param-chart-wrap{height:165px !important;margin-top:8px}
+.math-recommend-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.math-recommend-grid .info-card{min-width:0}
+.math-note{margin-top:9px;line-height:1.35}
+.event-structured{display:none}
+.event-structured.is-visible{display:flex}
+.data-quality-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.55);
+  border:1px solid rgba(255,255,255,.82);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95);
+}
+.insight.math-detail{
+  border-left-color:var(--teal);
+  background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(238,251,252,.45));
+}
+@media (max-width:390px){
+  .math-recommend-grid{grid-template-columns:1fr}
+}
+</style>
+
+
+<style id="reef-marine-control-v15-brand">
+/* v15 · identidad Reef Marine Control */
+.brand-name{
+  font-size:28px !important;
+  line-height:.94 !important;
+  letter-spacing:.25px !important;
+  white-space:nowrap;
+  text-align:center;
+}
+.brand-name .letter:nth-child(-n+4){color:var(--teal-deep) !important}
+@media (max-width:390px){
+  .brand-name{font-size:25px !important;letter-spacing:.1px !important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="ocean-ambient" aria-hidden="true">
+    <i class="bubble b1"></i><i class="bubble b2"></i><i class="bubble b3"></i><i class="bubble b4"></i><i class="bubble b5"></i>
+    <div class="reef-corner left"><div class="reef-plant"></div></div>
+    <div class="reef-corner right"><div class="reef-plant"></div></div>
+  </div>
+
+  <header class="topbar">
+    <button class="icon-btn" id="menuBtn" aria-label="Ajustes">☰</button>
+    <div class="brand">
+      <span class="brand-fish"></span>
+      <div class="brand-name"><span>Reef</span> Marine Control</div>
+    </div>
+    <button class="icon-btn" id="bellBtn" aria-label="Avisos">🔔</button>
+  </header>
+
+  <main>
+    <section class="view active" data-view="home">
+      <div class="hero">
+        <div>
+          <div class="kicker">Tu arrecife, de un vistazo</div>
+          <h1>¡Hola, reeflover!</h1>
+        </div>
+        <div class="status-pill" id="statusPill">☺ Estable</div>
+      </div>
+
+      <div class="card scribble">
+        <div class="big-kh">
+          <div class="kh-main">
+            <div class="badge">KH</div>
+            <div>
+              <div class="kh-number" id="homeKh">8,1</div>
+              <div class="kh-unit">dKH</div>
+            </div>
+          </div>
+          <div class="objective">
+            <div class="label">Objetivo</div>
+            <div class="value"><span id="homeGoal">8,2</span> <small>dKH</small></div>
+            <div class="stable" id="khState">☺ Estable</div>
+          </div>
+        </div>
+        <div class="metric-row">
+          <div class="metric">
+            <div class="label">Consumo estimado</div>
+            <div class="value"><span id="consumption">0,18</span> <small>dKH/día</small></div>
+          </div>
+          <div class="metric">
+            <div class="label">Dosis actual</div>
+            <div class="value"><span id="dailyDose">18</span> <small>ml/día</small></div>
+          </div>
+        </div>
+        <div class="updated">Última medición · <span id="lastMeasured">hoy 20:00</span></div>
+      </div>
+
+      <div class="card chart-card">
+        <div class="card-title">
+          <div class="title">Evolución KH (dKH)</div>
+          <button class="icon-btn" style="width:30px;height:30px;font-size:18px" onclick="switchView('history')">↗</button>
+        </div>
+        <div class="legend">
+          <span><i class="dot"></i> KH</span>
+          <span><i class="drop"></i> Cambio de agua</span>
+          <span><i class="drop green"></i> Cambio de dosis</span>
+        </div>
+        <div class="chart-wrap"><canvas id="homeChart"></canvas></div>
+      </div>
+
+      <div class="card action-card">
+        <div class="action-ico">💧</div>
+        <div class="action-copy">
+          <strong>Próxima acción</strong>
+          <small id="nextAction">Registra KH para afinar el consumo diario.</small>
+        </div>
+        <span class="arrow">›</span>
+      </div>
+
+      <button class="quick-btn" onclick="switchView('measure')">＋ Nueva medición</button>
+    </section>
+
+    <section class="view" data-view="measure">
+      <div class="section-head">
+        <div><div class="kicker">Medición rápida</div><h1>Nueva medición</h1></div>
+        <span style="font-size:30px">🧪</span>
+      </div>
+
+      <div class="input-card">
+        <div class="value-input-wrap">
+          <div class="value-input-label">KH <small>(dKH)</small></div>
+          <input class="value-input" id="khInput" inputmode="decimal" value="8.1" />
+        </div>
+        <div class="goal-scale">
+          <div class="goal-line"></div>
+          <div class="goal-labels"><span>5</span><span><span id="measureGoal">8,2</span> (objetivo)</span><span>12</span></div>
+        </div>
+        <div class="dt-row">
+          <div class="field"><label>Fecha</label><input type="date" id="measureDate"></div>
+          <div class="field"><label>Hora</label><input type="time" id="measureTime"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="card-title"><div class="title">Medición completa <small>(opcional)</small></div></div>
+        <div class="full-measure">
+          <div class="parameter-row"><label>🟢 Ca (ppm)</label><input id="caInput" inputmode="decimal" placeholder="420"></div>
+          <div class="parameter-row"><label>🟩 Mg (ppm)</label><input id="mgInput" inputmode="decimal" placeholder="1320"></div>
+          <div class="parameter-row"><label>🔴 NO₃ (ppm)</label><input id="no3Input" inputmode="decimal" placeholder="2.5"></div>
+          <div class="parameter-row"><label>🟣 PO₄ (ppm)</label><input id="po4Input" inputmode="decimal" placeholder="0.03"></div>
+          <div class="parameter-row"><label>🔵 Salinidad</label><input id="salInput" inputmode="decimal" placeholder="35.0"></div>
+        </div>
+      </div>
+
+      <button class="quick-btn" id="saveMeasurement">✓ Guardar medición</button>
+      <button class="quick-btn secondary" style="margin-top:8px" id="saveKhOnly">⚡ Guardar solo KH</button>
+    </section>
+
+    <section class="view" data-view="dose">
+      <div class="section-head">
+        <div><div class="kicker">Balling</div><h1>Dosificación</h1></div>
+        <span style="font-size:30px">⚗️</span>
+      </div>
+
+      <div class="card">
+        <div class="small">Método activo</div>
+        <div class="dose-method">
+          <select id="methodSelect"><option>XEPTA Reef Balance Next</option></select>
+          <span>ⓘ</span>
+        </div>
+      </div>
+
+      <div class="dose-card teal">
+        <div class="bottle"></div>
+        <div class="dose-info">
+          <div class="name">KH Part</div>
+          <div class="amount"><span id="khDoseCard">18 ml/día</span> · <span id="khDoseSplit">3 ml × 6 dosis</span></div>
+          <div class="note">Mantenimiento</div>
+        </div><span class="arrow">›</span>
+      </div>
+
+      <div class="dose-card green">
+        <div class="bottle"></div>
+        <div class="dose-info">
+          <div class="name">Calcium Part</div>
+          <div class="amount"><span id="caDoseCard">6 ml/día</span> · <span id="caDoseSplit">2 ml × 3 dosis</span></div>
+          <div class="note">Mantenimiento</div>
+        </div><span class="arrow">›</span>
+      </div>
+
+      <div class="dose-card purple">
+        <div class="bottle"></div>
+        <div class="dose-info">
+          <div class="name">Trace Part</div>
+          <div class="amount"><span id="traceDoseCard">6 ml/día</span> · <span id="traceDoseSplit">2 ml × 3 dosis</span></div>
+          <div class="note">Mantenimiento · no usar para corregir Mg</div>
+        </div><span class="arrow">›</span>
+      </div>
+
+      <div class="note-box">
+        <strong style="color:var(--navy)">Mantenimiento:</strong> compensa el consumo habitual.<br>
+        <strong style="color:var(--navy)">Corrección:</strong> ajuste temporal para alcanzar el objetivo.
+      </div>
+
+      <div class="card math-recommend-card">
+        <div class="card-title"><div class="title">Estimación matemática de mantenimiento</div><span class="small">Datos válidos</span></div>
+        <div class="math-recommend-grid">
+          <div class="info-card"><div class="label">KH recomendado</div><div class="value" id="khRecommendedDose">—</div><div class="small" id="khRecommendedMeta">Aún sin estimación fiable</div></div>
+          <div class="info-card"><div class="label">Ca recomendado</div><div class="value" id="caRecommendedDose">—</div><div class="small" id="caRecommendedMeta">Necesita al menos 2 mediciones de Ca</div></div>
+        </div>
+        <div class="small math-note">Trace no se calcula automáticamente a partir de Mg: se mantiene como dosificación configurada porque no existe una medición directa equivalente en esta app.</div>
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="card-title"><div class="title">Calculadora KH</div></div>
+        <div class="settings-grid">
+          <div class="field"><label>KH actual</label><input id="calcKhCurrent" inputmode="decimal" value="8.0"></div>
+          <div class="field"><label>KH objetivo</label><input id="calcKhGoal" inputmode="decimal" value="8.2"></div>
+        </div>
+        <div class="info-card" style="margin-top:10px">
+          <div class="label">Corrección calculada</div>
+          <div class="value"><span id="correctionMl">0</span> ml KH Part</div>
+        </div>
+        <div class="small" style="margin-top:8px">XEPTA KH Part: 10 ml aumentan 1 dKH en 100 L.</div>
+      </div>
+    </section>
+
+    <section class="view" data-view="history">
+      <div class="section-head">
+        <div><div class="kicker">Tendencias y análisis</div><h1>Historial</h1></div>
+        <span style="font-size:30px">📈</span>
+      </div>
+
+      <div class="card chart-card">
+        <div class="card-title"><div class="title">Historial de KH (dKH)</div><span>ⓘ</span></div>
+        <div class="tabs">
+          <button class="tab active" data-days="7">7 días</button>
+          <button class="tab" data-days="30">30 días</button>
+          <button class="tab" data-days="90">3 meses</button>
+        </div>
+        <div class="chart-wrap" style="margin-top:10px"><canvas id="historyChart"></canvas></div>
+      </div>
+
+      <div class="card chart-card parameter-history-card" data-param="ca">
+        <div class="card-title"><div class="title">Calcio vs tiempo</div><span class="param-latest" id="caChartLatest">—</span></div>
+        <div class="param-chart-stats" id="caChartStats">Sin datos en este periodo</div>
+        <div class="chart-wrap param-chart-wrap"><canvas id="caHistoryChart"></canvas></div>
+      </div>
+
+      <div class="card chart-card parameter-history-card" data-param="mg">
+        <div class="card-title"><div class="title">Magnesio vs tiempo</div><span class="param-latest" id="mgChartLatest">—</span></div>
+        <div class="param-chart-stats" id="mgChartStats">Sin datos en este periodo</div>
+        <div class="chart-wrap param-chart-wrap"><canvas id="mgHistoryChart"></canvas></div>
+      </div>
+
+      <div class="card chart-card parameter-history-card" data-param="no3">
+        <div class="card-title"><div class="title">NO₃ vs tiempo</div><span class="param-latest" id="no3ChartLatest">—</span></div>
+        <div class="param-chart-stats" id="no3ChartStats">Sin datos en este periodo</div>
+        <div class="chart-wrap param-chart-wrap"><canvas id="no3HistoryChart"></canvas></div>
+      </div>
+
+      <div class="card chart-card parameter-history-card" data-param="po4">
+        <div class="card-title"><div class="title">PO₄ vs tiempo</div><span class="param-latest" id="po4ChartLatest">—</span></div>
+        <div class="param-chart-stats" id="po4ChartStats">Sin datos en este periodo</div>
+        <div class="chart-wrap param-chart-wrap"><canvas id="po4HistoryChart"></canvas></div>
+      </div>
+
+      <div class="card chart-card parameter-history-card" data-param="sal">
+        <div class="card-title"><div class="title">Salinidad vs tiempo</div><span class="param-latest" id="salChartLatest">—</span></div>
+        <div class="param-chart-stats" id="salChartStats">Sin datos en este periodo</div>
+        <div class="chart-wrap param-chart-wrap"><canvas id="salHistoryChart"></canvas></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="title">Últimos parámetros registrados</div><span class="small" id="historyParamMeta">Sin datos completos</span></div>
+        <div class="history-summary-grid">
+          <div class="info-card param-card ca"><div class="label">Calcio</div><div class="value" id="histCa">—</div><div class="small" id="histCaMeta">Sin dato</div></div>
+          <div class="info-card param-card mg"><div class="label">Magnesio</div><div class="value" id="histMg">—</div><div class="small" id="histMgMeta">Sin dato</div></div>
+          <div class="info-card param-card no3"><div class="label">NO₃</div><div class="value" id="histNo3">—</div><div class="small" id="histNo3Meta">Sin dato</div></div>
+          <div class="info-card param-card po4"><div class="label">PO₄</div><div class="value" id="histPo4">—</div><div class="small" id="histPo4Meta">Sin dato</div></div>
+          <div class="info-card param-card sal"><div class="label">Salinidad</div><div class="value" id="histSal">—</div><div class="small" id="histSalMeta">Sin dato</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="title">Interpretación inteligente</div></div>
+        <div id="insights"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><div class="title">Eventos</div><button class="icon-btn" style="width:30px;height:30px;font-size:18px" onclick="openEventModal()">＋</button></div>
+        <div class="event-list" id="eventList"></div>
+      </div>
+    </section>
+
+
+    <section class="view" data-view="settings">
+      <div class="section-head">
+        <div><div class="kicker">Configuración</div><h1>Mi acuario</h1></div>
+        <span style="font-size:30px">⚙️</span>
+      </div>
+      <div class="card">
+        <div class="card-title"><div class="title">Sistema</div></div>
+        <div class="form-grid">
+          <div class="field"><label>Volumen neto (L)</label><input id="netVolume" inputmode="decimal" value="300"></div>
+          <div class="field"><label>KH objetivo (dKH)</label><input id="goalKhSetting" inputmode="decimal" value="8.2"></div>
+          <div class="field"><label>Dosis KH al día</label><input id="khDosesPerDay" inputmode="numeric" value="6"></div>
+          <div class="field"><label>Dosis Ca/Trace al día</label><input id="otherDosesPerDay" inputmode="numeric" value="3"></div>
+          <div class="field"><label>KH Part actual (ml/día)</label><input id="khDailyDoseSetting" inputmode="decimal" value="18"></div>
+          <div class="field"><label>Calcium Part actual (ml/día)</label><input id="caDailyDoseSetting" inputmode="decimal" value="6"></div>
+          <div class="field"><label>Trace Part actual (ml/día)</label><input id="traceDailyDoseSetting" inputmode="decimal" value="6"></div>
+        </div>
+        <button class="quick-btn" style="margin-top:12px" id="saveSettings">Guardar configuración</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><div class="title">Inventario inicial / actual</div></div>
+        <div class="form-grid">
+          <div class="field"><label>KH Part (ml)</label><input id="khInvSetting" inputmode="decimal" value="1200"></div>
+          <div class="field"><label>Calcium Part (ml)</label><input id="caInvSetting" inputmode="decimal" value="900"></div>
+          <div class="field"><label>Trace Part (ml)</label><input id="traceInvSetting" inputmode="decimal" value="700"></div>
+        </div>
+        <button class="quick-btn secondary" style="margin-top:12px" id="saveInventory">Actualizar inventario</button>
+      </div>
+      <div class="note-box">
+        El cálculo utiliza el <strong>volumen neto real</strong>, no los litros brutos de la urna.
+      </div>
+    </section>
+  </main>
+
+  <button class="fab" onclick="switchView('measure')" aria-label="Nueva medición">＋</button>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-target="home"><span class="ico">⌂</span><span>Inicio</span></button>
+    <button class="nav-btn" data-target="measure"><span class="ico">🧪</span><span>Medición</span></button>
+    <button class="nav-btn" data-target="dose"><span class="ico">⚗</span><span>Dosificación</span></button>
+    <button class="nav-btn" data-target="history"><span class="ico">⌁</span><span>Historial</span></button>
+  </nav>
+</div>
+
+<div class="modal-backdrop" id="eventModal">
+  <div class="modal">
+    <div class="modal-head"><h2>Registrar evento</h2><button class="close-btn" onclick="closeEventModal()">×</button></div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Tipo de evento</label>
+        <select id="eventType">
+          <option value="water">Cambio de agua</option>
+          <option value="dose">Cambio de dosificación</option>
+          <option value="correction">Corrección manual</option>
+          <option value="balling">Nueva preparación Balling</option>
+        </select>
+      </div>
+      <div class="field"><label>Fecha y hora</label><input type="datetime-local" id="eventDate"></div>
+      <div class="field event-structured event-water-field"><label>Volumen cambiado (L, opcional)</label><input id="eventWaterLiters" inputmode="decimal" placeholder="Ej.: 40"></div>
+      <div class="field event-structured event-product-field"><label>Producto</label><select id="eventProduct"><option value="kh">KH Part</option><option value="ca">Calcium Part</option><option value="trace">Trace Part</option></select></div>
+      <div class="field event-structured event-correction-field"><label>Cantidad usada (ml)</label><input id="eventCorrectionMl" inputmode="decimal" placeholder="Ej.: 12"></div>
+      <div class="field event-structured event-dose-field"><label>Nueva dosis diaria (ml/día)</label><input id="eventNewDailyDose" inputmode="decimal" placeholder="Ej.: 21"></div>
+      <div class="field"><label>Detalle</label><input id="eventDetail" placeholder="Nota opcional"></div>
+    </div>
+    <button class="quick-btn" id="saveEvent">Guardar evento</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (s, el=document)=>el.querySelector(s);
+const $$ = (s, el=document)=>[...el.querySelectorAll(s)];
+const nf = (n,d=1)=>Number(n).toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});
+const nowLocal = ()=>{
+  const d=new Date(), p=n=>String(n).padStart(2,'0');
+  return {date:`${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`, time:`${p(d.getHours())}:${p(d.getMinutes())}`};
+};
+const seed = {
+  settings:{volume:300,khGoal:8.2,khDoses:6,otherDoses:3},
+  doses:{kh:18,ca:6,trace:6},
+  inventory:{kh:1200,ca:900,trace:700,capacityKh:1800,capacityCa:1500,capacityTrace:1200},
+  measurements:[
+    {ts:"2026-08-21T20:00",kh:8.2,ca:420,mg:1320,no3:2.5,po4:.03,sal:35},
+    {ts:"2026-08-22T20:00",kh:8.1},
+    {ts:"2026-08-23T20:00",kh:8.0},
+    {ts:"2026-08-24T20:00",kh:8.1},
+    {ts:"2026-08-25T20:00",kh:8.0},
+    {ts:"2026-08-26T20:00",kh:7.9},
+    {ts:"2026-08-27T20:00",kh:8.1}
+  ],
+  events:[
+    {ts:"2026-08-24T10:00",type:"water",detail:"Cambio de agua · 40 L"},
+    {ts:"2026-08-26T09:00",type:"dose",detail:"KH Part · 18 ml/día"}
+  ]
+};
+let state = JSON.parse(localStorage.getItem('aquabalance-v1')||'null') || seed;
+
+function persist(){localStorage.setItem('aquabalance-v1',JSON.stringify(state))}
+function toast(msg){
+  const t=$('#toast');t.textContent=msg;t.classList.add('show');
+  clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove('show'),1800);
+}
+function switchView(name){
+  $$('.view').forEach(v=>v.classList.toggle('active',v.dataset.view===name));
+  $$('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.target===name));
+  if(name==='history') drawAllCharts();
+  scrollTo({top:0,behavior:'smooth'});
+}
+window.switchView=switchView;
+
+$('#menuBtn').onclick=()=>switchView('settings');
+$('#bellBtn').onclick=()=>toast('No hay avisos críticos');
+$$('.nav-btn').forEach(b=>b.onclick=()=>switchView(b.dataset.target));
+
+function normalizedMeasurements(){
+  return state.measurements
+    .filter(m=>Number.isFinite(Number(m.kh)))
+    .map(m=>({...m,kh:Number(m.kh)}))
+    .sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+}
+function latestMeasurement(){
+  const arr=normalizedMeasurements();return arr[arr.length-1];
+}
+function eventBetween(a,b){
+  const ta=+new Date(a),tb=+new Date(b);
+  return state.events.some(e=>{const t=+new Date(e.ts);return t>ta&&t<tb});
+}
+function estimateConsumption(){
+  const arr=normalizedMeasurements();
+  if(arr.length<2) return 0;
+  const diffs=[];
+  for(let i=1;i<arr.length;i++){
+    const a=arr[i-1],b=arr[i];
+    if(eventBetween(a.ts,b.ts)) continue;
+    const days=(new Date(b.ts)-new Date(a.ts))/86400000;
+    if(days<=0.15) continue;
+    const fall=a.kh-b.kh;
+    if(fall>=-0.15 && fall<=1.2) diffs.push(fall/days);
+  }
+  if(!diffs.length) return 0;
+  diffs.sort((a,b)=>a-b);
+  const med=diffs[Math.floor(diffs.length/2)];
+  return Math.max(0,med);
+}
+function dosingFromConsumption(cons){
+  // 10 ml raises 1 dKH per 100 L -> ml = dKH * volume / 10
+  return cons*state.settings.volume/10;
+}
+function correctionMl(current,goal){
+  return Math.max(0,(goal-current)*state.settings.volume/10);
+}
+function confidence(){
+  const n=normalizedMeasurements().length;
+  if(n>=8) return 'alta';
+  if(n>=4) return 'media';
+  return 'baja';
+}
+function statusText(latest,goal){
+  if(!latest) return {label:'Sin datos',class:'neutral'};
+  const d=latest.kh-goal;
+  if(Math.abs(d)<=.2) return {label:'☺ Estable',class:'stable'};
+  if(d<-.2) return {label:'↓ Bajo objetivo',class:'low'};
+  return {label:'↑ Sobre objetivo',class:'high'};
+}
+function updateUI(){
+  const last=latestMeasurement(), goal=state.settings.khGoal;
+  const cons=estimateConsumption();
+  const maint=dosingFromConsumption(cons);
+  const displayDose=state.doses.kh ?? maint;
+  $('#homeKh').textContent=last?nf(last.kh,1):'—';
+  $('#homeGoal').textContent=nf(goal,1);
+  $('#measureGoal').textContent=nf(goal,1);
+  $('#consumption').textContent=nf(cons,2);
+  $('#dailyDose').textContent=nf(displayDose,1);
+  $('#lastMeasured').textContent=last?new Date(last.ts).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'sin datos';
+  const st=statusText(last,goal);
+  $('#statusPill').textContent=st.label; $('#khState').textContent=st.label;
+  $('#statusPill').style.background=st.class==='stable'?'var(--green-soft)':'#fff4e9';
+  $('#statusPill').style.color=st.class==='stable'?'var(--green)':'var(--orange)';
+  $('#khState').style.color=st.class==='stable'?'var(--green)':'var(--orange)';
+
+  $('#khDoseCard').textContent=`${nf(state.doses.kh,1)} ml/día`;
+  $('#caDoseCard').textContent=`${nf(state.doses.ca,1)} ml/día`;
+  $('#traceDoseCard').textContent=`${nf(state.doses.trace,1)} ml/día`;
+  $('#khDoseSplit').textContent=`${nf(state.doses.kh/state.settings.khDoses,1)} ml × ${state.settings.khDoses} dosis`;
+  $('#caDoseSplit').textContent=`${nf(state.doses.ca/state.settings.otherDoses,1)} ml × ${state.settings.otherDoses} dosis`;
+  $('#traceDoseSplit').textContent=`${nf(state.doses.trace/state.settings.otherDoses,1)} ml × ${state.settings.otherDoses} dosis`;
+
+  updateInventory();
+  updateInsights();
+  renderEvents();
+  $('#netVolume').value=state.settings.volume;
+  $('#goalKhSetting').value=state.settings.khGoal;
+  $('#khDosesPerDay').value=state.settings.khDoses;
+  $('#otherDosesPerDay').value=state.settings.otherDoses;
+  $('#khInvSetting').value=state.inventory.kh;
+  $('#caInvSetting').value=state.inventory.ca;
+  $('#traceInvSetting').value=state.inventory.trace;
+  $('#calcKhGoal').value=state.settings.khGoal;
+  updateCorrection();
+  drawAllCharts();
+}
+function updateInventory(){
+  const defs=[
+    ['kh','kh',state.doses.kh,'capacityKh'],
+    ['ca','ca',state.doses.ca,'capacityCa'],
+    ['trace','trace',state.doses.trace,'capacityTrace']
+  ];
+  for(const [key,prefix,dose,capKey] of defs){
+    const rem=Number(state.inventory[key]||0), cap=Number(state.inventory[capKey]||Math.max(rem,1));
+    const pct=Math.max(0,Math.min(100,rem/cap*100));
+    const days=dose>0?Math.floor(rem/dose):Infinity;
+    const remEl=$(`#${prefix}Remaining`), pctEl=$(`#${prefix}Percent`), daysEl=$(`#${prefix}Days`), barEl=$(`#${prefix}Progress`);
+    if(remEl) remEl.textContent=`${nf(rem,0)} ml`;
+    if(pctEl) pctEl.textContent=`${nf(pct,0)}%`;
+    if(daysEl) daysEl.textContent=Number.isFinite(days)?`${days} días`:'—';
+    if(barEl) barEl.style.width=`${pct}%`;
+  }
+}
+function updateInsights(){
+  const el=$('#insights'); const last=latestMeasurement(); const goal=state.settings.khGoal; const cons=estimateConsumption();
+  const list=[];
+  if(!last) list.push('Aún no hay suficientes datos para interpretar el KH.');
+  else{
+    const delta=last.kh-goal;
+    if(Math.abs(delta)<=.2) list.push(`<strong>KH estable.</strong> La última medición está dentro del rango cercano al objetivo.`);
+    if(delta<-.2) list.push(`<strong>KH por debajo del objetivo.</strong> Conviene confirmar la tendencia antes de realizar una corrección grande.`);
+    if(delta>.2) list.push(`<strong>KH por encima del objetivo.</strong> Evita reducir la dosis basándote en una única lectura.`);
+    list.push(`<strong>Consumo estimado:</strong> ${nf(cons,2)} dKH/día · confianza ${confidence()}.`);
+    const lastEvent=state.events.slice().sort((a,b)=>new Date(b.ts)-new Date(a.ts))[0];
+    if(lastEvent?.type==='water') list.push(`<strong>Cambio de agua reciente.</strong> Las lecturas inmediatamente anteriores y posteriores se contextualizan y no se usan de forma ciega.`);
+  }
+  el.innerHTML=list.map(x=>`<div class="insight">${x}</div>`).join('');
+  $('#nextAction').textContent=last && Math.abs(last.kh-goal)>.2 ? 'Repite KH antes de modificar la dosificación.' : 'Registra KH con regularidad para afinar el consumo.';
+}
+function renderEvents(){
+  const labels={water:'💧',dose:'🧪',correction:'⚗️',balling:'🧴'};
+  const el=$('#eventList');
+  const items=[...state.events].sort((a,b)=>new Date(b.ts)-new Date(a.ts)).slice(0,8);
+  el.innerHTML=items.length?items.map(e=>`<div class="event"><div class="action-ico" style="width:38px;height:38px;font-size:18px">${labels[e.type]||'•'}</div><div><div class="what">${e.detail}</div><div class="when">${new Date(e.ts).toLocaleString('es-ES',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div></div>`).join(''):'<div class="small">Sin eventos registrados.</div>';
+}
+function parseNum(v){return Number(String(v).replace(',','.'))}
+
+function saveMeasurement(full){
+  const kh=parseNum($('#khInput').value);
+  if(!Number.isFinite(kh) || kh<3 || kh>15){toast('Introduce un KH válido');return}
+  const ts=`${$('#measureDate').value}T${$('#measureTime').value||'00:00'}`;
+  const m={ts,kh};
+  if(full){
+    for(const [id,key] of [['caInput','ca'],['mgInput','mg'],['no3Input','no3'],['po4Input','po4'],['salInput','sal']]){
+      const val=parseNum($('#'+id).value); if(Number.isFinite(val)) m[key]=val;
+    }
+  }
+  state.measurements.push(m);
+  persist();updateUI();toast(full?'Medición guardada':'KH guardado');switchView('home');
+}
+$('#saveMeasurement').onclick=()=>saveMeasurement(true);
+$('#saveKhOnly').onclick=()=>saveMeasurement(false);
+
+function updateCorrection(){
+  const c=parseNum($('#calcKhCurrent').value), g=parseNum($('#calcKhGoal').value);
+  const ml=(Number.isFinite(c)&&Number.isFinite(g))?correctionMl(c,g):0;
+  $('#correctionMl').textContent=nf(ml,1);
+}
+$('#calcKhCurrent').addEventListener('input',updateCorrection);
+$('#calcKhGoal').addEventListener('input',updateCorrection);
+
+$('#saveSettings').onclick=()=>{
+  const volume=parseNum($('#netVolume').value), goal=parseNum($('#goalKhSetting').value);
+  const kd=parseInt($('#khDosesPerDay').value), od=parseInt($('#otherDosesPerDay').value);
+  if(!(volume>0&&goal>0&&kd>0&&od>0)){toast('Revisa la configuración');return}
+  state.settings={volume,khGoal:goal,khDoses:kd,otherDoses:od};persist();updateUI();toast('Configuración guardada');
+};
+$('#saveInventory').onclick=()=>{
+  const kh=parseNum($('#khInvSetting').value), ca=parseNum($('#caInvSetting').value), tr=parseNum($('#traceInvSetting').value);
+  if([kh,ca,tr].some(v=>!Number.isFinite(v)||v<0)){toast('Revisa el inventario');return}
+  state.inventory.kh=kh;state.inventory.ca=ca;state.inventory.trace=tr;
+  state.inventory.capacityKh=Math.max(state.inventory.capacityKh||0,kh);
+  state.inventory.capacityCa=Math.max(state.inventory.capacityCa||0,ca);
+  state.inventory.capacityTrace=Math.max(state.inventory.capacityTrace||0,tr);
+  persist();updateUI();toast('Inventario actualizado');
+};
+
+function openEventModal(){
+  $('#eventModal').classList.add('open');
+  const d=new Date(), tz=d.getTimezoneOffset()*60000;
+  $('#eventDate').value=new Date(d-tz).toISOString().slice(0,16);
+}
+function closeEventModal(){$('#eventModal').classList.remove('open')}
+window.openEventModal=openEventModal;window.closeEventModal=closeEventModal;
+$('#eventModal').addEventListener('click',e=>{if(e.target.id==='eventModal')closeEventModal()});
+$('#saveEvent').onclick=()=>{
+  const type=$('#eventType').value, ts=$('#eventDate').value, detail=$('#eventDetail').value.trim();
+  if(!ts){toast('Selecciona fecha y hora');return}
+  const defaultDetail={water:'Cambio de agua',dose:'Cambio de dosificación',correction:'Corrección manual',balling:'Nueva preparación Balling'}[type];
+  state.events.push({ts,type,detail:detail||defaultDetail});persist();updateUI();closeEventModal();toast('Evento registrado');
+};
+
+$$('.tab').forEach(b=>b.onclick=()=>{
+  $$('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');drawHistoryChart(Number(b.dataset.days));
+});
+
+function drawChart(canvas, days=7){
+  const ctx=canvas.getContext('2d');
+  const W=canvas.clientWidth*devicePixelRatio,H=canvas.clientHeight*devicePixelRatio;
+  canvas.width=W;canvas.height=H;ctx.scale(devicePixelRatio,devicePixelRatio);
+  const w=canvas.clientWidth,h=canvas.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  const pad={l:34,r:10,t:12,b:24};
+  let data=normalizedMeasurements();
+  if(days){
+    const cutoff=Date.now()-days*86400000;
+    const filtered=data.filter(m=>+new Date(m.ts)>=cutoff);
+    if(filtered.length>=2)data=filtered;
+  }
+  if(!data.length)return;
+  const vals=data.map(d=>d.kh), min=Math.min(7,...vals)-.1,max=Math.max(9,...vals)+.1;
+  const x=i=>pad.l+(w-pad.l-pad.r)*(data.length===1?.5:i/(data.length-1));
+  const y=v=>pad.t+(h-pad.t-pad.b)*(1-(v-min)/(max-min));
+  ctx.lineWidth=1;ctx.strokeStyle='#dce7eb';ctx.fillStyle='#6e7f98';ctx.font='10px Trebuchet MS';
+  for(let i=0;i<5;i++){const val=min+(max-min)*i/4,yy=y(val);ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(w-pad.r,yy);ctx.stroke();ctx.fillText(nf(val,1),2,yy+3)}
+  ctx.strokeStyle='#2584d8';ctx.lineWidth=2.3;ctx.beginPath();
+  data.forEach((d,i)=>{const xx=x(i),yy=y(d.kh);i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy)});ctx.stroke();
+  data.forEach((d,i)=>{ctx.fillStyle='#2584d8';ctx.beginPath();ctx.arc(x(i),y(d.kh),3.2,0,Math.PI*2);ctx.fill()});
+  ctx.fillStyle='#6e7f98';
+  const labels=Math.min(5,data.length);
+  for(let i=0;i<labels;i++){const idx=Math.round(i*(data.length-1)/(labels-1||1)),d=new Date(data[idx].ts);ctx.fillText(`${d.getDate()}/${d.getMonth()+1}`,x(idx)-9,h-5)}
+  state.events.forEach(e=>{
+    const t=+new Date(e.ts), first=+new Date(data[0].ts), last=+new Date(data[data.length-1].ts);
+    if(t<first||t>last)return;
+    const xx=pad.l+(w-pad.l-pad.r)*(t-first)/(last-first||1);
+    ctx.strokeStyle=e.type==='water'?'#22a9b7':'#78a52e';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(xx,pad.t);ctx.lineTo(xx,h-pad.b);ctx.stroke();
+    ctx.fillStyle=ctx.strokeStyle;ctx.beginPath();ctx.arc(xx,pad.t+5,4,0,Math.PI*2);ctx.fill();
+  });
+}
+function drawHistoryChart(days){
+  const active=$('.tab.active'); const d=days||Number(active?.dataset.days||7);
+  drawChart($('#historyChart'),d);
+}
+function drawAllCharts(){
+  requestAnimationFrame(()=>{drawChart($('#homeChart'),7);drawHistoryChart()})
+}
+window.addEventListener('resize',drawAllCharts);
+
+(function init(){
+  const n=nowLocal();$('#measureDate').value=n.date;$('#measureTime').value=n.time;
+  const last=latestMeasurement();if(last)$('#khInput').value=last.kh;
+  updateUI();
+})();
+</script>
+
+<script id="aquabalance-kawaii-motion">
+(function(){
+  function wrapLetters(el){
+    if(!el || el.dataset.lettersReady) return;
+    const text=el.textContent;
+    el.textContent='';
+    [...text].forEach((char,i)=>{
+      const s=document.createElement('span');
+      s.className='letter';
+      s.style.setProperty('--i',i);
+      s.textContent=char===' ' ? '\u00A0' : char;
+      el.appendChild(s);
+    });
+    el.dataset.lettersReady='1';
+  }
+  wrapLetters(document.querySelector('.brand-name'));
+  document.querySelectorAll('.hero h1,.section-head h1').forEach(wrapLetters);
+
+  // Micro-parallax only on capable pointers; subtle enough for mobile UI.
+  const app=document.querySelector('.app');
+  if(window.matchMedia('(pointer:fine)').matches && app){
+    app.addEventListener('pointermove',e=>{
+      const r=app.getBoundingClientRect();
+      const x=(e.clientX-r.left)/r.width-.5;
+      const y=(e.clientY-r.top)/r.height-.5;
+      app.style.setProperty('--mx',x.toFixed(3));
+      app.style.setProperty('--my',y.toFixed(3));
+      document.querySelectorAll('.bubble').forEach((b,i)=>{
+        const m=(i+1)*1.4;
+        b.style.marginLeft=`${x*m}px`;
+        b.style.marginTop=`${y*m}px`;
+      });
+    });
+  }
+
+  // Make the canvas feel integrated: soft area fill + curved line.
+  const oldDrawChart = window.drawChart || drawChart;
+  drawChart = function(canvas, days=7){
+    const ctx=canvas.getContext('2d');
+    const dpr=Math.min(devicePixelRatio||1,2);
+    const W=canvas.clientWidth*dpr,H=canvas.clientHeight*dpr;
+    canvas.width=W;canvas.height=H;ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=canvas.clientWidth,h=canvas.clientHeight;
+    ctx.clearRect(0,0,w,h);
+    const pad={l:35,r:11,t:15,b:25};
+    let data=normalizedMeasurements();
+    if(days){
+      const cutoff=Date.now()-days*86400000;
+      const filtered=data.filter(m=>+new Date(m.ts)>=cutoff);
+      if(filtered.length>=2)data=filtered;
+    }
+    if(!data.length)return;
+    const vals=data.map(d=>d.kh), min=Math.min(7,...vals)-.16,max=Math.max(9,...vals)+.16;
+    const x=i=>pad.l+(w-pad.l-pad.r)*(data.length===1?.5:i/(data.length-1));
+    const y=v=>pad.t+(h-pad.t-pad.b)*(1-(v-min)/(max-min));
+
+    ctx.lineWidth=1;ctx.strokeStyle='rgba(101,145,163,.13)';ctx.fillStyle='#7a8da2';ctx.font='600 10px "Patrick Hand SC",cursive';
+    for(let i=0;i<5;i++){
+      const val=min+(max-min)*i/4,yy=y(val);
+      ctx.setLineDash([3,5]);ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(w-pad.r,yy);ctx.stroke();ctx.setLineDash([]);
+      ctx.fillText(nf(val,1),3,yy+3);
+    }
+
+    // target halo
+    const goal=state.settings.khGoal;
+    const gy=y(goal);
+    ctx.fillStyle='rgba(53,198,202,.06)';ctx.fillRect(pad.l,gy-8,w-pad.l-pad.r,16);
+    ctx.strokeStyle='rgba(53,198,202,.28)';ctx.setLineDash([4,5]);ctx.beginPath();ctx.moveTo(pad.l,gy);ctx.lineTo(w-pad.r,gy);ctx.stroke();ctx.setLineDash([]);
+
+    // smooth path through points
+    const pts=data.map((d,i)=>({x:x(i),y:y(d.kh)}));
+    const path=new Path2D();
+    path.moveTo(pts[0].x,pts[0].y);
+    for(let i=1;i<pts.length;i++){
+      const p0=pts[i-1],p1=pts[i],mx=(p0.x+p1.x)/2;
+      path.bezierCurveTo(mx,p0.y,mx,p1.y,p1.x,p1.y);
+    }
+    const area=new Path2D(path);
+    area.lineTo(pts[pts.length-1].x,h-pad.b);area.lineTo(pts[0].x,h-pad.b);area.closePath();
+    const fill=ctx.createLinearGradient(0,pad.t,0,h-pad.b);
+    fill.addColorStop(0,'rgba(102,170,241,.22)');fill.addColorStop(1,'rgba(53,198,202,.015)');
+    ctx.fillStyle=fill;ctx.fill(area);
+
+    const stroke=ctx.createLinearGradient(pad.l,0,w-pad.r,0);
+    stroke.addColorStop(0,'#66aaf1');stroke.addColorStop(1,'#35c6ca');
+    ctx.strokeStyle=stroke;ctx.lineWidth=3;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke(path);
+
+    pts.forEach((p,i)=>{
+      ctx.fillStyle='rgba(255,255,255,.98)';ctx.beginPath();ctx.arc(p.x,p.y,5.1,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle=i===pts.length-1?'#35c6ca':'#66aaf1';ctx.lineWidth=2.5;ctx.stroke();
+      if(i===pts.length-1){ctx.fillStyle='rgba(53,198,202,.13)';ctx.beginPath();ctx.arc(p.x,p.y,9,0,Math.PI*2);ctx.fill()}
+    });
+
+    ctx.fillStyle='#7a8da2';ctx.font='600 10px "Patrick Hand SC",cursive';
+    const labels=Math.min(5,data.length);
+    for(let i=0;i<labels;i++){
+      const idx=Math.round(i*(data.length-1)/(labels-1||1)),d=new Date(data[idx].ts);
+      ctx.fillText(`${d.getDate()}/${d.getMonth()+1}`,x(idx)-9,h-6);
+    }
+
+    state.events.forEach(e=>{
+      const t=+new Date(e.ts), first=+new Date(data[0].ts), last=+new Date(data[data.length-1].ts);
+      if(t<first||t>last)return;
+      const xx=pad.l+(w-pad.l-pad.r)*(t-first)/(last-first||1);
+      const col=e.type==='water'?'#35c6ca':'#8fcf72';
+      ctx.strokeStyle=col;ctx.globalAlpha=.45;ctx.lineWidth=1.3;ctx.setLineDash([2,4]);ctx.beginPath();ctx.moveTo(xx,pad.t);ctx.lineTo(xx,h-pad.b);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;
+      ctx.fillStyle=col;ctx.beginPath();ctx.arc(xx,pad.t+4,4,0,Math.PI*2);ctx.fill();
+    });
+  };
+
+  // Redraw once after fonts arrive, then the existing listeners keep it updated.
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>drawAllCharts());
+  else setTimeout(drawAllCharts,250);
+})();
+</script>
+
+
+<script id="aquabalance-kawaii-v3-script">
+(function(){
+  const $ = (s,el=document)=>el.querySelector(s);
+  const $$ = (s,el=document)=>[...el.querySelectorAll(s)];
+  const nowISO = ()=>new Date().toISOString();
+  function ensureInventoryState(){
+    if(!window.state) return;
+    state.inventory ||= {};
+    const inv = state.inventory;
+    const defs = [
+      ['kh','capacityKh'],
+      ['ca','capacityCa'],
+      ['trace','capacityTrace']
+    ];
+    defs.forEach(([key,capKey])=>{
+      inv[key] = Number.isFinite(Number(inv[key])) ? Number(inv[key]) : 0;
+      inv[capKey] = Number.isFinite(Number(inv[capKey])) && Number(inv[capKey])>0 ? Number(inv[capKey]) : Math.max(inv[key],1);
+      const tsKey = key+'SetAt';
+      if(!inv[tsKey]) inv[tsKey] = nowISO();
+    });
+  }
+  function computedStock(key,dose,capKey){
+    ensureInventoryState();
+    const inv = state.inventory;
+    const base = Number(inv[key]||0);
+    const ts = inv[key+'SetAt'] || nowISO();
+    const elapsed = Math.max(0,(Date.now() - new Date(ts).getTime())/86400000);
+    const remaining = Math.max(0, base - Number(dose||0)*elapsed);
+    const cap = Math.max(1, Number(inv[capKey]||base||1));
+    const pct = Math.max(0, Math.min(100, remaining / cap * 100));
+    const days = Number(dose)>0 ? Math.floor(remaining / Number(dose)) : Infinity;
+    return {remaining, pct, days, elapsed};
+  }
+  function injectAmbient(){
+    const ocean = document.querySelector('.ocean-ambient');
+    if(!ocean || ocean.dataset.v3ready) return;
+    const bubbleSpecs = [
+      ['tiny', '5%', '18%', '7.2s', '-1s'], ['micro','10%','26%','8.5s','-3s'],
+      ['tiny', '15%', '35%', '9s', '-5s'], ['micro','8%','47%','8s','-2s'],
+      ['tiny', '11%', '73%', '9.6s', '-6s'], ['micro','16%','83%','7.6s','-7s'],
+      ['tiny', '82%', '14%', '7.9s', '-1s'], ['micro','90%','28%','8.7s','-4s'],
+      ['tiny', '87%', '41%', '9.1s', '-6s'], ['micro','84%','66%','7.4s','-2s'],
+      ['tiny', '91%', '78%', '8.6s', '-5s'], ['micro','76%','54%','7.8s','-3s']
+    ];
+    bubbleSpecs.forEach(([cls,left,top,dur,delay])=>{
+      const i = document.createElement('i');
+      i.className = 'bubble ' + cls;
+      i.style.left = left;
+      i.style.top = top;
+      i.style.setProperty('--dur', dur);
+      i.style.animationDelay = delay;
+      ocean.appendChild(i);
+    });
+    const left = document.createElement('div');
+    left.className = 'coral-border coral-left';
+    left.innerHTML = '<span class="mini-coral c1"></span><span class="mini-coral short c2"></span><span class="mini-coral c3"></span>';
+    const right = document.createElement('div');
+    right.className = 'coral-border coral-right';
+    right.innerHTML = '<span class="mini-coral short c4"></span><span class="mini-coral c2"></span><span class="mini-coral short c1"></span>';
+    const f1 = document.createElement('div'); f1.className = 'ambient-fish clownfish fish-a';
+    const f2 = document.createElement('div'); f2.className = 'ambient-fish clownfish fish-b';
+    const f3 = document.createElement('div'); f3.className = 'ambient-fish chelmon fish-c';
+    ocean.append(left,right,f1,f2,f3);
+    ocean.dataset.v3ready = '1';
+  }
+  function polishBrand(){
+    document.querySelector('.brand-fish')?.remove();
+    const brand = document.querySelector('.brand-name');
+    if(brand) brand.setAttribute('aria-label','Reef Marine Control');
+  }
+  function enhanceDoseCards(){
+    const map = [
+      ['.dose-card.teal','kh'],
+      ['.dose-card.green','ca'],
+      ['.dose-card.purple','trace']
+    ];
+    map.forEach(([selector,prefix])=>{
+      const card = document.querySelector(selector);
+      if(!card || card.querySelector('.dose-volume')) return;
+      const info = card.querySelector('.dose-info');
+      if(!info) return;
+      info.insertAdjacentHTML('beforeend', `
+        <div class="dose-volume">
+          <div class="dose-liquid-label"><span>Volumen restante estimado</span><span id="${prefix}DoseDaysLine">—</span></div>
+          <div class="dose-liquid-bar"><span id="${prefix}DoseFill"></span></div>
+          <div class="dose-liquid-meta"><span id="${prefix}DoseRemainingLine">—</span><small id="${prefix}DosePercentLine">—</small></div>
+        </div>
+      `);
+    });
+  }
+  function enhanceSettingsCard(){
+    const settingsView = document.querySelector('.view[data-view="settings"]');
+    if(!settingsView) return;
+    const cards = $$('.card', settingsView);
+    const invCard = cards[1];
+    if(!invCard || invCard.dataset.stockEnhanced) return;
+    const title = invCard.querySelector('.card-title .title');
+    if(title) title.textContent = 'Botes e inventario';
+    const form = invCard.querySelector('.form-grid');
+    if(!form) return;
+    const capBlock = document.createElement('div');
+    capBlock.innerHTML = `
+      <div class="stock-block-title">Capacidad del bote</div>
+      <div class="form-grid cap-grid">
+        <div class="field"><label>KH Part (ml)</label><input id="khCapacitySetting" inputmode="decimal" value="1800"></div>
+        <div class="field"><label>Calcium Part (ml)</label><input id="caCapacitySetting" inputmode="decimal" value="1500"></div>
+        <div class="field"><label>Trace Part (ml)</label><input id="traceCapacitySetting" inputmode="decimal" value="1200"></div>
+      </div>
+      <div class="stock-block-title">Volumen cargado ahora</div>
+    `;
+    form.before(capBlock);
+    form.insertAdjacentHTML('afterend', '<div class="stock-helper">Al pulsar <strong>Sincronizar botes</strong>, la app toma estos mililitros como punto de partida y los descuenta automáticamente según la dosificación diaria de cada producto. Así siempre verás una estimación visual de cuánto líquido queda.</div>');
+    const btn = invCard.querySelector('#saveInventory');
+    if(btn) btn.textContent = 'Sincronizar botes';
+    invCard.dataset.stockEnhanced = '1';
+  }
+  function syncSettingsInputs(){
+    ensureInventoryState();
+    const inv = state.inventory;
+    const khCalc = computedStock('kh', state.doses.kh, 'capacityKh');
+    const caCalc = computedStock('ca', state.doses.ca, 'capacityCa');
+    const trCalc = computedStock('trace', state.doses.trace, 'capacityTrace');
+    if($('#khInvSetting')) $('#khInvSetting').value = Math.max(0, Math.round(khCalc.remaining));
+    if($('#caInvSetting')) $('#caInvSetting').value = Math.max(0, Math.round(caCalc.remaining));
+    if($('#traceInvSetting')) $('#traceInvSetting').value = Math.max(0, Math.round(trCalc.remaining));
+    if($('#khCapacitySetting')) $('#khCapacitySetting').value = Number(inv.capacityKh || 0);
+    if($('#caCapacitySetting')) $('#caCapacitySetting').value = Number(inv.capacityCa || 0);
+    if($('#traceCapacitySetting')) $('#traceCapacitySetting').value = Number(inv.capacityTrace || 0);
+  }
+
+  const oldUpdateInventory = window.updateInventory;
+  window.updateInventory = function(){
+    ensureInventoryState();
+    const defs = [
+      ['kh','kh',state.doses.kh,'capacityKh'],
+      ['ca','ca',state.doses.ca,'capacityCa'],
+      ['trace','trace',state.doses.trace,'capacityTrace']
+    ];
+    defs.forEach(([key,prefix,dose,capKey])=>{
+      const calc = computedStock(key, dose, capKey);
+      const remText = `${nf(calc.remaining,0)} ml`;
+      const pctText = `${nf(calc.pct,0)}%`;
+      const dayText = Number.isFinite(calc.days) ? `${calc.days} días` : '—';
+      if(document.getElementById(prefix+'Remaining')) document.getElementById(prefix+'Remaining').textContent = remText;
+      if(document.getElementById(prefix+'Percent')) document.getElementById(prefix+'Percent').textContent = pctText;
+      if(document.getElementById(prefix+'Days')) document.getElementById(prefix+'Days').textContent = dayText;
+      if(document.getElementById(prefix+'Progress')) document.getElementById(prefix+'Progress').style.width = `${calc.pct}%`;
+      if(document.getElementById(prefix+'DoseFill')) document.getElementById(prefix+'DoseFill').style.width = `${calc.pct}%`;
+      if(document.getElementById(prefix+'DoseRemainingLine')) document.getElementById(prefix+'DoseRemainingLine').textContent = remText;
+      if(document.getElementById(prefix+'DosePercentLine')) document.getElementById(prefix+'DosePercentLine').textContent = `${pctText} del bote`;
+      if(document.getElementById(prefix+'DoseDaysLine')) document.getElementById(prefix+'DoseDaysLine').textContent = dayText;
+    });
+  };
+
+  const oldUpdateUI = window.updateUI;
+  window.updateUI = function(){
+    ensureInventoryState();
+    oldUpdateUI();
+    syncSettingsInputs();
+  };
+
+  function bindStockSave(){
+    const btn = document.getElementById('saveInventory');
+    if(!btn || btn.dataset.v3bound) return;
+    btn.onclick = ()=>{
+      const kh=parseNum($('#khInvSetting').value), ca=parseNum($('#caInvSetting').value), tr=parseNum($('#traceInvSetting').value);
+      const khCap=parseNum($('#khCapacitySetting').value), caCap=parseNum($('#caCapacitySetting').value), trCap=parseNum($('#traceCapacitySetting').value);
+      if([kh,ca,tr,khCap,caCap,trCap].some(v=>!Number.isFinite(v)||v<0)){toast('Revisa los volúmenes del bote');return}
+      if([['KH',kh,khCap],['Ca',ca,caCap],['Trace',tr,trCap]].some(([,cur,cap])=>cur>cap)) {toast('El volumen cargado no puede superar la capacidad');return}
+      const ts = nowISO();
+      state.inventory.kh = kh; state.inventory.ca = ca; state.inventory.trace = tr;
+      state.inventory.capacityKh = Math.max(1, khCap); state.inventory.capacityCa = Math.max(1, caCap); state.inventory.capacityTrace = Math.max(1, trCap);
+      state.inventory.khSetAt = ts; state.inventory.caSetAt = ts; state.inventory.traceSetAt = ts;
+      persist(); updateUI(); toast('Botes sincronizados');
+    };
+    btn.dataset.v3bound = '1';
+  }
+
+  function initV3(){
+    injectAmbient();
+    polishBrand();
+    enhanceDoseCards();
+    enhanceSettingsCard();
+    bindStockSave();
+    ensureInventoryState();
+    updateUI();
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initV3, {once:true});
+  else initV3();
+})();
+</script>
+
+
+<script id="aquabalance-handlettered-bubbles-script">
+(function(){
+  function paintAndMultiplyBubbles(){
+    const ocean = document.querySelector('.ocean-ambient');
+    if(!ocean) return;
+    document.querySelectorAll('.ambient-fish').forEach(el=>el.remove());
+    const tones = ['tint-blue','tint-green','tint-purple'];
+    document.querySelectorAll('.bubble').forEach((b,i)=>b.classList.add(tones[i%tones.length]));
+    if(ocean.dataset.moreBubblesReady) return;
+    const specs = [
+      ['tiny','12%','12%','8.2s','-2s'],['micro','20%','19%','7.4s','-4s'],['nano','26%','11%','6.8s','-1s'],
+      ['tiny','33%','16%','9.4s','-6s'],['micro','41%','10%','8.8s','-3s'],['tiny','52%','18%','9.1s','-7s'],
+      ['micro','62%','12%','7.2s','-2s'],['nano','71%','17%','6.5s','-4s'],['tiny','80%','12%','8.7s','-6s'],
+      ['micro','88%','22%','7.8s','-3s'],['tiny','7%','37%','8.4s','-5s'],['micro','16%','44%','7.6s','-2s'],
+      ['nano','24%','35%','6.9s','-1s'],['tiny','73%','36%','8.9s','-7s'],['micro','83%','43%','7.3s','-4s'],
+      ['tiny','91%','39%','8.1s','-2s'],['micro','9%','57%','7.9s','-5s'],['tiny','18%','67%','9.2s','-3s'],
+      ['nano','28%','59%','6.7s','-1s'],['tiny','76%','61%','8.8s','-6s'],['micro','86%','70%','7.4s','-2s'],
+      ['tiny','92%','82%','9.3s','-7s'],['micro','14%','84%','7.7s','-4s'],['nano','22%','77%','6.3s','-2s'],
+      ['tiny','37%','86%','8.6s','-3s'],['micro','49%','80%','7.5s','-5s'],['tiny','61%','88%','9.5s','-6s'],
+      ['nano','70%','79%','6.6s','-1s'],['micro','82%','90%','7.1s','-4s']
+    ];
+    specs.forEach(([cls,left,top,dur,delay],i)=>{
+      const el = document.createElement('i');
+      el.className = `bubble ${cls} ${tones[i%tones.length]}`;
+      el.style.left = left;
+      el.style.top = top;
+      el.style.setProperty('--dur', dur);
+      el.style.animationDelay = delay;
+      ocean.appendChild(el);
+    });
+    ocean.dataset.moreBubblesReady = '1';
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', paintAndMultiplyBubbles, {once:true});
+  else paintAndMultiplyBubbles();
+})();
+</script>
+
+
+<script id="aquabalance-v5-bubble-normalizer">
+(function(){
+  function normalizeTealBubbles(){
+    const ocean = document.querySelector('.ocean-ambient');
+    if(!ocean) return;
+    document.querySelectorAll('.ambient-fish').forEach(el=>el.remove());
+    document.querySelectorAll('.bubble').forEach(b=>{
+      b.classList.remove('tint-blue','tint-green','tint-purple');
+    });
+    if(ocean.dataset.v5morebubbles) return;
+    const specs = [
+      ['tiny','6%','10%','8.2s','-1s'],['micro','11%','17%','7.4s','-3s'],['tiny','18%','12%','8.8s','-5s'],['nano','27%','8%','6.9s','-2s'],
+      ['tiny','37%','14%','9.3s','-6s'],['micro','48%','9%','7.6s','-4s'],['tiny','58%','15%','8.7s','-7s'],['nano','70%','11%','6.6s','-1s'],['tiny','83%','13%','9.1s','-5s'],['micro','92%','19%','7.8s','-3s'],
+      ['tiny','5%','29%','8.4s','-6s'],['micro','14%','36%','7.1s','-2s'],['nano','23%','31%','6.5s','-4s'],['tiny','31%','39%','9.0s','-7s'],['micro','43%','28%','7.5s','-1s'],
+      ['tiny','55%','35%','8.6s','-5s'],['nano','63%','30%','6.8s','-2s'],['micro','75%','40%','7.3s','-6s'],['tiny','87%','33%','8.9s','-3s'],['micro','94%','45%','7.2s','-4s'],
+      ['tiny','8%','51%','8.7s','-2s'],['nano','17%','58%','6.7s','-1s'],['micro','25%','49%','7.8s','-5s'],['tiny','36%','55%','9.2s','-7s'],['micro','47%','63%','7.4s','-3s'],
+      ['tiny','59%','52%','8.5s','-6s'],['nano','68%','60%','6.4s','-2s'],['micro','78%','57%','7.6s','-5s'],['tiny','88%','64%','9.1s','-4s'],['micro','94%','55%','7.0s','-1s'],
+      ['tiny','6%','74%','8.9s','-5s'],['micro','15%','82%','7.2s','-2s'],['nano','24%','71%','6.5s','-4s'],['tiny','35%','79%','9.3s','-7s'],['micro','46%','87%','7.7s','-3s'],
+      ['tiny','57%','76%','8.8s','-6s'],['nano','66%','84%','6.6s','-1s'],['micro','76%','72%','7.3s','-5s'],['tiny','86%','86%','9.0s','-4s'],['micro','93%','78%','7.1s','-2s']
+    ];
+    specs.forEach(([cls,left,top,dur,delay])=>{
+      const el = document.createElement('i');
+      el.className = `bubble ${cls}`;
+      el.style.left = left;
+      el.style.top = top;
+      el.style.setProperty('--dur', dur);
+      el.style.animationDelay = delay;
+      ocean.appendChild(el);
+    });
+    ocean.dataset.v5morebubbles = '1';
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', normalizeTealBubbles, {once:true});
+  else normalizeTealBubbles();
+})();
+</script>
+
+
+<script id="aquabalance-v6-bubble-only-cleanup">
+(function(){
+  function applyV6(){
+    document.querySelector('.fab')?.remove();
+    document.querySelectorAll('.reef-corner, .coral-border, .ambient-fish').forEach(el=>el.remove());
+    const ocean = document.querySelector('.ocean-ambient');
+    if(!ocean) return;
+    document.querySelectorAll('.bubble').forEach(b=>{
+      b.classList.remove('tint-blue','tint-green','tint-purple');
+    });
+    if(ocean.dataset.v6ExtraBubbles) return;
+    const specs = [
+      ['tiny','4%','9%','8.3s','-1s'],['micro','9%','15%','7.1s','-2s'],['nano','15%','8%','6.6s','-4s'],['tiny','21%','13%','8.8s','-5s'],
+      ['micro','29%','7%','7.4s','-1s'],['tiny','38%','12%','9.2s','-6s'],['nano','46%','8%','6.5s','-2s'],['micro','55%','14%','7.7s','-4s'],
+      ['tiny','64%','9%','8.6s','-7s'],['nano','72%','15%','6.8s','-1s'],['micro','81%','10%','7.2s','-5s'],['tiny','90%','16%','9.1s','-3s'],
+      ['micro','6%','24%','7.6s','-6s'],['tiny','14%','31%','8.9s','-2s'],['nano','23%','25%','6.4s','-1s'],['micro','31%','34%','7.3s','-4s'],
+      ['tiny','42%','27%','8.7s','-6s'],['nano','50%','33%','6.8s','-3s'],['micro','60%','26%','7.5s','-5s'],['tiny','71%','35%','9.0s','-7s'],
+      ['nano','79%','28%','6.5s','-2s'],['micro','87%','37%','7.1s','-1s'],['tiny','95%','29%','8.6s','-4s'],['micro','8%','47%','7.7s','-3s'],
+      ['tiny','17%','55%','9.3s','-6s'],['nano','26%','49%','6.6s','-2s'],['micro','35%','58%','7.2s','-5s'],['tiny','46%','52%','8.8s','-1s'],
+      ['nano','54%','59%','6.3s','-4s'],['micro','63%','50%','7.4s','-6s'],['tiny','74%','57%','9.1s','-7s'],['nano','83%','51%','6.5s','-2s'],
+      ['micro','92%','61%','7.3s','-3s'],['tiny','5%','69%','8.7s','-5s'],['nano','13%','77%','6.7s','-1s'],['micro','22%','71%','7.0s','-4s'],
+      ['tiny','32%','80%','9.2s','-6s'],['nano','41%','73%','6.6s','-2s'],['micro','50%','84%','7.5s','-5s'],['tiny','61%','76%','8.9s','-7s'],
+      ['nano','70%','86%','6.4s','-1s'],['micro','79%','74%','7.2s','-3s'],['tiny','88%','85%','9.0s','-6s'],['micro','95%','79%','7.1s','-2s']
+    ];
+    specs.forEach(([cls,left,top,dur,delay])=>{
+      const el = document.createElement('i');
+      el.className = `bubble ${cls}`;
+      el.style.left = left;
+      el.style.top = top;
+      el.style.setProperty('--dur', dur);
+      el.style.animationDelay = delay;
+      ocean.appendChild(el);
+    });
+    ocean.dataset.v6ExtraBubbles = '1';
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyV6, {once:true});
+  else applyV6();
+})();
+</script>
+
+
+<script id="aquabalance-v7-many-bubbles">
+(function(){
+  function addBubbleField(){
+    const ocean=document.querySelector('.ocean-ambient');
+    if(!ocean || ocean.dataset.v7BubbleField) return;
+    document.querySelectorAll('.reef-corner,.coral-border,.ambient-fish').forEach(el=>el.remove());
+    document.querySelectorAll('.bubble').forEach((b,i)=>{
+      b.classList.remove('tint-blue','tint-green','tint-purple');
+      b.style.setProperty('--drift', `${(i%2?1:-1)*(4+(i%7))}px`);
+    });
+    const classes=['nano','micro','tiny','mini','micro','tiny','medium','nano','tiny','mini','large'];
+    const total=105;
+    for(let i=0;i<total;i++){
+      const b=document.createElement('i');
+      const cls=classes[i%classes.length];
+      b.className=`bubble ${cls}`;
+      /* deterministic positions: keeps layout identical on every load */
+      const left=(3 + ((i*37)%95));
+      const top=(4 + ((i*53)%92));
+      const dur=(7.4 + ((i*17)%54)/10).toFixed(1);
+      const delay=-((i*29)%118)/10;
+      const drift=((i%2?1:-1)*(4+((i*11)%12)));
+      b.style.left=`${left}%`;
+      b.style.top=`${top}%`;
+      b.style.setProperty('--dur',`${dur}s`);
+      b.style.setProperty('--drift',`${drift}px`);
+      b.style.animationDuration=`${dur}s`;
+      b.style.animationDelay=`${delay}s`;
+      ocean.appendChild(b);
+    }
+    ocean.dataset.v7BubbleField='1';
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addBubbleField,{once:true});
+  else addBubbleField();
+})();
+</script>
+
+
+<script id="aquabalance-v8-cleanup-script">
+(function(){
+  function applyV8(){
+    document.querySelector('.fab')?.remove();
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyV8, {once:true});
+  else applyV8();
+})();
+</script>
+
+
+<script id="aquabalance-v10-bubbles-script">
+(function(){
+  function upgradeBubbles(){
+    const ocean = document.querySelector('.ocean-ambient');
+    if(!ocean) return;
+    const tones = ['tint-turquoise','tint-green','tint-purple'];
+    document.querySelectorAll('.bubble').forEach((b,i)=>{
+      b.classList.remove('tint-blue','tint-green','tint-purple');
+      b.classList.add(tones[i % tones.length]);
+      b.style.setProperty('--drift', ((i % 7) - 3) * 3 + 'px');
+    });
+    if(ocean.dataset.v10extraBubbles) return;
+    const specs = [
+      ['mini','7%','12%','8.6s','-1s'],['micro','13%','18%','7.2s','-4s'],['tiny','22%','11%','9.1s','-2s'],['nano','30%','16%','6.6s','-5s'],['medium','39%','9%','10.3s','-7s'],['micro','50%','15%','7.8s','-3s'],['tiny','60%','10%','9.4s','-6s'],['nano','69%','17%','6.9s','-1s'],['mini','79%','12%','8.8s','-4s'],['large','89%','18%','11.2s','-5s'],
+      ['micro','8%','29%','7.7s','-6s'],['tiny','18%','34%','8.9s','-3s'],['medium','27%','27%','10.7s','-1s'],['nano','36%','38%','6.5s','-5s'],['mini','46%','30%','8.5s','-7s'],['micro','55%','36%','7.3s','-2s'],['tiny','65%','28%','9.0s','-6s'],['nano','73%','35%','6.8s','-1s'],['medium','83%','31%','10.5s','-4s'],['micro','92%','39%','7.0s','-3s'],
+      ['tiny','6%','49%','9.2s','-2s'],['mini','16%','55%','8.4s','-5s'],['nano','25%','48%','6.4s','-1s'],['medium','35%','57%','10.9s','-7s'],['micro','45%','50%','7.6s','-3s'],['tiny','54%','60%','9.3s','-6s'],['large','64%','52%','11.5s','-4s'],['nano','74%','59%','6.9s','-2s'],['mini','84%','50%','8.7s','-5s'],['micro','93%','62%','7.1s','-1s'],
+      ['medium','10%','72%','10.4s','-6s'],['tiny','20%','79%','8.9s','-3s'],['nano','30%','70%','6.6s','-1s'],['mini','39%','83%','8.6s','-5s'],['micro','49%','74%','7.4s','-2s'],['tiny','59%','86%','9.5s','-7s'],['nano','69%','76%','6.7s','-4s'],['medium','79%','84%','10.8s','-1s'],['micro','89%','73%','7.3s','-6s'],['tiny','95%','88%','9.2s','-3s']
+    ];
+    specs.forEach(([cls,left,top,dur,delay],i)=>{
+      const el = document.createElement('i');
+      el.className = `bubble ${cls} ${tones[i % tones.length]}`;
+      el.style.left = left;
+      el.style.top = top;
+      el.style.setProperty('--dur', dur);
+      el.style.animationDelay = delay;
+      el.style.setProperty('--drift', ((i % 9) - 4) * 3 + 'px');
+      ocean.appendChild(el);
+    });
+    ocean.dataset.v10extraBubbles = '1';
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', upgradeBubbles, {once:true});
+  else upgradeBubbles();
+})();
+</script>
+
+
+<script id="aquabalance-v12-premium-details-script">
+(function(){
+  function addSparkles(){
+    const ocean = document.querySelector('.ocean-ambient');
+    if(!ocean || ocean.dataset.v12Sparkles) return;
+    const points = [
+      ['8%','14%','4.8s'],['22%','20%','6.2s'],['36%','12%','5.4s'],['51%','18%','6.7s'],
+      ['68%','14%','5.1s'],['84%','22%','6.1s'],['14%','48%','5.9s'],['29%','58%','6.8s'],
+      ['48%','43%','5.3s'],['63%','53%','6.4s'],['82%','47%','5.6s'],['18%','78%','6.9s'],
+      ['39%','84%','5.7s'],['57%','73%','6.3s'],['76%','82%','5.2s'],['90%','70%','6.6s']
+    ];
+    points.forEach(([left,top,dur])=>{
+      const s = document.createElement('i');
+      s.className = 'glass-sparkle';
+      s.style.left = left;
+      s.style.top = top;
+      s.style.setProperty('--sp', dur);
+      ocean.appendChild(s);
+    });
+    ocean.dataset.v12Sparkles = '1';
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', addSparkles, {once:true});
+  else addSparkles();
+})();
+</script>
+
+
+<script id="aquabalance-v13-history-script">
+(function(){
+  function getRangeDays(){
+    return Number(document.querySelector('.tab.active')?.dataset.days || 7);
+  }
+  function dateLabel(ts){
+    return new Date(ts).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+  }
+  function allMeasurementsSorted(){
+    return [...(state.measurements||[])].sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+  }
+  function latestForKey(key){
+    const arr = allMeasurementsSorted().filter(m=>Number.isFinite(Number(m[key])));
+    return arr.length ? arr[arr.length-1] : null;
+  }
+  function renderHistoryParameterSummary(){
+    const defs = [
+      ['ca','histCa','histCaMeta','ppm',0],
+      ['mg','histMg','histMgMeta','ppm',0],
+      ['no3','histNo3','histNo3Meta','ppm',2],
+      ['po4','histPo4','histPo4Meta','ppm',2],
+      ['sal','histSal','histSalMeta','ppt',1]
+    ];
+    let latestStamp = null;
+    defs.forEach(([key,valId,metaId,unit,decimals])=>{
+      const last = latestForKey(key);
+      const valueEl = document.getElementById(valId);
+      const metaEl = document.getElementById(metaId);
+      if(!valueEl || !metaEl) return;
+      if(last){
+        valueEl.textContent = `${nf(Number(last[key]),decimals)} ${unit}`;
+        metaEl.textContent = dateLabel(last.ts);
+        if(!latestStamp || new Date(last.ts) > new Date(latestStamp)) latestStamp = last.ts;
+      }else{
+        valueEl.textContent = '—';
+        metaEl.textContent = 'Sin dato';
+      }
+    });
+    const meta = document.getElementById('historyParamMeta');
+    if(meta){
+      meta.textContent = latestStamp ? `Última actualización · ${dateLabel(latestStamp)}` : 'Sin datos completos';
+    }
+  }
+  function filterSeries(key, days){
+    let arr = allMeasurementsSorted().filter(m=>Number.isFinite(Number(m[key]))).map(m=>({ts:m.ts, value:Number(m[key])}));
+    if(days){
+      const cutoff = Date.now() - days*86400000;
+      const filtered = arr.filter(m => +new Date(m.ts) >= cutoff);
+      if(filtered.length) arr = filtered;
+    }
+    return arr;
+  }
+  function drawParamsHistoryChart(days){
+    const canvas = document.getElementById('paramsHistoryChart');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.clientWidth * devicePixelRatio, H = canvas.clientHeight * devicePixelRatio;
+    canvas.width = W; canvas.height = H; ctx.scale(devicePixelRatio, devicePixelRatio);
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    ctx.clearRect(0,0,w,h);
+    const pad = {l:24,r:12,t:16,b:24};
+    const defs = [
+      {key:'ca', color:'#2dc6bc'},
+      {key:'mg', color:'#91c453'},
+      {key:'no3', color:'#ff9279'},
+      {key:'po4', color:'#9b81e1'},
+      {key:'sal', color:'#6698f4'}
+    ];
+    const series = defs.map(d=>({...d, data: filterSeries(d.key, days)})).filter(d=>d.data.length);
+    if(!series.length){
+      ctx.fillStyle = '#6e7f98';
+      ctx.font = '12px "Patrick Hand SC", cursive';
+      ctx.fillText('Añade mediciones completas para ver la evolución de Ca, Mg, NO₃, PO₄ y salinidad.', 16, 40);
+      return;
+    }
+    let minTs = Infinity, maxTs = -Infinity;
+    series.forEach(s=>s.data.forEach(p=>{const t=+new Date(p.ts); if(t<minTs) minTs=t; if(t>maxTs) maxTs=t;}));
+    if(!Number.isFinite(minTs) || !Number.isFinite(maxTs)) return;
+    const x = t => pad.l + (w-pad.l-pad.r) * ((t-minTs) / ((maxTs-minTs) || 1));
+    const yNorm = n => pad.t + (h-pad.t-pad.b) * (1-n);
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(159,191,204,.38)';
+    for(let i=0;i<5;i++){
+      const yy = pad.t + (h-pad.t-pad.b) * i / 4;
+      ctx.beginPath(); ctx.moveTo(pad.l, yy); ctx.lineTo(w-pad.r, yy); ctx.stroke();
+    }
+    ctx.fillStyle = '#6e7f98';
+    ctx.font = '10px "Patrick Hand SC", cursive';
+    ctx.fillText('bajo', 2, h-pad.b+2);
+    ctx.fillText('alto', 2, pad.t+3);
+
+    series.forEach(s=>{
+      const vals = s.data.map(p=>p.value);
+      let min = Math.min(...vals), max = Math.max(...vals);
+      if(min === max){
+        const padRange = Math.max(Math.abs(min)*0.02, 1);
+        min -= padRange; max += padRange;
+      }
+      ctx.strokeStyle = s.color;
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      s.data.forEach((p,i)=>{
+        const xx = x(+new Date(p.ts));
+        const yy = yNorm((p.value - min) / (max - min));
+        if(i===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+      });
+      ctx.stroke();
+      s.data.forEach(p=>{
+        const xx = x(+new Date(p.ts));
+        const yy = yNorm((p.value - min) / (max - min));
+        ctx.fillStyle = s.color;
+        ctx.beginPath(); ctx.arc(xx, yy, 2.8, 0, Math.PI*2); ctx.fill();
+      });
+    });
+
+    const labelCount = Math.min(5, Math.max(2, Math.round((w-pad.l-pad.r)/70)));
+    for(let i=0;i<labelCount;i++){
+      const t = minTs + ((maxTs-minTs || 1) * i / (labelCount-1 || 1));
+      const d = new Date(t);
+      ctx.fillStyle = '#6e7f98';
+      ctx.font = '10px "Patrick Hand SC", cursive';
+      ctx.fillText(`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`, x(t)-11, h-5);
+    }
+  }
+
+  const oldDrawHistoryChart = window.drawHistoryChart;
+  window.drawHistoryChart = function(days){
+    if(typeof oldDrawHistoryChart === 'function') oldDrawHistoryChart(days);
+    drawParamsHistoryChart(days || getRangeDays());
+  };
+
+  const oldDrawAllCharts = window.drawAllCharts;
+  window.drawAllCharts = function(){
+    if(typeof oldDrawAllCharts === 'function') oldDrawAllCharts();
+    requestAnimationFrame(()=>drawParamsHistoryChart(getRangeDays()));
+  };
+
+  const oldUpdateUI = window.updateUI;
+  window.updateUI = function(){
+    oldUpdateUI();
+    renderHistoryParameterSummary();
+  };
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', ()=>{
+      renderHistoryParameterSummary();
+      drawParamsHistoryChart(getRangeDays());
+    }, {once:true});
+  }else{
+    renderHistoryParameterSummary();
+    drawParamsHistoryChart(getRangeDays());
+  }
+})();
+</script>
+
+
+<script id="aquabalance-v14-strict-math-script">
+(function(){
+  /* ---------- Constants and migration ---------- */
+  window.state = state;
+  const DAY = 86400000;
+  const PARAM_RULES = {
+    kh:{min:3,max:15,unit:'dKH',decimals:1,minSpan:1.0,color:'#4d9de0'},
+    ca:{min:100,max:800,unit:'ppm',decimals:0,minSpan:100,color:'#2dc6bc'},
+    mg:{min:500,max:2500,unit:'ppm',decimals:0,minSpan:200,color:'#91c453'},
+    no3:{min:0,max:500,unit:'ppm',decimals:2,minSpan:10,color:'#ff9279'},
+    po4:{min:0,max:10,unit:'ppm',decimals:3,minSpan:.10,color:'#9b81e1'},
+    sal:{min:20,max:50,unit:'ppt',decimals:1,minSpan:2,color:'#6698f4'}
+  };
+  const CHEM = {
+    kh:{product:'kh', unitsPerMlAt100L:.1}, // 10 ml -> +1 dKH / 100 L
+    ca:{product:'ca', unitsPerMlAt100L:.6}  // 10 ml -> +6 ppm / 100 L
+  };
+  const PRODUCTS = ['kh','ca','trace'];
+
+  function asNum(v){
+    const s=String(v??'').trim().replace(',','.');
+    if(!s) return NaN;
+    return Number(s);
+  }
+  parseNum = asNum;
+  function isoNow(){return new Date().toISOString()}
+  function sortedMeasurements(){return [...(state.measurements||[])].sort((a,b)=>new Date(a.ts)-new Date(b.ts))}
+  function earliestMeasurementTs(){return sortedMeasurements()[0]?.ts || isoNow()}
+
+  function ensureStrictState(){
+    state.doseHistory ||= [];
+    state.volumeHistory ||= [];
+    state.manualUses ||= [];
+    state.mathMeta ||= {};
+    if(!state.doseHistory.length){
+      state.doseHistory.push({
+        ts:earliestMeasurementTs(),
+        kh:Number(state.doses?.kh||0), ca:Number(state.doses?.ca||0), trace:Number(state.doses?.trace||0),
+        assumed:true, source:'migration'
+      });
+    }
+    if(!state.volumeHistory.length){
+      state.volumeHistory.push({ts:earliestMeasurementTs(), volume:Number(state.settings?.volume||0), assumed:true, source:'migration'});
+    }
+    state.mathMeta.version=2;
+    window.state=state;
+  }
+  ensureStrictState();
+
+  function historySnapshotAt(history, ts){
+    const t=+new Date(ts);
+    const entries=[...history].filter(e=>+new Date(e.ts)<=t).sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+    return entries[entries.length-1] || null;
+  }
+  function doseSnapshotAt(ts){return historySnapshotAt(state.doseHistory,ts)}
+  function volumeSnapshotAt(ts){return historySnapshotAt(state.volumeHistory,ts)}
+  function volumeAt(ts){return Number(volumeSnapshotAt(ts)?.volume || state.settings.volume || 0)}
+  function doseAt(product,ts){
+    const snap=doseSnapshotAt(ts);
+    return snap ? Number(snap[product]||0) : NaN;
+  }
+  function hasAssumedDoseAt(ts){return !!doseSnapshotAt(ts)?.assumed}
+  function hasAssumedVolumeAt(ts){return !!volumeSnapshotAt(ts)?.assumed}
+
+  function recordDoseSnapshot(ts, changes, source='settings'){
+    const base=doseSnapshotAt(ts) || {kh:Number(state.doses.kh||0),ca:Number(state.doses.ca||0),trace:Number(state.doses.trace||0)};
+    const snap={ts,kh:Number(base.kh||0),ca:Number(base.ca||0),trace:Number(base.trace||0),assumed:false,source};
+    Object.entries(changes).forEach(([k,v])=>{if(PRODUCTS.includes(k)) snap[k]=Number(v)});
+    state.doseHistory.push(snap);
+    state.doseHistory.sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+  }
+  function recordVolumeSnapshot(ts, volume){
+    state.volumeHistory.push({ts,volume:Number(volume),assumed:false,source:'settings'});
+    state.volumeHistory.sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+  }
+
+  function eventInInterval(start,end,predicate){
+    const a=+new Date(start), b=+new Date(end);
+    return (state.events||[]).some(e=>{
+      const t=+new Date(e.ts);
+      return t>=a && t<=b && predicate(e);
+    });
+  }
+  function intervalIsModelable(start,end,product){
+    if(eventInInterval(start,end,e=>e.type==='water')) return {ok:false,reason:'cambio de agua'};
+    if(eventInInterval(start,end,e=>e.type==='dose' && !(Number.isFinite(Number(e.newDailyDose)) && e.product))) return {ok:false,reason:'cambio de dosis no estructurado'};
+    if(eventInInterval(start,end,e=>e.type==='correction' && !(Number.isFinite(Number(e.amountMl)) && e.product))) return {ok:false,reason:'corrección no cuantificada'};
+    return {ok:true};
+  }
+
+  function integratedDoseMl(product,start,end){
+    const a=+new Date(start), b=+new Date(end);
+    if(!(b>a)) return {ml:0,known:false,assumed:true};
+    const startSnap=doseSnapshotAt(start);
+    if(!startSnap) return {ml:0,known:false,assumed:true};
+    const boundaries=[a,b];
+    state.doseHistory.forEach(e=>{const t=+new Date(e.ts); if(t>a&&t<b) boundaries.push(t)});
+    boundaries.sort((x,y)=>x-y);
+    let ml=0, assumed=!!startSnap.assumed;
+    for(let i=0;i<boundaries.length-1;i++){
+      const s=boundaries[i], e=boundaries[i+1];
+      const snap=doseSnapshotAt(new Date(s+1).toISOString());
+      if(!snap) return {ml,known:false,assumed:true};
+      assumed ||= !!snap.assumed;
+      ml += Number(snap[product]||0) * ((e-s)/DAY);
+    }
+    return {ml,known:true,assumed};
+  }
+
+  function manualMlInInterval(product,start,end){
+    const a=+new Date(start), b=+new Date(end);
+    return (state.manualUses||[])
+      .filter(u=>u.product===product && +new Date(u.ts)>a && +new Date(u.ts)<=b)
+      .reduce((sum,u)=>sum+Number(u.amountMl||0),0);
+  }
+
+  function integratedChemicalAddition(param,start,end){
+    const chem=CHEM[param];
+    if(!chem) return {units:0,known:false,assumed:false,totalMl:0};
+    const a=+new Date(start), b=+new Date(end);
+    if(!(b>a)) return {units:0,known:false,assumed:false,totalMl:0};
+    if(!doseSnapshotAt(start) || !volumeSnapshotAt(start)) return {units:0,known:false,assumed:true,totalMl:0};
+    const bounds=[a,b];
+    state.doseHistory.forEach(e=>{const t=+new Date(e.ts);if(t>a&&t<b)bounds.push(t)});
+    state.volumeHistory.forEach(e=>{const t=+new Date(e.ts);if(t>a&&t<b)bounds.push(t)});
+    bounds.sort((x,y)=>x-y);
+    const unique=[...new Set(bounds)];
+    let units=0,totalMl=0,assumed=false;
+    for(let i=0;i<unique.length-1;i++){
+      const s=unique[i], e=unique[i+1], probe=new Date(s+1).toISOString();
+      const dSnap=doseSnapshotAt(probe), vSnap=volumeSnapshotAt(probe);
+      if(!dSnap||!vSnap||!(Number(vSnap.volume)>0)) return {units,totalMl,known:false,assumed:true};
+      assumed ||= !!dSnap.assumed || !!vSnap.assumed;
+      const days=(e-s)/DAY;
+      const ml=Number(dSnap[chem.product]||0)*days;
+      totalMl+=ml;
+      units += ml * chem.unitsPerMlAt100L * 100 / Number(vSnap.volume);
+    }
+    const manualUses=(state.manualUses||[]).filter(u=>u.product===chem.product && +new Date(u.ts)>a && +new Date(u.ts)<=b);
+    manualUses.forEach(u=>{
+      const vol=volumeAt(u.ts);
+      if(vol>0){
+        const ml=Number(u.amountMl||0);
+        totalMl+=ml;
+        units += ml * chem.unitsPerMlAt100L * 100 / vol;
+      }
+    });
+    return {units,known:true,assumed,totalMl};
+  }
+
+  function median(arr){
+    if(!arr.length) return NaN;
+    const s=[...arr].sort((a,b)=>a-b), m=Math.floor(s.length/2);
+    return s.length%2?s[m]:(s[m-1]+s[m])/2;
+  }
+  function clamp(v,min,max){return Math.max(min,Math.min(max,v))}
+
+  function buildConsumptionIntervals(param){
+    const data=sortedMeasurements().filter(m=>Number.isFinite(Number(m[param])));
+    const rows=[];
+    for(let i=1;i<data.length;i++){
+      const a=data[i-1], b=data[i];
+      const days=(new Date(b.ts)-new Date(a.ts))/DAY;
+      if(days<.5 || days>7) continue; // 12 h to 7 d: avoids very noisy or overly coarse intervals
+      const model=intervalIsModelable(a.ts,b.ts,CHEM[param]?.product);
+      if(!model.ok) continue;
+      const add=integratedChemicalAddition(param,a.ts,b.ts);
+      if(!add.known) continue;
+      const start=Number(a[param]), end=Number(b[param]);
+      const consumption=(start + add.units - end)/days;
+      if(!Number.isFinite(consumption) || consumption<0) continue;
+      // deliberately loose sanity ceilings: reject obvious data/model errors, not normal variation.
+      const maxReasonable=param==='kh'?5:80;
+      if(consumption>maxReasonable) continue;
+      rows.push({startTs:a.ts,endTs:b.ts,days,consumption,added:add.units,totalMl:add.totalMl,assumed:add.assumed});
+    }
+    return rows;
+  }
+
+  function robustConsumption(param){
+    const raw=buildConsumptionIntervals(param);
+    if(!raw.length) return {value:null,label:'baja',score:0,raw:[],used:[],mad:null,assumed:false,spanDays:0};
+    const vals=raw.map(r=>r.consumption);
+    const med=median(vals);
+    const mad=median(vals.map(v=>Math.abs(v-med)));
+    const sigma=Number.isFinite(mad)?1.4826*mad:0;
+    const floor=param==='kh'?.12:2.5;
+    const threshold=Math.max(3*sigma,floor);
+    let used=raw.filter(r=>Math.abs(r.consumption-med)<=threshold);
+    if(!used.length) used=raw;
+    const weights=used.map(r=>clamp(r.days,.5,2));
+    const value=used.reduce((s,r,i)=>s+r.consumption*weights[i],0)/weights.reduce((a,b)=>a+b,0);
+    const usedVals=used.map(r=>r.consumption);
+    const usedMed=median(usedVals);
+    const usedMad=median(usedVals.map(v=>Math.abs(v-usedMed)));
+    const first=Math.min(...used.map(r=>+new Date(r.startTs))), last=Math.max(...used.map(r=>+new Date(r.endTs)));
+    const spanDays=(last-first)/DAY;
+    const latestAge=Math.max(0,(Date.now()-last)/DAY);
+    const relMad=usedMad/Math.max(Math.abs(value),param==='kh'?.15:5);
+    let score=0;
+    score += Math.min(40,used.length*10);
+    score += 30*(1-clamp(relMad/.35,0,1));
+    score += Math.min(20,spanDays/7*20);
+    score += 10*(1-clamp((latestAge-2)/12,0,1));
+    const assumed=used.some(r=>r.assumed);
+    if(assumed) score-=15;
+    if(used.length===1) score=Math.min(score,30);
+    score=clamp(Math.round(score),0,100);
+    const label=score>=75?'alta':score>=50?'media':'baja';
+    return {value,score,label,raw,used,mad:usedMad,assumed,spanDays};
+  }
+
+  estimateConsumption = function(){return robustConsumption('kh').value ?? 0};
+  confidence = function(){return robustConsumption('kh').label};
+
+  function maintenanceDoseFromConsumption(param,consumption){
+    const volume=Number(state.settings.volume||0), chem=CHEM[param];
+    if(!(volume>0)||!chem||!Number.isFinite(consumption)) return null;
+    return consumption * volume / (chem.unitsPerMlAt100L*100);
+  }
+
+  /* ---------- Inventory from actual dose history + manual corrections ---------- */
+  function stockFor(product,capKey){
+    const inv=state.inventory||{};
+    const base=Number(inv[product]||0), setAt=inv[product+'SetAt']||isoNow();
+    const daily=integratedDoseMl(product,setAt,isoNow());
+    const manual=manualMlInInterval(product,setAt,isoNow());
+    const remaining=Math.max(0,base-(daily.known?daily.ml:0)-manual);
+    const capacity=Math.max(1,Number(inv[capKey]||base||1));
+    const pct=clamp(remaining/capacity*100,0,100);
+    const currentDose=Math.max(0,Number(doseAt(product,isoNow())||state.doses[product]||0));
+    const days=currentDose>0?Math.floor(remaining/currentDose):Infinity;
+    return {remaining,pct,days,currentDose,known:daily.known,assumed:daily.assumed};
+  }
+  updateInventory = function(){
+    ensureStrictState();
+    const defs=[['kh','kh','capacityKh'],['ca','ca','capacityCa'],['trace','trace','capacityTrace']];
+    defs.forEach(([product,prefix,capKey])=>{
+      const s=stockFor(product,capKey);
+      const remText=`${nf(s.remaining,0)} ml`, pctText=`${nf(s.pct,0)}%`, dayText=Number.isFinite(s.days)?`${s.days} días`:'—';
+      const set=(id,text)=>{const el=document.getElementById(id);if(el)el.textContent=text};
+      set(prefix+'Remaining',remText); set(prefix+'Percent',pctText); set(prefix+'Days',dayText);
+      const p=document.getElementById(prefix+'Progress');if(p)p.style.width=s.pct+'%';
+      const f=document.getElementById(prefix+'DoseFill');if(f)f.style.width=s.pct+'%';
+      set(prefix+'DoseRemainingLine',remText);set(prefix+'DosePercentLine',`${pctText} del bote`);set(prefix+'DoseDaysLine',dayText);
+      const invInput=document.getElementById(prefix+'InvSetting');if(invInput)invInput.value=Math.max(0,Math.round(s.remaining));
+    });
+  };
+
+  /* ---------- Strict measurement validation ---------- */
+  saveMeasurement = function(full){
+    const kh=asNum(document.getElementById('khInput').value);
+    if(!Number.isFinite(kh)||kh<PARAM_RULES.kh.min||kh>PARAM_RULES.kh.max){toast(`KH válido: ${PARAM_RULES.kh.min}–${PARAM_RULES.kh.max} dKH`);return}
+    const date=document.getElementById('measureDate').value, time=document.getElementById('measureTime').value||'00:00';
+    if(!date){toast('Selecciona una fecha');return}
+    const ts=`${date}T${time}`;
+    const t=+new Date(ts);
+    if(!Number.isFinite(t)){toast('Fecha u hora no válida');return}
+    if(t>Date.now()+300000){toast('La medición no puede estar en el futuro');return}
+    const m={ts,kh};
+    if(full){
+      const defs=[['caInput','ca'],['mgInput','mg'],['no3Input','no3'],['po4Input','po4'],['salInput','sal']];
+      for(const [id,key] of defs){
+        const raw=document.getElementById(id).value;
+        if(String(raw).trim()==='') continue;
+        const val=asNum(raw), rule=PARAM_RULES[key];
+        if(!Number.isFinite(val)||val<rule.min||val>rule.max){toast(`${key.toUpperCase()} fuera del rango admitido (${rule.min}–${rule.max} ${rule.unit})`);return}
+        m[key]=val;
+      }
+    }
+    const idx=state.measurements.findIndex(x=>x.ts===ts);
+    if(idx>=0) state.measurements[idx]={...state.measurements[idx],...m};
+    else state.measurements.push(m);
+    persist();updateUI();toast(idx>=0?'Medición actualizada':(full?'Medición guardada':'KH guardado'));switchView('home');
+  };
+
+  /* ---------- Settings: dose + volume history ---------- */
+  function syncStrictSettingsInputs(){
+    const ids={kh:'khDailyDoseSetting',ca:'caDailyDoseSetting',trace:'traceDailyDoseSetting'};
+    PRODUCTS.forEach(p=>{const el=document.getElementById(ids[p]);if(el)el.value=Number(state.doses[p]||0)});
+  }
+  const settingsBtn=document.getElementById('saveSettings');
+  if(settingsBtn){
+    settingsBtn.onclick=()=>{
+      const volume=asNum(document.getElementById('netVolume').value), goal=asNum(document.getElementById('goalKhSetting').value);
+      const kd=parseInt(document.getElementById('khDosesPerDay').value), od=parseInt(document.getElementById('otherDosesPerDay').value);
+      const khDose=asNum(document.getElementById('khDailyDoseSetting').value), caDose=asNum(document.getElementById('caDailyDoseSetting').value), trDose=asNum(document.getElementById('traceDailyDoseSetting').value);
+      if(!(volume>0&&goal>=PARAM_RULES.kh.min&&goal<=PARAM_RULES.kh.max&&kd>0&&od>0)){toast('Revisa volumen, objetivo y número de dosis');return}
+      if([khDose,caDose,trDose].some(v=>!Number.isFinite(v)||v<0||v>1000)){toast('Revisa las dosis diarias');return}
+      const ts=isoNow(), oldVol=Number(state.settings.volume||0);
+      if(Math.abs(oldVol-volume)>.0001) recordVolumeSnapshot(ts,volume);
+      const changes={};
+      if(Number(state.doses.kh)!==khDose)changes.kh=khDose;
+      if(Number(state.doses.ca)!==caDose)changes.ca=caDose;
+      if(Number(state.doses.trace)!==trDose)changes.trace=trDose;
+      if(Object.keys(changes).length) recordDoseSnapshot(ts,changes,'settings');
+      state.settings={...state.settings,volume,khGoal:goal,khDoses:kd,otherDoses:od};
+      state.doses={kh:khDose,ca:caDose,trace:trDose};
+      persist();updateUI();toast('Configuración y dosificación guardadas');
+    };
+  }
+
+  /* ---------- Inventory sync ---------- */
+  const invBtn=document.getElementById('saveInventory');
+  if(invBtn){
+    invBtn.onclick=()=>{
+      const kh=asNum(document.getElementById('khInvSetting').value), ca=asNum(document.getElementById('caInvSetting').value), tr=asNum(document.getElementById('traceInvSetting').value);
+      const khCap=asNum(document.getElementById('khCapacitySetting')?.value), caCap=asNum(document.getElementById('caCapacitySetting')?.value), trCap=asNum(document.getElementById('traceCapacitySetting')?.value);
+      if([kh,ca,tr,khCap,caCap,trCap].some(v=>!Number.isFinite(v)||v<0)){toast('Revisa los volúmenes de los botes');return}
+      if(kh>khCap||ca>caCap||tr>trCap){toast('El volumen cargado no puede superar la capacidad');return}
+      const ts=isoNow();
+      Object.assign(state.inventory,{kh,ca,trace:tr,capacityKh:Math.max(1,khCap),capacityCa:Math.max(1,caCap),capacityTrace:Math.max(1,trCap),khSetAt:ts,caSetAt:ts,traceSetAt:ts});
+      persist();updateUI();toast('Botes sincronizados');
+    };
+  }
+
+  /* ---------- Structured events ---------- */
+  const eventType=document.getElementById('eventType');
+  function refreshEventFields(){
+    const type=eventType?.value;
+    document.querySelectorAll('.event-structured').forEach(el=>el.classList.remove('is-visible'));
+    if(type==='water') document.querySelector('.event-water-field')?.classList.add('is-visible');
+    if(type==='correction'){
+      document.querySelector('.event-product-field')?.classList.add('is-visible');
+      document.querySelector('.event-correction-field')?.classList.add('is-visible');
+    }
+    if(type==='dose'){
+      document.querySelector('.event-product-field')?.classList.add('is-visible');
+      document.querySelector('.event-dose-field')?.classList.add('is-visible');
+    }
+  }
+  eventType?.addEventListener('change',refreshEventFields);
+  refreshEventFields();
+  const eventSave=document.getElementById('saveEvent');
+  if(eventSave){
+    eventSave.onclick=()=>{
+      const type=eventType.value, ts=document.getElementById('eventDate').value, detail=document.getElementById('eventDetail').value.trim();
+      if(!ts){toast('Selecciona fecha y hora');return}
+      const event={ts,type,detail};
+      if(type==='water'){
+        const liters=asNum(document.getElementById('eventWaterLiters').value);
+        if(Number.isFinite(liters)&&liters>0)event.liters=liters;
+        event.detail=detail||(`Cambio de agua${event.liters?` · ${nf(event.liters,0)} L`:''}`);
+      }else if(type==='correction'){
+        const product=document.getElementById('eventProduct').value, amount=asNum(document.getElementById('eventCorrectionMl').value);
+        if(!Number.isFinite(amount)||amount<=0){toast('Indica los ml usados en la corrección');return}
+        event.product=product;event.amountMl=amount;
+        event.detail=detail||`Corrección ${product.toUpperCase()} · ${nf(amount,1)} ml`;
+        state.manualUses.push({ts,product,amountMl:amount,source:'correction'});
+      }else if(type==='dose'){
+        const product=document.getElementById('eventProduct').value, newDose=asNum(document.getElementById('eventNewDailyDose').value);
+        if(!Number.isFinite(newDose)||newDose<0||newDose>1000){toast('Indica una nueva dosis diaria válida');return}
+        event.product=product;event.newDailyDose=newDose;
+        event.detail=detail||`${product.toUpperCase()} · nueva dosis ${nf(newDose,1)} ml/día`;
+        recordDoseSnapshot(ts,{[product]:newDose},'event');
+        state.doses[product]=newDose;
+      }else{
+        event.detail=detail||'Nueva preparación Balling';
+      }
+      state.events.push(event);persist();updateUI();closeEventModal();toast('Evento registrado');
+    };
+  }
+
+  /* ---------- Strict history filters and real-scale charts ---------- */
+  function selectedDays(){return Number(document.querySelector('.tab.active')?.dataset.days||7)}
+  function strictSeries(key,days){
+    const cutoff=Date.now()-days*DAY;
+    return sortedMeasurements().filter(m=>+new Date(m.ts)>=cutoff && Number.isFinite(Number(m[key]))).map(m=>({ts:m.ts,value:Number(m[key])}));
+  }
+  function drawEmpty(ctx,w,text){ctx.fillStyle='#6e7f98';ctx.font='12px "Patrick Hand SC",cursive';ctx.fillText(text,14,38)}
+  function niceDomain(key,data,extra=[]){
+    const rule=PARAM_RULES[key], vals=[...data.map(d=>d.value),...extra.filter(Number.isFinite)];
+    if(!vals.length) return [0,rule.minSpan];
+    let min=Math.min(...vals),max=Math.max(...vals),span=max-min;
+    if(span<rule.minSpan){const mid=(min+max)/2;min=mid-rule.minSpan/2;max=mid+rule.minSpan/2;}
+    else{const p=span*.14;min-=p;max+=p;}
+    if(rule.min>=0)min=Math.max(0,min);
+    return [min,max];
+  }
+  function drawRealChart(canvas,key,days,{goal=null}={}){
+    if(!canvas)return;
+    const ctx=canvas.getContext('2d'),dpr=Math.min(devicePixelRatio||1,2);
+    canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
+    const w=canvas.clientWidth,h=canvas.clientHeight,pad={l:38,r:11,t:14,b:24},data=strictSeries(key,days),rule=PARAM_RULES[key];
+    ctx.clearRect(0,0,w,h);
+    const statEl=document.getElementById(key+'ChartStats'),latestEl=document.getElementById(key+'ChartLatest');
+    if(latestEl)latestEl.textContent=data.length?`${nf(data[data.length-1].value,rule.decimals)} ${rule.unit}`:'—';
+    if(statEl){
+      if(!data.length)statEl.textContent=`Sin datos en los últimos ${days} días`;
+      else{const vals=data.map(d=>d.value),avg=vals.reduce((a,b)=>a+b,0)/vals.length;statEl.textContent=`${data.length} medición${data.length===1?'':'es'} · media ${nf(avg,rule.decimals)} · mín ${nf(Math.min(...vals),rule.decimals)} · máx ${nf(Math.max(...vals),rule.decimals)}`;}
+    }
+    if(!data.length){drawEmpty(ctx,w,`Sin mediciones de ${key.toUpperCase()} en este periodo.`);return}
+    const [min,max]=niceDomain(key,data,goal!==null?[goal]:[]);
+    const t0=Date.now()-days*DAY,t1=Date.now();
+    const x=t=>pad.l+(w-pad.l-pad.r)*((t-t0)/(t1-t0));
+    const y=v=>pad.t+(h-pad.t-pad.b)*(1-(v-min)/(max-min));
+    ctx.strokeStyle='rgba(145,181,196,.30)';ctx.lineWidth=1;ctx.fillStyle='#6e7f98';ctx.font='10px "Patrick Hand SC",cursive';
+    for(let i=0;i<5;i++){const val=min+(max-min)*(4-i)/4,yy=pad.t+(h-pad.t-pad.b)*i/4;ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(w-pad.r,yy);ctx.stroke();ctx.fillText(nf(val,rule.decimals),2,yy+3)}
+    if(goal!==null&&Number.isFinite(goal)){
+      const gy=y(goal);ctx.strokeStyle='rgba(53,198,202,.35)';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(pad.l,gy);ctx.lineTo(w-pad.r,gy);ctx.stroke();ctx.setLineDash([]);
+    }
+    if(data.length>1){
+      ctx.strokeStyle=rule.color;ctx.lineWidth=2.6;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();
+      data.forEach((p,i)=>{const xx=x(+new Date(p.ts)),yy=y(p.value);if(i===0)ctx.moveTo(xx,yy);else ctx.lineTo(xx,yy)});ctx.stroke();
+    }
+    data.forEach(p=>{const xx=x(+new Date(p.ts)),yy=y(p.value);ctx.fillStyle='rgba(255,255,255,.96)';ctx.beginPath();ctx.arc(xx,yy,4.5,0,Math.PI*2);ctx.fill();ctx.strokeStyle=rule.color;ctx.lineWidth=2.2;ctx.stroke()});
+    const labelCount=Math.min(5,Math.max(2,Math.round((w-pad.l-pad.r)/75)));
+    for(let i=0;i<labelCount;i++){const t=t0+(t1-t0)*i/(labelCount-1||1),d=new Date(t);ctx.fillStyle='#6e7f98';ctx.fillText(`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`,x(t)-10,h-5)}
+    if(data.length===1){ctx.fillStyle='#6e7f98';ctx.font='10px "Patrick Hand SC",cursive';ctx.fillText('Solo hay una medición en este periodo.',pad.l,20)}
+  }
+
+  drawHistoryChart = function(days){
+    const d=days||selectedDays();
+    drawRealChart(document.getElementById('historyChart'),'kh',d,{goal:Number(state.settings.khGoal)});
+  };
+  function drawParameterCharts(days){
+    const d=days||selectedDays();
+    ['ca','mg','no3','po4','sal'].forEach(k=>drawRealChart(document.getElementById(k+'HistoryChart'),k,d));
+  }
+  drawAllCharts = function(){
+    requestAnimationFrame(()=>{
+      const home=document.getElementById('homeChart');if(home)drawChart(home,7);
+      drawHistoryChart();drawParameterCharts();
+    });
+  };
+  document.querySelectorAll('.tab').forEach(b=>{
+    b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');drawHistoryChart(Number(b.dataset.days));drawParameterCharts(Number(b.dataset.days));};
+  });
+
+  /* ---------- UI + interpretation ---------- */
+  function updateHistorySummaryStrict(){
+    const defs=[
+      ['ca','histCa','histCaMeta','ppm',0],['mg','histMg','histMgMeta','ppm',0],
+      ['no3','histNo3','histNo3Meta','ppm',2],['po4','histPo4','histPo4Meta','ppm',3],['sal','histSal','histSalMeta','ppt',1]
+    ];
+    let latestTs=null;
+    defs.forEach(([key,valId,metaId,unit,dec])=>{
+      const arr=sortedMeasurements().filter(m=>Number.isFinite(Number(m[key])));
+      const last=arr[arr.length-1], valEl=document.getElementById(valId), metaEl=document.getElementById(metaId);
+      if(!valEl||!metaEl)return;
+      if(last){
+        valEl.textContent=`${nf(Number(last[key]),dec)} ${unit}`;
+        metaEl.textContent=new Date(last.ts).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+        if(!latestTs||+new Date(last.ts)>+new Date(latestTs))latestTs=last.ts;
+      }else{valEl.textContent='—';metaEl.textContent='Sin dato';}
+    });
+    const meta=document.getElementById('historyParamMeta');
+    if(meta)meta.textContent=latestTs?`Última actualización · ${new Date(latestTs).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}`:'Sin datos completos';
+  }
+  function fmtEst(est,unit,dec=2){return est.value===null?'—':`${nf(est.value,dec)} ${unit}`}
+  function updateMathUI(){
+    const goal=Number(state.settings.khGoal);
+    const kh=robustConsumption('kh'), ca=robustConsumption('ca');
+    const khDose=kh.value===null?null:maintenanceDoseFromConsumption('kh',kh.value);
+    const caDose=ca.value===null?null:maintenanceDoseFromConsumption('ca',ca.value);
+    const consEl=document.getElementById('consumption');if(consEl)consEl.textContent=kh.value===null?'—':nf(kh.value,2);
+    const khRec=document.getElementById('khRecommendedDose'),khMeta=document.getElementById('khRecommendedMeta');
+    if(khRec)khRec.textContent=khDose===null?'—':`${nf(khDose,1)} ml/día`;
+    if(khMeta)khMeta.textContent=kh.value===null?'Necesita al menos 2 lecturas KH modelables':`${nf(kh.value,2)} dKH/día · confianza ${kh.label} (${kh.score}/100)${kh.assumed?' · dosis histórica inicial asumida':''}`;
+    const caRec=document.getElementById('caRecommendedDose'),caMeta=document.getElementById('caRecommendedMeta');
+    if(caRec)caRec.textContent=caDose===null?'—':`${nf(caDose,1)} ml/día`;
+    if(caMeta)caMeta.textContent=ca.value===null?'Necesita al menos 2 lecturas Ca modelables':`${nf(ca.value,1)} ppm/día · confianza ${ca.label} (${ca.score}/100)${ca.assumed?' · dosis histórica inicial asumida':''}`;
+
+    const insight=document.getElementById('insights');
+    if(insight){
+      const last=latestMeasurement(),list=[];
+      if(last){
+        const delta=Number(last.kh)-goal;
+        if(Math.abs(delta)<=.2)list.push('<strong>KH estable.</strong> La última medición está dentro de ±0,2 dKH del objetivo.');
+        else if(delta<-.2)list.push('<strong>KH por debajo del objetivo.</strong> Confirma la tendencia antes de corregir.');
+        else list.push('<strong>KH por encima del objetivo.</strong> Evita ajustar por una única lectura.');
+      }
+      if(kh.value!==null){
+        list.push(`<strong>Consumo KH modelado:</strong> ${nf(kh.value,2)} dKH/día usando ${kh.used.length} intervalo${kh.used.length===1?'':'s'} válido${kh.used.length===1?'':'s'} · confianza ${kh.label} (${kh.score}/100).`);
+        list.push(`<strong>Mantenimiento KH calculado:</strong> ${nf(khDose,1)} ml/día para ${nf(state.settings.volume,0)} L, frente a ${nf(state.doses.kh,1)} ml/día configurados.`);
+      }else list.push('<strong>Consumo KH:</strong> todavía no hay intervalos suficientes y modelables. Cambios de agua y correcciones no cuantificadas se excluyen.');
+      if(ca.value!==null)list.push(`<strong>Consumo Ca modelado:</strong> ${nf(ca.value,1)} ppm/día · mantenimiento matemático ${nf(caDose,1)} ml/día · confianza ${ca.label} (${ca.score}/100).`);
+      else list.push('<strong>Calcio:</strong> se calculará el consumo cuando existan al menos dos mediciones modelables de Ca.');
+      list.push('<strong>Control de calidad:</strong> la estimación descarta intervalos de menos de 12 h o más de 7 días, cambios de agua, eventos no cuantificados y valores atípicos detectados mediante mediana + MAD.');
+      insight.innerHTML=list.map((x,i)=>`<div class="insight ${i>=1?'math-detail':''}">${x}</div>`).join('');
+    }
+    const next=document.getElementById('nextAction');
+    if(next){
+      if(kh.value===null)next.textContent='Registra KH de forma regular y cuantifica correcciones/cambios de dosis para calcular el consumo real.';
+      else if(kh.score<50)next.textContent='Sigue registrando KH: la estimación existe, pero todavía tiene confianza baja.';
+      else if(Math.abs((latestMeasurement()?.kh??goal)-goal)>.2)next.textContent='Repite KH antes de corregir; el mantenimiento se calcula por tendencia, no por una sola lectura.';
+      else next.textContent=`Consumo estimado ${nf(kh.value,2)} dKH/día · mantenimiento calculado ${nf(khDose,1)} ml/día.`;
+    }
+  }
+
+  const previousUpdateUI=updateUI;
+  updateUI=function(){
+    previousUpdateUI();
+    ensureStrictState();
+    syncStrictSettingsInputs();
+    updateInventory();
+    updateMathUI();
+    updateHistorySummaryStrict();
+    drawAllCharts();
+  };
+
+  /* sync current values and redraw after all overrides */
+  ensureStrictState();
+  syncStrictSettingsInputs();
+  updateInventory();
+  updateMathUI();
+  drawAllCharts();
+  persist();
+})();
+</script>
+
+
+<script id="reef-marine-control-pwa">
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => {
+      console.warn('Service Worker no pudo registrarse:', err);
+    });
+  });
+}
+</script>
+</body>
+</html>
