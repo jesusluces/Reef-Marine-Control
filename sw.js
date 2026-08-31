@@ -1,4 +1,4 @@
-const CACHE_NAME = 'reef-marine-control-v23';
+const CACHE_NAME = 'reef-marine-control-v42';
 const APP_SHELL = [
   './',
   './index.html',
@@ -6,8 +6,21 @@ const APP_SHELL = [
   './icon-180.png',
   './icon-192.png',
   './icon-512.png',
-  './icon-maskable-512.png'
-];
+  './icon-maskable-512.png',
+  './reef-background.webp',
+  './measure-salinity.png',
+  './measure-po4.png',
+  './measure-no3.png',
+  './measure-mg.png',
+  './measure-ca.png',
+  './dose-kh.png',
+  './dose-ca.png',
+  './dose-trace.png'
+  './nav-home.png',
+  './nav-measure.png',
+  './nav-history.png',
+  './nav-dose.png',
+  './brand-title.png',];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
