@@ -324,3 +324,32 @@ Los datos del usuario siguen almacenándose en localStorage con la misma clave, 
 - Al cambiar de panel, se reinicia el scroll de `.app`, no solo el de `window`.
 - Se conserva íntegramente el motor matemático v53 y las optimizaciones de rendimiento v54.
 - Service Worker actualizado a v55.
+
+## v56 — Cabecera y títulos alineados
+- Corregida la superposición del título superior en Inicio, Medición e Historial.
+- En móvil, la cabecera deja de ser sticky dentro del contenedor `.app`.
+- Todas las vistas comienzan con el mismo `padding-top`.
+- Los bloques Hero/Section Head no pueden encogerse ni quedar recortados.
+- Al cambiar de pestaña, `.app.scrollTop` se reinicia inmediatamente, tras el layout y tras el paint para evitar restauración tardía del scroll en WebView Android.
+- Dosificación conserva la misma alineación visual y sirve de referencia para las demás vistas.
+- Se mantiene íntegro el motor matemático v53, el rendimiento v54 y el scroll v55.
+- Service Worker actualizado a v56.
+
+## v57 — Inicio sin saludo
+- Eliminado el texto `¡Hola, amante del arrecife!` del panel Inicio.
+- No se sustituye por ningún otro mensaje.
+- No se modifica diseño, lógica, matemáticas, rendimiento ni navegación.
+- Service Worker actualizado a v57.
+
+## v58 — Evaluación inteligente: valor a la izquierda
+- En la tarjeta **Evaluación inteligente**, el estado ya no se repite a ambos lados.
+- A la izquierda ahora se muestra el **valor medido** del parámetro.
+- Si no hay dato, se muestra **“Sin medición”**.
+- El nombre del parámetro queda como texto secundario bajo el valor.
+- El estado **Bajo / Correcto / Alto / Sin medir** se mantiene únicamente en la pastilla de la derecha.
+
+## v59 — Evaluación inteligente: solo valor a la izquierda
+- En la tarjeta **Evaluación inteligente**, la columna izquierda ahora muestra **solo el valor**.
+- Si no hay dato, se muestra **“Sin medición”**.
+- Se eliminó cualquier texto adicional en la izquierda para evitar confusión.
+- El estado **Bajo / Correcto / Alto / Sin medir** permanece únicamente en la pastilla de la derecha.

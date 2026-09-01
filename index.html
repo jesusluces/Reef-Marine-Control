@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<meta name="reef-marine-control-version" content="55">
+<meta name="reef-marine-control-version" content="59">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#f8fbfc" />
 <title>Reef Marine Control · Gestión inteligente del arrecife</title>
@@ -3222,8 +3222,8 @@ canvas{
 .manual-eval-context{margin-top:8px;padding:8px 10px;border-radius:14px;background:rgba(236,250,252,.60);border:1px solid rgba(97,205,212,.20);font-size:10px;line-height:1.35;color:#52758f;font-weight:800}
 .manual-eval-summary{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}.manual-eval-summary:empty{display:none}
 .eval-summary-chip{padding:5px 8px;border-radius:999px;font-size:10px;font-weight:1000;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.9);color:var(--navy)}
-.manual-eval-list{display:grid;gap:7px;margin-top:9px}.manual-eval-row{display:grid;grid-template-columns:minmax(82px,1fr) minmax(86px,auto) minmax(72px,auto);align-items:center;gap:7px;padding:8px 9px;border-radius:16px;background:rgba(255,255,255,.58);border:1px solid rgba(255,255,255,.88)}
-.manual-eval-param strong{display:block;color:var(--navy);font-size:12px}.manual-eval-param small{display:block;color:var(--muted);font-size:9px;margin-top:2px}.manual-eval-target{text-align:right;font-size:10px;color:#668096;font-weight:800}.manual-eval-status{justify-self:end;display:inline-flex;align-items:center;gap:4px;padding:5px 7px;border-radius:999px;font-size:9px;font-weight:1000;white-space:nowrap}
+.manual-eval-list{display:grid;gap:7px;margin-top:9px}.manual-eval-row{display:grid;grid-template-columns:minmax(118px,1fr) minmax(86px,auto) minmax(72px,auto);align-items:center;gap:7px;padding:8px 9px;border-radius:16px;background:rgba(255,255,255,.58);border:1px solid rgba(255,255,255,.88)}
+.manual-eval-param{display:flex;align-items:center;min-height:24px}.manual-eval-param strong{display:block;color:var(--navy);font-size:12px}.manual-eval-param small{display:none}.manual-eval-target{text-align:right;font-size:10px;color:#668096;font-weight:800}.manual-eval-status{justify-self:end;display:inline-flex;align-items:center;gap:4px;padding:5px 7px;border-radius:999px;font-size:9px;font-weight:1000;white-space:nowrap}
 .manual-eval-status.correct{color:#43885d;background:rgba(222,247,228,.78);border:1px solid rgba(104,194,129,.25)}.manual-eval-status.low{color:#367cae;background:rgba(225,244,255,.82);border:1px solid rgba(94,177,222,.25)}.manual-eval-status.high{color:#b76857;background:rgba(255,237,231,.84);border:1px solid rgba(234,137,112,.26)}.manual-eval-status.missing{color:#7b899b;background:rgba(241,245,248,.8);border:1px solid rgba(164,180,191,.20)}
 .manual-eval-status.important{box-shadow:0 0 0 2px rgba(231,111,124,.10);color:#b6465c;background:rgba(255,227,234,.9)}
 .manual-eval-foot{margin-top:9px;font-size:9px;line-height:1.4;color:var(--muted);opacity:.9}
@@ -3503,6 +3503,57 @@ html{scroll-behavior:auto !important}
 }
 </style>
 
+
+<style id="reef-marine-control-v56-header-alignment">
+/* =========================================================
+   v56 · Cabecera y comienzo uniforme de todas las vistas
+   ========================================================= */
+@media (max-width:699px){
+  /* Dentro de un contenedor scroll propio, sticky podía superponerse
+     al primer bloque después de cambiar de vista en algunos WebView Android. */
+  .topbar{
+    position:relative !important;
+    top:auto !important;
+    left:auto !important;
+    right:auto !important;
+    flex:0 0 auto !important;
+    z-index:10 !important;
+  }
+
+  main{
+    padding-top:14px !important;
+  }
+
+  /* Las cuatro vistas comienzan exactamente con el mismo aire superior. */
+  .view.active{
+    padding-top:0 !important;
+  }
+
+  .view.active > .hero:first-child,
+  .view.active > .section-head:first-child{
+    margin-top:0 !important;
+    padding-top:0 !important;
+    position:relative !important;
+    z-index:2 !important;
+  }
+
+  .hero h1,
+  .section-head h1{
+    position:relative !important;
+    z-index:2 !important;
+    overflow:visible !important;
+  }
+
+  /* El encabezado nunca puede encoger por el flex del contenedor. */
+  .hero,
+  .section-head{
+    flex-shrink:0 !important;
+    min-height:max-content !important;
+    overflow:visible !important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -3527,7 +3578,7 @@ html{scroll-behavior:auto !important}
       <div class="hero">
         <div>
           <div class="kicker">Tu arrecife, de un vistazo</div>
-          <h1>¡Hola, amante del arrecife!</h1>
+          <h1></h1>
         </div>
         <div class="status-pill" id="statusPill">☺ Estable</div>
       </div>
@@ -7148,12 +7199,12 @@ if ('serviceWorker' in navigator) {
     return `${fmt(row.target[0],row.decimals)}–${fmt(row.target[1],row.decimals)} ${row.unit}`;
   }
   function rowHtml(row){
-    const value=row.value===null?'—':`${fmt(row.value,row.decimals)} ${row.unit}`;
+    const valueText=row.value===null?'Sin medición':`${fmt(row.value,row.decimals)} ${row.unit}`;
     const meta=row.meta;
-    const detail=meta?.pending
-      ?`medido ${fmt(meta.measured,row.decimals)} → estimado ~${fmt(meta.estimated,row.decimals)} · pendiente de confirmar`
-      :value;
-    return `<div class="manual-eval-row" data-param="${row.key}"><div class="manual-eval-param"><strong>${row.label}</strong><small>${detail}</small></div><div class="manual-eval-target">${targetText(row)}</div><div class="manual-eval-status ${row.state}">${statusText(row)}</div></div>`;
+    const primary=meta?.pending
+      ?`${fmt(meta.estimated,row.decimals)} ${row.unit}`
+      :valueText;
+    return `<div class="manual-eval-row" data-param="${row.key}"><div class="manual-eval-param"><strong>${primary}</strong></div><div class="manual-eval-target">${targetText(row)}</div><div class="manual-eval-status ${row.state}">${statusText(row)}</div></div>`;
   }
   function renderEvaluation(){
     const card=document.getElementById('manualSmartEvalCard');
@@ -7405,6 +7456,75 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('resize',ensureScrollable,{passive:true});
   window.addEventListener('orientationchange',()=>setTimeout(ensureScrollable,50),{passive:true});
   ensureScrollable();
+})();
+</script>
+
+
+<script id="reef-marine-control-v56-view-reset">
+(function(){
+  function host(){return document.querySelector('.app')}
+
+  function hardResetScroll(){
+    const h=host();
+    if(!h)return;
+    h.scrollTop=0;
+    h.scrollLeft=0;
+    try{h.scrollTo({top:0,left:0,behavior:'auto'})}catch(_){}
+  }
+
+  function resetAfterLayout(){
+    const h=host();
+    if(!h)return;
+
+    /* 1 · inmediato */
+    hardResetScroll();
+
+    /* Forzar layout del panel recién activado antes de repetir el reset. */
+    void h.offsetHeight;
+
+    /* 2 · siguiente frame */
+    requestAnimationFrame(()=>{
+      hardResetScroll();
+
+      /* 3 · después del paint/ajustes del WebView */
+      requestAnimationFrame(hardResetScroll);
+    });
+
+    /* Algunos WebView Android restauran scroll tras el evento click. */
+    setTimeout(hardResetScroll,40);
+  }
+
+  function switchViewV56(name){
+    document.querySelectorAll('.view').forEach(v=>{
+      v.classList.toggle('active',v.dataset.view===name);
+    });
+    document.querySelectorAll('.nav-btn').forEach(b=>{
+      b.classList.toggle('active',b.dataset.target===name);
+    });
+
+    resetAfterLayout();
+
+    if(name==='home'||name==='history'){
+      requestAnimationFrame(()=>window.drawAllCharts?.());
+    }
+  }
+
+  window.switchView=switchViewV56;
+  try{switchView=switchViewV56}catch(_){}
+
+  const menu=document.getElementById('menuBtn');
+  if(menu)menu.onclick=()=>switchViewV56('settings');
+
+  document.querySelectorAll('.nav-btn').forEach(btn=>{
+    btn.onclick=()=>switchViewV56(btn.dataset.target);
+  });
+
+  /* Al arrancar, Inicio también comienza exactamente arriba. */
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',resetAfterLayout,{once:true});
+  }else{
+    resetAfterLayout();
+  }
 })();
 </script>
 
