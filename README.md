@@ -300,3 +300,16 @@ Los datos del usuario siguen almacenándose en localStorage con la misma clave, 
 - Se corrige el estado estimado de KH/Ca/Mg para no volver a sumar una corrección ya confirmada por una medición posterior en el mismo timestamp.
 - Se terminan de traducir etiquetas visibles KH/Calcio/Trazas.
 - Service Worker actualizado a v53.
+
+## v54 — Optimización profunda de rendimiento
+- Corregida la lentitud al cambiar de panel y desplazarse en móvil.
+- Las capas heredadas acumulaban más de 200 burbujas animadas; ahora existe una única capa de 28 burbujas.
+- Eliminados filtros y sombras GPU innecesarios de las burbujas.
+- En móvil se elimina `backdrop-filter` de las superficies desplazables y se conserva el aspecto Liquid Glass mediante transparencias, gradientes, bordes y sombras estáticas.
+- Eliminados blobs pseudo-elemento con blur por tarjeta en móvil.
+- El cambio de panel ya no usa scroll suave; vuelve inmediatamente al inicio.
+- Las peticiones duplicadas de redibujado de gráficas se agrupan en un único frame.
+- Assets de navegación, medición, botes y cabecera reducidos a la resolución realmente necesaria.
+- Fondo PNG sustituido por WebP de alta calidad.
+- Carga diferida/decodificación asíncrona para ilustraciones no críticas.
+- No se modifica ninguna fórmula, medición, dato, evento ni regla del motor v53.

@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<meta name="reef-marine-control-version" content="53">
+<meta name="reef-marine-control-version" content="54">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#f8fbfc" />
 <title>Reef Marine Control · Gestión inteligente del arrecife</title>
@@ -2453,7 +2453,7 @@ canvas{
   width:min(100%,480px);
   transform:translateX(-50%);
   pointer-events:none;
-  background-image:url("./reef-background.png");
+  background-image:url("./reef-background.webp");
   background-repeat:no-repeat;
   background-position:center center;
   background-size:cover;
@@ -3185,7 +3185,7 @@ canvas{
 <style id="reef-marine-control-v45-background-fix">
 /* v45 · Restauración del fondo ilustrado */
 .reef-art-background{
-  background-image:url("./reef-background.png") !important;
+  background-image:url("./reef-background.webp") !important;
   background-repeat:no-repeat !important;
   background-position:center top !important;
   background-size:cover !important;
@@ -3307,6 +3307,122 @@ canvas{
 }
 </style>
 
+
+<style id="reef-marine-control-v54-performance">
+/* =========================================================
+   v54 · Rendimiento móvil
+   Mantiene la estética glass mediante transparencias, bordes y sombras,
+   pero evita recomponer decenas de backdrop-filter durante el scroll.
+   ========================================================= */
+
+html{scroll-behavior:auto !important}
+
+/* Las burbujas ya son una capa decorativa ligera. */
+.ocean-ambient{
+  contain:paint;
+  transform:translateZ(0);
+}
+.ocean-ambient .bubble{
+  filter:none !important;
+  box-shadow:inset 0 0 5px rgba(255,255,255,.58) !important;
+  will-change:transform,opacity;
+  backface-visibility:hidden;
+}
+.glass-sparkle{display:none !important}
+
+/* El fondo fijo no necesita una promoción agresiva permanente. */
+.reef-art-background{
+  will-change:auto !important;
+}
+
+/* Android/OriginOS: backdrop-filter sobre muchas tarjetas transparentes
+   es muy caro mientras se desplaza un fondo ilustrado fijo. */
+@media (max-width:699px){
+  .topbar,
+  .bottom-nav,
+  .card,
+  .input-card,
+  .dose-card,
+  .inventory-card,
+  .note-box,
+  .info-card,
+  .event,
+  .tabs,
+  .modal,
+  .metric,
+  .chart-wrap,
+  .field input,
+  .field select,
+  .parameter-row input,
+  .parameter-row select,
+  .quick-btn.secondary,
+  .icon-btn,
+  .history-chip,
+  .tab,
+  .auto-dose-warning,
+  .kh-adjustment-warning,
+  .prediction-status,
+  .pump-program-row,
+  .measure-save-confirm{
+    -webkit-backdrop-filter:none !important;
+    backdrop-filter:none !important;
+  }
+
+  /* Simulación visual de Liquid Glass sin blur dinámico. */
+  .card,
+  .input-card,
+  .dose-card,
+  .inventory-card,
+  .note-box,
+  .info-card,
+  .event,
+  .tabs{
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.78),rgba(244,252,255,.62)),
+      linear-gradient(135deg,rgba(112,228,241,.08),transparent 36%),
+      linear-gradient(225deg,rgba(212,185,255,.07),transparent 48%) !important;
+    box-shadow:
+      0 12px 28px rgba(91,132,154,.12),
+      0 4px 10px rgba(79,123,146,.07),
+      inset 0 1px 0 rgba(255,255,255,.96) !important;
+  }
+
+  .metric,.chart-wrap{
+    background:linear-gradient(180deg,rgba(255,255,255,.58),rgba(242,250,252,.44)) !important;
+  }
+
+  .bottom-nav{
+    background:linear-gradient(180deg,rgba(255,255,255,.91),rgba(241,250,253,.86)) !important;
+    box-shadow:0 12px 28px rgba(68,116,145,.16),inset 0 1px 0 rgba(255,255,255,.98) !important;
+  }
+
+  .field input,.field select,.parameter-row input,.parameter-row select{
+    background:rgba(255,255,255,.88) !important;
+  }
+
+  /* El blob con blur de cada tarjeta multiplica las capas de pintura. */
+  .card::after,
+  .input-card::after,
+  .dose-card::after,
+  .inventory-card::after,
+  .note-box::after,
+  .info-card::after,
+  .event::after,
+  .tabs::after,
+  .modal::after{
+    display:none !important;
+    content:none !important;
+  }
+
+  /* Transiciones pequeñas, nunca "all". */
+  .view,.card,.metric,.chart-wrap{will-change:auto !important}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .ocean-ambient .bubble{animation:none !important}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -3418,7 +3534,7 @@ canvas{
 
         <div class="full-measure illustrated-full-measure">
           <div class="measure-illustrated-row ca">
-            <div class="measure-illustrated-icon"><img src="./measure-ca.png" alt="Icono calcio"></div>
+            <div class="measure-illustrated-icon"><img loading="lazy" decoding="async" src="./measure-ca.png" alt="Icono calcio"></div>
             <label class="measure-illustrated-copy" for="caInput">
               <span class="measure-illustrated-code">CA <small>(ppm)</small></span>
               <span class="measure-illustrated-name">Calcio</span>
@@ -3430,7 +3546,7 @@ canvas{
           </div>
 
           <div class="measure-illustrated-row mg">
-            <div class="measure-illustrated-icon"><img src="./measure-mg.png" alt="Icono magnesio"></div>
+            <div class="measure-illustrated-icon"><img loading="lazy" decoding="async" src="./measure-mg.png" alt="Icono magnesio"></div>
             <label class="measure-illustrated-copy" for="mgInput">
               <span class="measure-illustrated-code">MG <small>(ppm)</small></span>
               <span class="measure-illustrated-name">Magnesio</span>
@@ -3442,7 +3558,7 @@ canvas{
           </div>
 
           <div class="measure-illustrated-row no3">
-            <div class="measure-illustrated-icon"><img src="./measure-no3.png" alt="Icono nitrato"></div>
+            <div class="measure-illustrated-icon"><img loading="lazy" decoding="async" src="./measure-no3.png" alt="Icono nitrato"></div>
             <label class="measure-illustrated-copy" for="no3Input">
               <span class="measure-illustrated-code">NO₃ <small>(ppm)</small></span>
               <span class="measure-illustrated-name">Nitrato</span>
@@ -3454,7 +3570,7 @@ canvas{
           </div>
 
           <div class="measure-illustrated-row po4">
-            <div class="measure-illustrated-icon"><img src="./measure-po4.png" alt="Icono fosfato"></div>
+            <div class="measure-illustrated-icon"><img loading="lazy" decoding="async" src="./measure-po4.png" alt="Icono fosfato"></div>
             <label class="measure-illustrated-copy" for="po4Input">
               <span class="measure-illustrated-code">PO₄ <small>(ppm)</small></span>
               <span class="measure-illustrated-name">Fosfato</span>
@@ -3466,7 +3582,7 @@ canvas{
           </div>
 
           <div class="measure-illustrated-row sal">
-            <div class="measure-illustrated-icon"><img src="./measure-salinity.png" alt="Icono salinidad"></div>
+            <div class="measure-illustrated-icon"><img loading="lazy" decoding="async" src="./measure-salinity.png" alt="Icono salinidad"></div>
             <label class="measure-illustrated-copy" for="salInput">
               <span class="measure-illustrated-code">SALINIDAD <small>(ppt)</small></span>
               <span class="measure-illustrated-name">Salinidad</span>
@@ -3555,7 +3671,7 @@ canvas{
       </div>
 
       <div class="dose-card teal">
-        <div class="dose-product-image"><img src="./dose-kh.png" alt="KH"></div>
+        <div class="dose-product-image"><img loading="lazy" decoding="async" src="./dose-kh.png" alt="KH"></div>
         <div class="dose-info">
           <div class="name">KH</div>
           <div class="amount"><span id="khDoseCard">— ml/día</span> · <span id="khDoseSplit">—</span></div>
@@ -3564,7 +3680,7 @@ canvas{
       </div>
 
       <div class="dose-card green">
-        <div class="dose-product-image"><img src="./dose-ca.png" alt="Calcio"></div>
+        <div class="dose-product-image"><img loading="lazy" decoding="async" src="./dose-ca.png" alt="Calcio"></div>
         <div class="dose-info">
           <div class="name">Calcio</div>
           <div class="amount"><span id="caDoseCard">— ml/día</span> · <span id="caDoseSplit">—</span></div>
@@ -3573,7 +3689,7 @@ canvas{
       </div>
 
       <div class="dose-card purple">
-        <div class="dose-product-image"><img src="./dose-trace.png" alt="Trazas"></div>
+        <div class="dose-product-image"><img loading="lazy" decoding="async" src="./dose-trace.png" alt="Trazas"></div>
         <div class="dose-info">
           <div class="name">Trazas</div>
           <div class="amount"><span id="traceDoseCard">— ml/día</span> · <span id="traceDoseSplit">—</span></div>
@@ -3720,10 +3836,10 @@ canvas{
   <button class="fab" onclick="switchView('measure')" aria-label="Nueva medición">＋</button>
 
   <nav class="bottom-nav">
-    <button class="nav-btn active" data-target="home"><span class="ico"><img src="./nav-home.png" alt=""></span><span>Inicio</span></button>
-    <button class="nav-btn" data-target="measure"><span class="ico"><img src="./nav-measure.png" alt=""></span><span>Medición</span></button>
-    <button class="nav-btn" data-target="dose"><span class="ico"><img src="./nav-dose.png" alt=""></span><span>Dosificación</span></button>
-    <button class="nav-btn" data-target="history"><span class="ico"><img src="./nav-history.png" alt=""></span><span>Historial</span></button>
+    <button class="nav-btn active" data-target="home"><span class="ico"><img decoding="async" src="./nav-home.png" alt=""></span><span>Inicio</span></button>
+    <button class="nav-btn" data-target="measure"><span class="ico"><img decoding="async" src="./nav-measure.png" alt=""></span><span>Medición</span></button>
+    <button class="nav-btn" data-target="dose"><span class="ico"><img decoding="async" src="./nav-dose.png" alt=""></span><span>Dosificación</span></button>
+    <button class="nav-btn" data-target="history"><span class="ico"><img decoding="async" src="./nav-history.png" alt=""></span><span>Historial</span></button>
   </nav>
 </div>
 
@@ -7060,6 +7176,96 @@ if ('serviceWorker' in navigator) {
     });
   });
   if(changed)persist();
+})();
+</script>
+
+
+<script id="reef-marine-control-v54-performance-runtime">
+(function(){
+  let chartFrame=0;
+
+  function buildLightBubbleField(){
+    const ocean=document.querySelector('.ocean-ambient');
+    if(!ocean)return;
+
+    /* Las versiones históricas añadían sus propias burbujas acumulativamente.
+       Se reconstruye una única capa controlada. */
+    ocean.querySelectorAll('.bubble,.glass-sparkle,.reef-corner,.coral-border,.ambient-fish').forEach(el=>el.remove());
+
+    const classes=['micro','tiny','nano','mini','tiny','micro','medium'];
+    const tones=['tint-turquoise','tint-green','tint-purple'];
+    const total=28;
+    for(let i=0;i<total;i++){
+      const b=document.createElement('i');
+      b.className=`bubble ${classes[i%classes.length]} ${tones[i%tones.length]}`;
+      const left=4+((i*37)%92);
+      const top=5+((i*53)%89);
+      const dur=(9.5+((i*13)%38)/10).toFixed(1);
+      const delay=-((i*19)%90)/10;
+      const drift=(i%2?1:-1)*(4+((i*7)%9));
+      b.style.left=`${left}%`;
+      b.style.top=`${top}%`;
+      b.style.setProperty('--dur',`${dur}s`);
+      b.style.setProperty('--drift',`${drift}px`);
+      b.style.animationDuration=`${dur}s`;
+      b.style.animationDelay=`${delay}s`;
+      ocean.appendChild(b);
+    }
+    ocean.dataset.performanceBubbleCount=String(total);
+  }
+
+  function installChartScheduler(){
+    const current=window.drawAllCharts;
+    if(typeof current!=='function'||current.__v54Scheduled)return;
+
+    function scheduledDrawAllCharts(){
+      if(chartFrame)return;
+      chartFrame=requestAnimationFrame(()=>{
+        chartFrame=0;
+        current();
+      });
+    }
+    scheduledDrawAllCharts.__v54Scheduled=true;
+    scheduledDrawAllCharts.__original=current;
+    window.drawAllCharts=scheduledDrawAllCharts;
+    try{drawAllCharts=scheduledDrawAllCharts}catch(_){}
+  }
+
+  function installFastViewSwitch(){
+    const optimized=function(name){
+      document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.dataset.view===name));
+      document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.target===name));
+
+      /* En móvil el smooth-scroll + backdrop compositing era especialmente
+         costoso. El cambio de panel debe ser inmediato. */
+      window.scrollTo(0,0);
+
+      if(name==='home'||name==='history'){
+        requestAnimationFrame(()=>window.drawAllCharts?.());
+      }
+    };
+
+    window.switchView=optimized;
+    try{switchView=optimized}catch(_){}
+
+    const menu=document.getElementById('menuBtn');
+    if(menu)menu.onclick=()=>optimized('settings');
+    document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>optimized(b.dataset.target));
+  }
+
+  function applyPerformanceLayer(){
+    buildLightBubbleField();
+    installChartScheduler();
+    installFastViewSwitch();
+  }
+
+  if(document.readyState==='loading'){
+    /* Registrado al final del documento: se ejecuta después de las capas
+       históricas que añadían burbujas. */
+    document.addEventListener('DOMContentLoaded',applyPerformanceLayer,{once:true});
+  }else{
+    applyPerformanceLayer();
+  }
 })();
 </script>
 
