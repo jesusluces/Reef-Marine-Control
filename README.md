@@ -313,3 +313,14 @@ Los datos del usuario siguen almacenándose en localStorage con la misma clave, 
 - Fondo PNG sustituido por WebP de alta calidad.
 - Carga diferida/decodificación asíncrona para ilustraciones no críticas.
 - No se modifica ninguna fórmula, medición, dato, evento ni regla del motor v53.
+
+## v55 — Corrección estructural del desplazamiento
+- Corregido el bloqueo que impedía desplazarse verticalmente en navegador y PWA instalada.
+- En móvil, `.app` pasa a ser explícitamente el contenedor de scroll con `overflow-y:auto`.
+- Se neutralizan reglas históricas `.app { overflow:hidden; }`.
+- Se utiliza `100dvh` cuando está disponible y `100vh` como respaldo.
+- Activado desplazamiento táctil nativo mediante `-webkit-overflow-scrolling: touch` y `touch-action: pan-y`.
+- `main` y las vistas dejan de actuar como posibles recortes verticales.
+- Al cambiar de panel, se reinicia el scroll de `.app`, no solo el de `window`.
+- Se conserva íntegramente el motor matemático v53 y las optimizaciones de rendimiento v54.
+- Service Worker actualizado a v55.

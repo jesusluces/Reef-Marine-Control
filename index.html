@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<meta name="reef-marine-control-version" content="54">
+<meta name="reef-marine-control-version" content="55">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#f8fbfc" />
 <title>Reef Marine Control · Gestión inteligente del arrecife</title>
@@ -3420,6 +3420,86 @@ html{scroll-behavior:auto !important}
 
 @media (prefers-reduced-motion:reduce){
   .ocean-ambient .bubble{animation:none !important}
+}
+</style>
+
+
+<style id="reef-marine-control-v55-scroll-fix">
+/* =========================================================
+   v55 · Scroll móvil robusto
+   La .app se convierte explícitamente en el viewport desplazable.
+   Esto evita depender del body/documentElement y neutraliza
+   reglas históricas de overflow:hidden.
+   ========================================================= */
+@media (max-width:699px){
+  html,
+  body{
+    width:100% !important;
+    height:100% !important;
+    min-height:100% !important;
+    max-height:none !important;
+    margin:0 !important;
+    padding:0 !important;
+  }
+
+  html{
+    overflow:hidden !important;
+    overscroll-behavior:none !important;
+  }
+
+  body{
+    overflow:hidden !important;
+    overscroll-behavior:none !important;
+    position:relative !important;
+  }
+
+  .app{
+    position:relative !important;
+    display:flex !important;
+    flex-direction:column !important;
+
+    width:100% !important;
+    max-width:none !important;
+
+    height:100vh !important;
+    min-height:0 !important;
+    max-height:none !important;
+
+    overflow-x:hidden !important;
+    overflow-y:auto !important;
+
+    -webkit-overflow-scrolling:touch !important;
+    overscroll-behavior-y:auto !important;
+    touch-action:pan-y pinch-zoom !important;
+
+    scroll-behavior:auto !important;
+    scrollbar-gutter:auto !important;
+  }
+
+  @supports (height:100dvh){
+    .app{height:100dvh !important}
+  }
+
+  main{
+    flex:0 0 auto !important;
+    min-height:auto !important;
+    overflow:visible !important;
+    touch-action:pan-y pinch-zoom !important;
+  }
+
+  .view,
+  .view.active{
+    min-height:0 !important;
+    max-height:none !important;
+    overflow:visible !important;
+    touch-action:pan-y pinch-zoom !important;
+  }
+
+  /* La navegación continúa formando parte del flujo y por tanto
+     se alcanza desplazándose hasta el final de la vista. */
+  .bottom-nav{
+    flex:0 0 auto !important;
+  }
 }
 </style>
 
@@ -7266,6 +7346,65 @@ if ('serviceWorker' in navigator) {
   }else{
     applyPerformanceLayer();
   }
+})();
+</script>
+
+
+<script id="reef-marine-control-v55-scroll-runtime">
+(function(){
+  function scrollHost(){
+    return document.querySelector('.app');
+  }
+
+  function scrollToTopImmediate(){
+    const host=scrollHost();
+    if(host){
+      host.scrollTop=0;
+      try{host.scrollTo({top:0,left:0,behavior:'auto'})}catch(_){}
+    }
+    /* Compatibilidad escritorio / navegadores que sigan usando window. */
+    try{window.scrollTo({top:0,left:0,behavior:'auto'})}catch(_){}
+  }
+
+  function switchViewScrollable(name){
+    document.querySelectorAll('.view').forEach(v=>{
+      v.classList.toggle('active',v.dataset.view===name);
+    });
+    document.querySelectorAll('.nav-btn').forEach(b=>{
+      b.classList.toggle('active',b.dataset.target===name);
+    });
+
+    scrollToTopImmediate();
+
+    if(name==='home'||name==='history'){
+      requestAnimationFrame(()=>window.drawAllCharts?.());
+    }
+  }
+
+  window.switchView=switchViewScrollable;
+  try{switchView=switchViewScrollable}catch(_){}
+
+  const menu=document.getElementById('menuBtn');
+  if(menu)menu.onclick=()=>switchViewScrollable('settings');
+
+  document.querySelectorAll('.nav-btn').forEach(btn=>{
+    btn.onclick=()=>switchViewScrollable(btn.dataset.target);
+  });
+
+  /* Seguridad adicional: jamás dejar el contenedor principal bloqueado
+     tras cerrar un modal o cambiar de orientación. */
+  function ensureScrollable(){
+    const host=scrollHost();
+    if(!host)return;
+    if(matchMedia('(max-width:699px)').matches){
+      host.style.overflowY='auto';
+      host.style.webkitOverflowScrolling='touch';
+    }
+  }
+
+  window.addEventListener('resize',ensureScrollable,{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(ensureScrollable,50),{passive:true});
+  ensureScrollable();
 })();
 </script>
 
