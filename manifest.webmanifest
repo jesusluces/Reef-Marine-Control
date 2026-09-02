@@ -1,28 +1,16 @@
 {
   "name": "Reef Marine Control",
-  "short_name": "Reef Marine",
-  "description": "Gestión local de acuarios marinos y arrecife.",
+  "short_name": "Reef Control",
+  "description": "Control local de mediciones, correcciones y mantenimiento de un acuario marino.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f8fbfc",
+  "background_color": "#eefbfc",
   "theme_color": "#f8fbfc",
+  "orientation": "portrait-primary",
   "icons": [
-    {
-      "src": "./icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "./icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    },
-    {
-      "src": "./icon-maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
+    {"src":"./icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"./icon-512.png","sizes":"512x512","type":"image/png"},
+    {"src":"./icon-maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"}
   ]
 }
