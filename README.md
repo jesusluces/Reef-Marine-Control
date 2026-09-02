@@ -396,3 +396,50 @@ Ejemplos de control:
 - Perfiles locales separados para varios acuarios; sin nube ni sistema de respaldo.
 - PWA completa restaurada con manifest y Service Worker.
 - updateUI protegido por un dispatcher final contra reentradas.
+
+## v63 — Cambios de agua integrados
+- Corregido el fallo por el que un cambio de agua se guardaba pero no se reflejaba en parámetros ni gráficas.
+- El volumen del cambio de agua es obligatorio.
+- Si existe química del agua nueva y una medición base suficientemente reciente, se calcula:
+  `C_después = C_antes × (1 - litros/volumen) + C_agua_nueva × (litros/volumen)`.
+- KH, Ca, Mg y salinidad pueden mostrar un valor `≈` estimado tras el cambio.
+- El valor estimado NO se almacena como medición real y NO alimenta el motor de consumo automático.
+- Si falta la química del agua nueva para un parámetro, ese parámetro queda pendiente de nueva medición.
+- Todos los gráficos muestran una línea turquesa en la fecha del cambio de agua.
+- Cuando el efecto es calculable, el gráfico muestra además un punto turquesa `≈` con el valor estimado tras la mezcla.
+- La gráfica de Inicio utiliza exactamente el mismo sistema y también muestra el cambio.
+- Las tarjetas de parámetros del Historial muestran el valor estimado tras el cambio cuando es calculable.
+
+## v64 — Integración completa de interacciones
+- Corregida la proyección de cambios de agua históricos: utiliza la última medición REAL anterior al evento, no la última medición global.
+- Se respeta `recordedAt` para resolver el orden dentro del mismo minuto; si no puede demostrarse el orden, no se inventa una proyección.
+- Las gráficas de Inicio e Historial se convierten en una línea temporal real:
+  - mediciones = puntos reales;
+  - cambio de agua = marcador 💧 + punto `≈` cuando la mezcla es calculable;
+  - corrección = marcador rosa;
+  - anulación de corrección = marcador ↩;
+  - cambio de volumen = marcador 📐;
+  - programa de dosificación = marcador 🧪;
+  - cambio de reparto/horario = marcador 🕒;
+  - cambio de método = marcador Manual/Xepta;
+  - cambio de KH objetivo = marcador 🎯;
+  - cambio de salinidad objetivo = marcador 🌊;
+  - cambio de incertidumbre de tests = marcador ± Test;
+  - nueva preparación Balling = marcador 🧴.
+- El periodo `Todo` incluye también eventos anteriores o posteriores a las mediciones.
+- `Último` en cada gráfica muestra el valor `≈` tras un cambio de agua cuando existe una proyección válida.
+- Si no hay mediciones pero sí intervenciones, la gráfica ya no queda vacía: muestra sus marcadores.
+- Cambios de configuración relevantes quedan registrados en `state.events`, además de sus historiales específicos.
+- Inventario actualizado queda registrado en Eventos, aunque no se dibuja en las gráficas químicas porque no modifica un parámetro del agua.
+- Los textos de consumo KH/Ca utilizan el consumo físico actual cuando existe normalización por salinidad.
+- `updateUI()` termina siempre solicitando un redibujado de todos los canvases visibles.
+
+## v65 — Auditoría dinámica
+- Se expone de forma segura el selector real de eventos utilizado por las gráficas para poder verificarlo en pruebas automáticas.
+- No cambia ninguna fórmula química de v64.
+- Esta versión se somete a pruebas de ejecución reales sobre DOM/canvas, no solo a validación sintáctica.
+
+## v66 — Auditoría integral completada
+- Inventario guardado también aparece como marcador temporal `🧴 Inventario` en las gráficas, sin modificar valores químicos.
+- Corregidos plurales de las estadísticas: mediciones, correcciones e intervenciones.
+- Mantiene íntegramente las protecciones y fórmulas de v65.

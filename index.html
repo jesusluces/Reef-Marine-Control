@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<meta name="reef-marine-control-version" content="62">
+<meta name="reef-marine-control-version" content="66">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#f8fbfc" />
 <title>Reef Marine Control · Gestión inteligente del arrecife</title>
@@ -3998,9 +3998,9 @@ html{scroll-behavior:auto !important}
         </select>
       </div>
       <div class="field"><label>Fecha y hora</label><input type="datetime-local" id="eventDate"></div>
-      <div class="field event-structured event-water-field"><label>Volumen cambiado (L, opcional)</label><input id="eventWaterLiters" inputmode="decimal" placeholder="Ej.: 40"></div>
+      <div class="field event-structured event-water-field"><label>Volumen cambiado (L)</label><input id="eventWaterLiters" inputmode="decimal" placeholder="Ej.: 40"></div>
       <div class="event-structured event-water-field water-chemistry-box">
-        <div class="small"><strong>Química del agua nueva · opcional</strong><br>Si la completas, Reef Marine Control podrá modelar matemáticamente el cambio de agua en KH, Ca y Mg en lugar de descartar el intervalo.</div>
+        <div class="small"><strong>Química del agua nueva · recomendada</strong><br>Si introduces KH, Ca, Mg y/o salinidad del agua nueva, Reef Marine Control calculará el valor estimado inmediatamente después del cambio mediante mezcla. Si falta un parámetro, ese parámetro quedará pendiente de una nueva medición.</div>
         <div class="water-chemistry-grid">
           <div class="field"><label>KH agua nueva (dKH)</label><input id="eventWaterKh" inputmode="decimal" placeholder="Ej.: 8,2"></div>
           <div class="field"><label>Ca agua nueva (ppm)</label><input id="eventWaterCa" inputmode="decimal" placeholder="Ej.: 440"></div>
@@ -4351,9 +4351,13 @@ function updateInsights(){
   const nextEl=$('#nextAction'); if(nextEl) nextEl.textContent=last && Math.abs(last.kh-goal)>.2 ? 'Repite KH antes de modificar la dosificación.' : 'Registra KH con regularidad para afinar el consumo.';
 }
 function renderEvents(){
-  const labels={water:'💧',dose:'🧪',correction:'⚗️',parameterCorrection:'🎯',correctionCancelled:'↩️',balling:'🧴',maintenanceMethod:'🔄'};
+  const labels={
+    water:'💧',dose:'🧪',correction:'⚗️',parameterCorrection:'🎯',correctionCancelled:'↩️',
+    balling:'🧴',maintenanceMethod:'🔄',volumeChange:'📐',khGoalChange:'🎯',
+    salinityGoalChange:'🌊',testUncertaintyChange:'🧪',scheduleChange:'🕒',inventoryChange:'🧴'
+  };
   const el=$('#eventList');
-  const items=[...(state.events||[])].sort((a,b)=>new Date(b.ts)-new Date(a.ts)).slice(0,12);
+  const items=[...(state.events||[])].sort((a,b)=>new Date(b.ts)-new Date(a.ts)).slice(0,20);
   el.innerHTML=items.length?items.map(e=>{
     const cancelled=e.type==='parameterCorrection'&&e.applied===false;
     const canCancel=e.type==='parameterCorrection'&&e.applied!==false&&e.correctionId;
@@ -4371,7 +4375,7 @@ window.cancelParameterCorrection=function(id){
   correction.applied=false;correction.cancelledAt=new Date().toISOString();
   if(event)event.applied=false;
   state.events.push({
-    ts:new Date().toISOString(),type:'correctionCancelled',correctionId:id,
+    ts:new Date().toISOString(),type:'correctionCancelled',correctionId:id,parameter:correction.parameter,recordedAt:new Date().toISOString(),
     detail:`Corrección anulada · ${(correction.parameter||'').toUpperCase()} ${Number.isFinite(Number(correction.delta))?`+${nf(Number(correction.delta),correction.parameter==='kh'?1:0)}`:''}`
   });
   state.mathMeta ||= {};state.mathMeta.pendingAutoProgram=null;
@@ -5450,6 +5454,144 @@ window.addEventListener('resize',drawAllCharts);
     return {known:ageDays<=maxAgeDays,measurement:m,ageDays};
   }
 
+  const WATER_FRESH_DAYS=Object.freeze({kh:7,ca:14,mg:14,sal:7});
+
+  function waterEventReplacementValue(event,param){
+    const map={kh:'newKh',ca:'newCa',mg:'newMg',sal:'newSal'};
+    const n=Number(event?.[map[param]]);
+    return Number.isFinite(n)?n:null;
+  }
+
+  function temporalOrder(tsA,recordedA,tsB,recordedB){
+    const a=+new Date(tsA),b=+new Date(tsB);
+    if(a<b)return -1;
+    if(a>b)return 1;
+    const ar=recordedA?+new Date(recordedA):NaN;
+    const br=recordedB?+new Date(recordedB):NaN;
+    if(Number.isFinite(ar)&&Number.isFinite(br)){
+      if(ar<br)return -1;
+      if(ar>br)return 1;
+      return 0;
+    }
+    return null; // mismo minuto sin orden físico demostrable
+  }
+
+  function measurementBeforeBoundary(param,boundaryTs,boundaryRecordedAt=null){
+    const rows=[...(state.measurements||[])]
+      .filter(m=>Number.isFinite(Number(m[param]))&&m.source!=='correctionBaseline')
+      .filter(m=>{
+        const order=temporalOrder(m.ts,m.recordedAt,boundaryTs,boundaryRecordedAt);
+        return order===-1 || (order===0 && boundaryRecordedAt===null);
+      })
+      .sort((a,b)=>{
+        const o=temporalOrder(a.ts,a.recordedAt,b.ts,b.recordedAt);
+        return o===null?0:o;
+      });
+    return rows.at(-1)||null;
+  }
+
+  function eventAfterMeasurement(event,measurement){
+    if(!event||!measurement)return false;
+    const order=temporalOrder(event.ts,event.recordedAt,measurement.ts,measurement.recordedAt);
+    if(order===1)return true;
+    if(order===-1)return false;
+    return null; // ambiguo
+  }
+
+  function correctionExistsBetween(param,measurement,boundaryTs,boundaryRecordedAt=null){
+    return (state.parameterCorrections||[]).some(c=>{
+      if(c.applied===false||c.parameter!==param)return false;
+      const afterBase=temporalOrder(c.ts,c.appliedAt||c.recordedAt,measurement.ts,measurement.recordedAt);
+      const beforeBoundary=temporalOrder(c.ts,c.appliedAt||c.recordedAt,boundaryTs,boundaryRecordedAt);
+      const after=afterBase===1 || afterBase===null;
+      const before=beforeBoundary===-1 || beforeBoundary===0 || beforeBoundary===null;
+      return after&&before;
+    });
+  }
+
+  function projectParamThroughWaterChanges(param,at=Date.now(),boundaryRecordedAt=null){
+    const maxAge=WATER_FRESH_DAYS[param]??7;
+    const boundaryTs=typeof at==='number'?new Date(at).toISOString():at;
+    const atMs=+new Date(boundaryTs);
+    if(!Number.isFinite(atMs))return {known:false,reason:'fecha inválida',param};
+
+    const base=measurementBeforeBoundary(param,boundaryTs,boundaryRecordedAt);
+    if(!base)return {known:false,reason:'sin medición previa',param};
+
+    const baseMs=+new Date(base.ts);
+    const baseAgeAtProjection=Math.max(0,(atMs-baseMs)/DAY);
+    if(baseAgeAtProjection>maxAge){
+      return {known:false,reason:'medición base demasiado antigua',param,base,ageDays:baseAgeAtProjection};
+    }
+
+    if(correctionExistsBetween(param,base,boundaryTs,boundaryRecordedAt)){
+      return {known:false,reason:'existe una corrección pendiente o intermedia',param,base};
+    }
+
+    const waters=(state.events||[])
+      .filter(e=>e.type==='water')
+      .filter(e=>{
+        const after=eventAfterMeasurement(e,base);
+        if(after===null)return false;
+        if(!after)return false;
+        const beforeBoundary=temporalOrder(e.ts,e.recordedAt,boundaryTs,boundaryRecordedAt);
+        return beforeBoundary===-1 || beforeBoundary===0 || (beforeBoundary===null&&boundaryRecordedAt===null);
+      })
+      .sort((a,b)=>{
+        const o=temporalOrder(a.ts,a.recordedAt,b.ts,b.recordedAt);
+        return o===null?0:o;
+      });
+
+    if(!waters.length){
+      return {known:true,estimated:false,value:Number(base[param]),base,events:[],lastTs:base.ts};
+    }
+
+    let value=Number(base[param]);
+    const used=[];
+
+    for(const event of waters){
+      const replacement=waterEventReplacementValue(event,param);
+      const liters=Number(event.liters);
+      const vol=Number(event.systemVolume||volumeAt(event.ts)||state.settings.volume||0);
+
+      if(!Number.isFinite(replacement)){
+        return {known:false,reason:`falta ${param} del agua nueva`,param,base,events:used,incompleteEvent:event};
+      }
+      if(!(liters>0&&vol>0&&liters<vol)){
+        return {known:false,reason:'volumen de cambio no modelable',param,base,events:used,incompleteEvent:event};
+      }
+
+      const f=liters/vol;
+      const before=value;
+      value=before*(1-f)+replacement*f;
+      used.push({event,before,replacement,fraction:f,after:value});
+    }
+
+    return {
+      known:true,estimated:true,value,base,events:used,
+      lastEvent:waters.at(-1),lastTs:waters.at(-1).ts
+    };
+  }
+
+  function projectParamAtWaterEvent(param,event){
+    if(!event||event.type!=='water')return null;
+    const result=projectParamThroughWaterChanges(param,event.ts,event.recordedAt||null);
+    if(!result?.known||!result.estimated)return null;
+    const lastUsed=result.events?.at(-1)?.event;
+    if(lastUsed!==event)return null;
+    return result;
+  }
+
+  function waterEventsInWindow(start,end){
+    const a=+new Date(start),b=+new Date(end);
+    return (state.events||[])
+      .filter(e=>e.type==='water'&&+new Date(e.ts)>=a&&+new Date(e.ts)<=b)
+      .sort((x,y)=>{
+        const o=temporalOrder(x.ts,x.recordedAt,y.ts,y.recordedAt);
+        return o===null?0:o;
+      });
+  }
+
   function intervalIsModelable(start,end,product,param=null){
     if(methodChangeInInterval(start,end))return {ok:false,reason:'cambio de método de mantenimiento'};
     if(endpointInterventionAmbiguous(start,end))return {ok:false,reason:'intervención en el mismo minuto que una medición'};
@@ -5982,6 +6124,11 @@ window.addEventListener('resize',drawAllCharts);
       if(kh>khCap||ca>caCap||tr>trCap){toast('El volumen cargado no puede superar la capacidad');return}
       const ts=isoNow();
       Object.assign(state.inventory,{kh,ca,trace:tr,capacityKh:Math.max(1,khCap),capacityCa:Math.max(1,caCap),capacityTrace:Math.max(1,trCap),khSetAt:ts,caSetAt:ts,traceSetAt:ts});
+      state.events ||= [];
+      state.events.push({
+        ts,type:'inventoryChange',recordedAt:new Date().toISOString(),
+        detail:`Inventario actualizado · KH ${nf(kh,0)} ml · Ca ${nf(ca,0)} ml · Trazas ${nf(tr,0)} ml`
+      });
       persist();updateUI();toast('Botes sincronizados');
     };
   }
@@ -6014,11 +6161,12 @@ window.addEventListener('resize',drawAllCharts);
       const event={ts,type,detail,recordedAt:new Date().toISOString()};
       if(type==='water'){
         const liters=asNum(document.getElementById('eventWaterLiters').value);
-        if(Number.isFinite(liters)&&liters>0){
-          const vol=Number(volumeAt(ts)||state.settings.volume||0);
-          if(vol>0&&liters>=vol){toast('El volumen cambiado debe ser menor que el volumen neto del sistema');return}
-          event.liters=liters;
-        }
+        if(!Number.isFinite(liters)||liters<=0){toast('Indica el volumen real del cambio de agua');return}
+        const vol=Number(volumeAt(ts)||state.settings.volume||0);
+        if(!(vol>0)){toast('Configura primero el volumen neto del acuario');return}
+        if(liters>=vol){toast('El volumen cambiado debe ser menor que el volumen neto del sistema');return}
+        event.liters=liters;
+        event.systemVolume=vol;
         const defs=[
           ['eventWaterKh','newKh',PARAM_RULES.kh],
           ['eventWaterCa','newCa',PARAM_RULES.ca],
@@ -6117,6 +6265,73 @@ window.addEventListener('resize',drawAllCharts);
     return {measurement:last,value:Number(last[param])+external,measuredValue:Number(last[param]),externalCorrection:external};
   }
   function drawEmpty(ctx,w,text){ctx.fillStyle='#6e7f98';ctx.font='12px "Patrick Hand SC",cursive';ctx.fillText(text,14,38)}
+
+  function eventAppliesToChart(event,key){
+    if(!event)return false;
+    switch(event.type){
+      case 'water': return true;
+      case 'volumeChange': return true;
+      case 'parameterCorrection': return event.applied!==false&&event.parameter===key;
+      case 'correctionCancelled': return event.parameter===key;
+      case 'dose': return key==='kh'||key==='ca';
+      case 'scheduleChange': return key==='kh'||key==='ca';
+      case 'maintenanceMethod': return key==='kh'||key==='ca';
+      case 'balling': return key==='kh'||key==='ca';
+      case 'khGoalChange': return key==='kh';
+      case 'salinityGoalChange': return ['sal','kh','ca','mg'].includes(key);
+      case 'testUncertaintyChange': return ['kh','ca','mg'].includes(key);
+      case 'inventoryChange': return true;
+      default:return false;
+    }
+  }
+
+  function chartEventsInWindow(key,start,end){
+    const a=+new Date(start),b=+new Date(end);
+    return (state.events||[])
+      .filter(e=>+new Date(e.ts)>=a&&+new Date(e.ts)<=b&&eventAppliesToChart(e,key))
+      .sort((x,y)=>{
+        const dt=new Date(x.ts)-new Date(y.ts);
+        if(dt)return dt;
+        return new Date(x.recordedAt||x.ts)-new Date(y.recordedAt||y.ts);
+      });
+  }
+
+  function allChartEvents(key){
+    return (state.events||[]).filter(e=>eventAppliesToChart(e,key));
+  }
+
+  window.ReefMarineChartDebug={
+    eventsInWindow:chartEventsInWindow,
+    allEvents:allChartEvents,
+    applies:eventAppliesToChart
+  };
+
+  function genericChartMarker(event,key){
+    switch(event.type){
+      case 'volumeChange':
+        return {label:`📐 ${nf(Number(event.newVolume),0)} L`,fill:'#edf4ff',stroke:'#7197c8',text:'#365f91'};
+      case 'dose':
+        return {label:`🧪 ${nf(Number(event.newDailyDose),1)} ml/d`,fill:'#eef9df',stroke:'#8ebc55',text:'#577e28'};
+      case 'scheduleChange':
+        return {label:'🕒 Reparto',fill:'#f3f0ff',stroke:'#9d89cb',text:'#665497'};
+      case 'maintenanceMethod':
+        return {label:event.method==='manual'?'Manual':'Xepta',fill:event.method==='manual'?'#f0e9ff':'#e2fafa',stroke:event.method==='manual'?'#9874c8':'#48abb0',text:event.method==='manual'?'#7050a0':'#287f84'};
+      case 'balling':
+        return {label:'🧴 Preparación',fill:'#fff3dc',stroke:'#d3a44f',text:'#8a681e'};
+      case 'khGoalChange':
+        return {label:`🎯 ${nf(Number(event.newGoal),1)}`,fill:'#fff0f5',stroke:'#dc85a0',text:'#9d4d67'};
+      case 'salinityGoalChange':
+        return {label:`🌊 ${nf(Number(event.newGoal),1)}`,fill:'#e8f8ff',stroke:'#65aeca',text:'#35758e'};
+      case 'testUncertaintyChange':
+        return {label:'± Test',fill:'#f4f5f8',stroke:'#9ca6b5',text:'#626d7c'};
+      case 'correctionCancelled':
+        return {label:'↩ Anulada',fill:'#f5f5f5',stroke:'#9aa1aa',text:'#666d75'};
+      case 'inventoryChange':
+        return {label:'🧴 Inventario',fill:'#fff6e8',stroke:'#c8a267',text:'#7d6138'};
+      default:return null;
+    }
+  }
+
   function niceDomain(key,data,extra=[]){
     const rule=PARAM_RULES[key], vals=[...data.map(d=>d.value),...extra.filter(Number.isFinite)];
     if(!vals.length) return [0,rule.minSpan];
@@ -6130,26 +6345,61 @@ window.addEventListener('resize',drawAllCharts);
     if(!canvas)return;
     const ctx=canvas.getContext('2d'),dpr=Math.min(devicePixelRatio||1,2);
     canvas.width=canvas.clientWidth*dpr;canvas.height=canvas.clientHeight*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);
-    const w=canvas.clientWidth,h=canvas.clientHeight,pad={l:38,r:11,t:26,b:28},data=strictSeries(key,days),rule=PARAM_RULES[key];
+    const w=canvas.clientWidth,h=canvas.clientHeight,pad={l:38,r:11,t:42,b:28},data=strictSeries(key,days),rule=PARAM_RULES[key];
     ctx.clearRect(0,0,w,h);
     const statEl=document.getElementById(key+'ChartStats'),latestEl=document.getElementById(key+'ChartLatest');
-    if(latestEl)latestEl.textContent=data.length?`${nf(data[data.length-1].value,rule.decimals)} ${rule.unit}`:'—';
     const allPeriod=days==='all';
-    const dataStart=data.length?+new Date(data[0].ts):Date.now();
-    const dataEnd=data.length?+new Date(data[data.length-1].ts):Date.now();
-    const naturalSpan=Math.max(DAY,dataEnd-dataStart);
-    const t0=allPeriod?dataStart-Math.max(DAY,naturalSpan*.04):Date.now()-Number(days)*DAY;
-    const t1=allPeriod?Math.max(Date.now(),dataEnd+Math.max(DAY,naturalSpan*.02)):Date.now();
-    if(statEl){
-      if(!data.length)statEl.textContent=allPeriod?'Sin datos en el historial':`Sin datos en los últimos ${days} días`;
-      else{
-        const vals=data.map(d=>d.value),avg=vals.reduce((a,b)=>a+b,0)/vals.length;
-        const corrCount=correctionsInWindow(key,t0,t1).length;
-        statEl.textContent=`${data.length} medición${data.length===1?'':'es'} · media ${nf(avg,rule.decimals)} · mín ${nf(Math.min(...vals),rule.decimals)} · máx ${nf(Math.max(...vals),rule.decimals)}${corrCount?` · ${corrCount} corrección${corrCount===1?'':'es'}`:''}`;
+
+    const rawAllEvents=allChartEvents(key);
+    const measurementTimes=data.map(d=>+new Date(d.ts)).filter(Number.isFinite);
+    const eventTimes=rawAllEvents.map(e=>+new Date(e.ts)).filter(Number.isFinite);
+    const baseStart=measurementTimes.length||eventTimes.length?Math.min(...measurementTimes,...eventTimes):Date.now();
+    const baseEnd=measurementTimes.length||eventTimes.length?Math.max(...measurementTimes,...eventTimes):Date.now();
+    const naturalSpan=Math.max(DAY,baseEnd-baseStart);
+    const t0=allPeriod?baseStart-Math.max(DAY,naturalSpan*.04):Date.now()-Number(days)*DAY;
+    const t1=allPeriod?Math.max(Date.now(),baseEnd+Math.max(DAY,naturalSpan*.02)):Date.now();
+
+    const chartEvents=chartEventsInWindow(key,t0,t1);
+    const waterEvents=chartEvents.filter(e=>e.type==='water');
+    const waterProjections=['kh','ca','mg','sal'].includes(key)
+      ?waterEvents.map(event=>({event,result:window.ReefMath?.projectParamAtWaterEvent?.(key,event)})).filter(x=>x.result?.known&&x.result?.estimated)
+      :[];
+
+    const currentProjection=['kh','ca','mg','sal'].includes(key)
+      ?window.ReefMath?.projectParamThroughWaterChanges?.(key,Date.now())
+      :null;
+    const latestMeasured=data.length?data[data.length-1]:null;
+    if(latestEl){
+      if(currentProjection?.known&&currentProjection.estimated){
+        latestEl.textContent=`≈${nf(Number(currentProjection.value),rule.decimals)} ${rule.unit}`;
+      }else{
+        latestEl.textContent=latestMeasured?`${nf(latestMeasured.value,rule.decimals)} ${rule.unit}`:'—';
       }
     }
-    if(!data.length){drawEmpty(ctx,w,`Sin mediciones de ${key.toUpperCase()} en este periodo.`);return}
-    const [min,max]=niceDomain(key,data,[...(goal!==null?[goal]:[]),...(Array.isArray(goalRange)?goalRange:[])]);
+
+    if(statEl){
+      const eventCount=chartEvents.length;
+      if(!data.length){
+        statEl.textContent=eventCount
+          ?`Sin mediciones · ${eventCount} ${eventCount===1?'intervención registrada':'intervenciones registradas'}`
+          :(allPeriod?'Sin datos en el historial':`Sin datos en los últimos ${days} días`);
+      }else{
+        const vals=data.map(d=>d.value),avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+        const waterCount=waterEvents.length;
+        const corrCount=correctionsInWindow(key,t0,t1).length;
+        statEl.textContent=`${data.length} ${data.length===1?'medición':'mediciones'} · media ${nf(avg,rule.decimals)} · mín ${nf(Math.min(...vals),rule.decimals)} · máx ${nf(Math.max(...vals),rule.decimals)}${waterCount?` · ${waterCount} cambio${waterCount===1?'':'s'} de agua`:''}${corrCount?` · ${corrCount} ${corrCount===1?'corrección':'correcciones'}`:''}${eventCount-waterCount-corrCount>0?` · ${eventCount-waterCount-corrCount} evento${eventCount-waterCount-corrCount===1?'':'s'}`:''}`;
+      }
+    }
+
+    if(!data.length&&!waterProjections.length&&!chartEvents.length){drawEmpty(ctx,w,`Sin datos de ${key.toUpperCase()} en este periodo.`);return}
+
+    const extraDomain=[
+      ...(goal!==null?[goal]:[]),
+      ...(Array.isArray(goalRange)?goalRange:[]),
+      ...waterProjections.map(x=>Number(x.result.value)).filter(Number.isFinite),
+      ...(currentProjection?.known&&currentProjection.estimated?[Number(currentProjection.value)]:[])
+    ];
+    const [min,max]=niceDomain(key,data,extraDomain);
     const x=t=>pad.l+(w-pad.l-pad.r)*((t-t0)/(t1-t0));
     const y=v=>pad.t+(h-pad.t-pad.b)*(1-(v-min)/(max-min));
     ctx.strokeStyle='rgba(145,181,196,.30)';ctx.lineWidth=1;ctx.fillStyle='#6e7f98';ctx.font='10px "Patrick Hand SC",cursive';
@@ -6171,6 +6421,42 @@ window.addEventListener('resize',drawAllCharts);
       data.forEach((p,i)=>{const xx=x(+new Date(p.ts)),yy=y(p.value);if(i===0)ctx.moveTo(xx,yy);else ctx.lineTo(xx,yy)});ctx.stroke();
     }
     data.forEach(p=>{const xx=x(+new Date(p.ts)),yy=y(p.value);window.drawChartValueBubble(ctx,xx,yy,nf(p.value,rule.decimals))});
+
+    /* Cambios de agua: línea turquesa en TODAS las gráficas.
+       Si el volumen y la química del agua nueva permiten calcular este
+       parámetro, se dibuja además un punto estimado claramente diferenciado. */
+    waterEvents.forEach(event=>{
+      const xx=x(+new Date(event.ts));
+      ctx.save();
+      ctx.strokeStyle='rgba(39,176,188,.55)';
+      ctx.lineWidth=1.5;
+      ctx.setLineDash([5,4]);
+      ctx.beginPath();ctx.moveTo(xx,pad.t+13);ctx.lineTo(xx,h-pad.b);ctx.stroke();
+      ctx.setLineDash([]);
+
+      const liters=Number(event.liters);
+      const label=Number.isFinite(liters)?`💧 ${nf(liters,0)} L`:'💧 Agua';
+      ctx.font='700 8.5px "Patrick Hand SC",cursive';
+      const tw=ctx.measureText(label).width,pw=tw+10,ph=17;
+      const px=Math.max(pad.l,Math.min(w-pad.r-pw,xx-pw/2)),py=4;
+      ctx.fillStyle='rgba(218,248,249,.96)';
+      ctx.strokeStyle='rgba(54,178,187,.72)';
+      ctx.beginPath();ctx.roundRect(px,py,pw,ph,8);ctx.fill();ctx.stroke();
+      ctx.fillStyle='#176f78';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(label,px+pw/2,py+ph/2+.5);
+      ctx.restore();
+    });
+
+    waterProjections.forEach(({event,result})=>{
+      const value=Number(result.value);
+      if(!Number.isFinite(value))return;
+      const xx=x(+new Date(event.ts)),yy=y(value);
+      window.drawChartValueBubble(
+        ctx,xx,yy,`≈${nf(value,rule.decimals)}`,
+        {fillA:'#c9f3f4',fillB:'#e3faf6',stroke:'#42afb7'}
+      );
+    });
+
     /* Marcadores de intervención: no se dibuja el objetivo como medición real.
        La línea rosa indica cuándo se aplicó una corrección y cuánto aportó. */
     correctionsInWindow(key,t0,t1).forEach(c=>{
@@ -6180,34 +6466,45 @@ window.addEventListener('resize',drawAllCharts);
       ctx.beginPath();ctx.moveTo(xx,pad.t+14);ctx.lineTo(xx,h-pad.b);ctx.stroke();ctx.setLineDash([]);
       const label=`+${nf(delta,key==='kh'?1:0)}`;
       ctx.font='700 9px "Patrick Hand SC",cursive';
-      const tw=ctx.measureText(label).width,pw=tw+12,ph=18,px=Math.max(pad.l,Math.min(w-pad.r-pw,xx-pw/2)),py=pad.t-2;
+      const tw=ctx.measureText(label).width,pw=tw+12,ph=18,px=Math.max(pad.l,Math.min(w-pad.r-pw,xx-pw/2)),py=22;
       ctx.fillStyle='rgba(255,225,233,.95)';ctx.strokeStyle='rgba(237,132,160,.75)';ctx.lineWidth=1;
       const r=9;ctx.beginPath();ctx.roundRect(px,py,pw,ph,r);ctx.fill();ctx.stroke();
       ctx.fillStyle='#a64d68';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(label,px+pw/2,py+ph/2+.5);
       ctx.restore();
     });
 
-    /* Cambio de filosofía de mantenimiento: se marca sin alterar la serie de
-       mediciones reales. */
-    if(key==='kh'){
-      methodChangesInWindow(t0,t1).forEach(change=>{
-        const xx=x(+new Date(change.ts));
-        const manual=change.method==='manual';
-        const label=manual?'Manual':'Xepta';
-        ctx.save();
-        ctx.strokeStyle=manual?'rgba(155,112,210,.42)':'rgba(46,186,192,.42)';
-        ctx.lineWidth=1.2;ctx.setLineDash([3,4]);
-        ctx.beginPath();ctx.moveTo(xx,pad.t+16);ctx.lineTo(xx,h-pad.b);ctx.stroke();ctx.setLineDash([]);
-        ctx.font='700 8.5px "Patrick Hand SC",cursive';
-        const tw=ctx.measureText(label).width,pw=tw+10,ph=17;
-        const px=Math.max(pad.l,Math.min(w-pad.r-pw,xx-pw/2)),py=pad.t+17;
-        ctx.fillStyle=manual?'rgba(240,231,255,.94)':'rgba(224,250,250,.94)';
-        ctx.strokeStyle=manual?'rgba(151,111,205,.62)':'rgba(55,181,188,.62)';
-        ctx.beginPath();ctx.roundRect(px,py,pw,ph,8);ctx.fill();ctx.stroke();
-        ctx.fillStyle=manual?'#7651a8':'#238f96';ctx.textAlign='center';ctx.textBaseline='middle';
-        ctx.fillText(label,px+pw/2,py+ph/2+.5);ctx.restore();
-      });
-    }
+    /* Resto de interacciones que modifican la interpretación del sistema.
+       Son marcadores temporales, nunca puntos de medición. */
+    const genericEvents=chartEvents.filter(e=>
+      !['water','parameterCorrection'].includes(e.type)
+    );
+    const lanes=[pad.t-36,pad.t-18,pad.t];
+    genericEvents.forEach((event,index)=>{
+      const marker=genericChartMarker(event,key);
+      if(!marker)return;
+      const xx=x(+new Date(event.ts));
+      const lane=lanes[index%lanes.length];
+
+      ctx.save();
+      ctx.strokeStyle=marker.stroke;
+      ctx.globalAlpha=.48;
+      ctx.lineWidth=1.1;
+      ctx.setLineDash([2,4]);
+      ctx.beginPath();ctx.moveTo(xx,pad.t);ctx.lineTo(xx,h-pad.b);ctx.stroke();
+      ctx.setLineDash([]);ctx.globalAlpha=1;
+
+      ctx.font='700 8px "Patrick Hand SC",cursive';
+      const tw=ctx.measureText(marker.label).width,pw=tw+9,ph=15;
+      const px=Math.max(pad.l,Math.min(w-pad.r-pw,xx-pw/2));
+      const py=Math.max(1,lane);
+      ctx.fillStyle=marker.fill;
+      ctx.strokeStyle=marker.stroke;
+      ctx.beginPath();ctx.roundRect(px,py,pw,ph,7);ctx.fill();ctx.stroke();
+      ctx.fillStyle=marker.text;ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(marker.label,px+pw/2,py+ph/2+.4);
+      ctx.restore();
+    });
+
     const labelCount=Math.min(5,Math.max(2,Math.round((w-pad.l-pad.r)/75)));
     for(let i=0;i<labelCount;i++){const t=t0+(t1-t0)*i/(labelCount-1||1),d=new Date(t);ctx.fillStyle='#6e7f98';ctx.fillText(`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`,x(t)-10,h-5)}
     if(data.length===1){ctx.fillStyle='#6e7f98';ctx.font='10px "Patrick Hand SC",cursive';ctx.fillText('Solo hay una medición disponible en este periodo.',pad.l,16)}
@@ -6286,11 +6583,20 @@ window.addEventListener('resize',drawAllCharts);
       const arr=sortedMeasurements().filter(m=>Number.isFinite(Number(m[key])));
       const last=arr[arr.length-1], valEl=document.getElementById(valId), metaEl=document.getElementById(metaId);
       if(!valEl||!metaEl)return;
-      if(last){
+
+      const projection=['ca','mg','sal'].includes(key)?window.ReefMath?.projectParamThroughWaterChanges?.(key,Date.now()):null;
+
+      if(projection?.known&&projection.estimated){
+        valEl.textContent=`≈${nf(Number(projection.value),dec)} ${unit}`;
+        metaEl.textContent=`Estimado tras cambio · ${new Date(projection.lastTs).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}`;
+        if(!latestTs||+new Date(projection.lastTs)>+new Date(latestTs))latestTs=projection.lastTs;
+      }else if(last){
         valEl.textContent=`${nf(Number(last[key]),dec)} ${unit}`;
         metaEl.textContent=new Date(last.ts).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
         if(!latestTs||+new Date(last.ts)>+new Date(latestTs))latestTs=last.ts;
-      }else{valEl.textContent='—';metaEl.textContent='Sin dato';}
+      }else{
+        valEl.textContent='—';metaEl.textContent='Sin dato';
+      }
     });
     const meta=document.getElementById('historyParamMeta');
     if(meta)meta.textContent=latestTs?`Última actualización · ${new Date(latestTs).toLocaleString('es-ES',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}`:'Sin datos completos';
@@ -6326,12 +6632,12 @@ window.addEventListener('resize',drawAllCharts);
         if(caMeta)caMeta.textContent='Necesita al menos 2 lecturas de Ca modelables. El calcio solo valida el modelo 1:1:1.';
       }else if(khDose===null||caDose===null){
         if(caState)caState.textContent='Tendencia registrada';
-        if(caMeta)caMeta.textContent=`${nf(ca.value,1)} ppm/día · calidad del modelo ${ca.label} (${ca.score}/100). No se usa para dosificar Ca de forma independiente.`;
+        if(caMeta)caMeta.textContent=`${nf(Number.isFinite(Number(ca.physicalValue))?ca.physicalValue:ca.value,1)} ppm/día · calidad del modelo ${ca.label} (${ca.score}/100). No se usa para dosificar Ca de forma independiente.`;
       }else{
         const volume=Number(state.settings.volume||0);
         const caAdded=volume>0?khDose*60/volume:NaN;
-        const drift=Number.isFinite(caAdded)?caAdded-ca.value:NaN;
-        const tolerance=Math.max(.5,2*Math.max(0,Number(ca.sigma||0)));
+        const caPhysical=Number.isFinite(Number(ca.physicalValue))?Number(ca.physicalValue):ca.value;const drift=Number.isFinite(caAdded)?caAdded-caPhysical:NaN;
+        const tolerance=Math.max(.5,2*Math.max(0,Number(ca.physicalSigma??ca.sigma??0)));
         const reliable=ca.score>=55;
         const compatible=Number.isFinite(drift)&&Math.abs(drift)<=tolerance;
         if(caState)caState.textContent=!reliable?'Datos débiles':compatible?'Compatible':'Revisar';
@@ -6413,6 +6719,11 @@ window.addEventListener('resize',drawAllCharts);
     measurementConfirmsCorrection,
     latestMeasuredParam,
     recentMeasurementInfo,
+    projectParamThroughWaterChanges,
+    projectParamAtWaterEvent,
+    waterEventsInWindow,
+    temporalOrder,
+    measurementBeforeBoundary,
     endpointInterventionAmbiguous,
     testUncertainty,
     buildConsumptionIntervals,
@@ -6753,7 +7064,7 @@ if ('serviceWorker' in navigator) {
     state.doses={kh:p,ca:p,trace:p};
     state.events ||= [];
     state.events.push({
-      ts,type:'dose',product:'balanced',newDailyDose:p,confirmedPhysical:true,
+      ts,type:'dose',product:'balanced',newDailyDose:p,confirmedPhysical:true,recordedAt:new Date().toISOString(),
       detail:`Programa físicamente confirmado · ${nf(p,1)} ml/día por componente · 1:1:1`
     });
     state.mathMeta.lastConfirmedPumpProgram={...proposal,ts};
@@ -6852,7 +7163,7 @@ if ('serviceWorker' in navigator) {
     if(khRec)khRec.textContent=result.raw===null?'—':`${nf(result.raw,2)} ml/día teóricos`;
     if(khMeta)khMeta.textContent=result.kh?.value===null
       ?'Necesita tendencia KH modelable'
-      :`${nf(result.kh.value,2)} dKH/día · ${result.kh.method||'modelo robusto'} · calidad del modelo ${result.kh.label} (${result.kh.score}/100) · programa ${daily===null?'—':nf(daily,1)+' ml/día'}`;
+      :`${nf(Number.isFinite(Number(result.kh.physicalValue))?result.kh.physicalValue:result.kh.value,2)} dKH/día · ${result.kh.method||'modelo robusto'} · calidad del modelo ${result.kh.label} (${result.kh.score}/100) · programa ${daily===null?'—':nf(daily,1)+' ml/día'}`;
 
     const caState=document.getElementById('caControlState'),caMeta=document.getElementById('caRecommendedMeta');
     if(caState||caMeta){
@@ -6862,7 +7173,7 @@ if ('serviceWorker' in navigator) {
       }else{
         const drift=result.caDrift;
         if(caState)caState.textContent=result.ca.score<MIN_ACTION_SCORE?'Datos débiles':Math.abs(drift||0)<=Number(result.caTolerance||Infinity)?'Compatible':'Revisar';
-        if(caMeta)caMeta.textContent=`Consumo Ca ${nf(result.ca.value,1)} ppm/día · calidad del modelo ${result.ca.label} (${result.ca.score}/100) · deriva prevista con 1:1:1: ${Number.isFinite(drift)?(drift>=0?'+':'')+nf(drift,1)+' ppm/día':'—'}.`;
+        if(caMeta)caMeta.textContent=`Consumo Ca ${nf(Number.isFinite(Number(result.ca.physicalValue))?result.ca.physicalValue:result.ca.value,1)} ppm/día · calidad del modelo ${result.ca.label} (${result.ca.score}/100) · deriva prevista con 1:1:1: ${Number.isFinite(drift)?(drift>=0?'+':'')+nf(drift,1)+' ppm/día':'—'}.`;
       }
     }
 
@@ -6926,6 +7237,14 @@ if ('serviceWorker' in navigator) {
         }
       }
 
+      const volumeChanged=Math.abs(oldVol-volume)>.0001;
+      const khGoalChanged=!manual&&Math.abs(Number(oldSettings.khGoal??goal)-goal)>.0001;
+      const salGoalChanged=Math.abs(Number(oldSettings.salinityGoal??salinityGoal)-salinityGoal)>.0001;
+      const uncertaintyChanged=
+        Math.abs(Number(oldSettings.testUncertainty?.kh??.15)-testKh)>.000001||
+        Math.abs(Number(oldSettings.testUncertainty?.ca??5)-testCa)>.000001||
+        Math.abs(Number(oldSettings.testUncertainty?.mg??15)-testMg)>.000001;
+
       state.settings={
         ...state.settings,volume,salinityGoal,testUncertainty:{kh:testKh,ca:testCa,mg:testMg},
         ...(manual?{}:{
@@ -6934,6 +7253,41 @@ if ('serviceWorker' in navigator) {
           otherDoseWindowStart:otherStart,otherDoseWindowEnd:otherEnd
         })
       };
+
+      state.events ||= [];
+      if(volumeChanged){
+        state.events.push({
+          ts,type:'volumeChange',oldVolume:oldVol,newVolume:volume,recordedAt:new Date().toISOString(),
+          detail:`Volumen neto: ${nf(oldVol,0)} → ${nf(volume,0)} L`
+        });
+      }
+      if(khGoalChanged){
+        state.events.push({
+          ts,type:'khGoalChange',oldGoal:Number(oldSettings.khGoal),newGoal:goal,recordedAt:new Date().toISOString(),
+          detail:`KH objetivo: ${nf(Number(oldSettings.khGoal),1)} → ${nf(goal,1)} dKH`
+        });
+      }
+      if(salGoalChanged){
+        state.events.push({
+          ts,type:'salinityGoalChange',oldGoal:Number(oldSettings.salinityGoal??33),newGoal:salinityGoal,recordedAt:new Date().toISOString(),
+          detail:`Salinidad objetivo: ${nf(Number(oldSettings.salinityGoal??33),1)} → ${nf(salinityGoal,1)} ppt`
+        });
+      }
+      if(uncertaintyChanged){
+        state.events.push({
+          ts,type:'testUncertaintyChange',
+          kh:testKh,ca:testCa,mg:testMg,recordedAt:new Date().toISOString(),
+          detail:`Precisión de tests actualizada · KH ±${nf(testKh,2)} · Ca ±${nf(testCa,0)} · Mg ±${nf(testMg,0)}`
+        });
+      }
+      if(!manual&&scheduleChanged){
+        state.events.push({
+          ts,type:'scheduleChange',
+          khDoses:kd,otherDoses:od,
+          khStart,khEnd,otherStart,otherEnd,recordedAt:new Date().toISOString(),
+          detail:`Reparto H2Ocean confirmado · KH ${kd} tomas · Ca/Trazas ${od} tomas`
+        });
+      }
 
       if(M&&!manual&&scheduleChanged){
         M.recordDoseSnapshot(ts,{kh:Number(state.doses.kh||0),ca:Number(state.doses.ca||0),trace:Number(state.doses.trace||0)},'schedule-physical-confirmed');
@@ -7405,41 +7759,80 @@ if ('serviceWorker' in navigator) {
     .sort((a,b)=>new Date(a.ts)-new Date(b.ts)).at(-1)||null;
   const latestSalinity=()=>latestFor('sal');
   const FRESH_DAYS=Object.freeze({kh:7,ca:14,mg:14,sal:7});
-  function correctionPendingFor(key){return window.ReefMath?.pendingCorrectionFor?.(key)||null}
-  function waterAfterMeasurement(measurement){
-    if(!measurement)return null;
-    const mt=+new Date(measurement.ts);
-    return [...(state.events||[])]
-      .filter(e=>e.type==='water'&&+new Date(e.ts)>=mt)
-      .sort((a,b)=>new Date(a.ts)-new Date(b.ts))
-      .find(e=>{
-        const et=+new Date(e.ts);
-        return et>mt||Math.floor(et/60000)===Math.floor(mt/60000);
-      })||null;
+
+  function correctionPendingFor(key){
+    return window.ReefMath?.pendingCorrectionFor?.(key)||null;
   }
+
   function currentSnapshot(){
     const data={},meta={};
+
     ORDER.forEach(key=>{
       const last=latestFor(key);
       if(!last)return;
+
       const measured=Number(last[key]);
       const ageDays=Math.max(0,(Date.now()-+new Date(last.ts))/86400000);
       const correction=correctionPendingFor(key);
-      const water=waterAfterMeasurement(last);
+      const projection=!correction?window.ReefMath?.projectParamThroughWaterChanges?.(key,Date.now()):null;
       const stale=ageDays>FRESH_DAYS[key];
-      data[key]=measured;
-      meta[key]={ts:last.ts,measured,ageDays,stale,pendingCorrection:correction,pendingWater:water,pending:!!correction||!!water};
+
+      if(projection?.known&&projection.estimated){
+        data[key]=Number(projection.value);
+        meta[key]={
+          ts:projection.lastTs,
+          measured,
+          sourceMeasurementTs:last.ts,
+          value:Number(projection.value),
+          ageDays,
+          stale:false,
+          waterEstimated:true,
+          waterEvent:projection.lastEvent,
+          pendingCorrection:null,
+          pending:false
+        };
+      }else{
+        data[key]=measured;
+        meta[key]={
+          ts:last.ts,
+          measured,
+          ageDays,
+          stale,
+          waterEstimated:false,
+          waterProjectionFailed:!!projection&&!projection.known,
+          waterReason:projection?.reason||null,
+          pendingCorrection:correction,
+          pending:!!correction||((state.events||[]).some(e=>e.type==='water'&&+new Date(e.ts)>=+new Date(last.ts))&&!projection?.known)
+        };
+      }
     });
+
     const sal=latestSalinity();
     if(sal){
       const ageDays=Math.max(0,(Date.now()-+new Date(sal.ts))/86400000);
-      if(ageDays<=FRESH_DAYS.sal){
+      const projection=window.ReefMath?.projectParamThroughWaterChanges?.('sal',Date.now());
+
+      if(projection?.known&&projection.estimated){
+        data.sal=Number(projection.value);
+        meta.sal={
+          ts:projection.lastTs,
+          measured:Number(sal.sal),
+          sourceMeasurementTs:sal.ts,
+          value:Number(projection.value),
+          ageDays,
+          stale:false,
+          waterEstimated:true,
+          waterEvent:projection.lastEvent,
+          pending:false
+        };
+      }else if(ageDays<=FRESH_DAYS.sal){
         data.sal=Number(sal.sal);
-        meta.sal={ts:sal.ts,measured:Number(sal.sal),ageDays,stale:false,pending:false};
+        meta.sal={ts:sal.ts,measured:Number(sal.sal),ageDays,stale:false,waterEstimated:false,pending:false};
       }else{
-        meta.sal={ts:sal.ts,measured:Number(sal.sal),ageDays,stale:true,pending:false};
+        meta.sal={ts:sal.ts,measured:Number(sal.sal),ageDays,stale:true,waterEstimated:false,pending:false};
       }
     }
+
     return {data,meta};
   }
   const isEdited=id=>document.getElementById(id)?.dataset.userEdited==='1';
@@ -7499,14 +7892,14 @@ if ('serviceWorker' in navigator) {
     const salStatus=statusSalinity(salMeasured,salinityGoal());
     const salMeta=meta.sal||null;
     const finalSalStatus=salMeta?.stale?{state:'stale',label:'Dato antiguo',severity:null}:salStatus;
-    rows.push({key:'sal',label:'Salinidad',unit:'ppt',value:salMeasured,target:[salinityGoal(),salinityGoal()],decimals:1,...finalSalStatus,meta:salMeta});
+    rows.push({key:'sal',label:'Salinidad',unit:'ppt',value:salMeasured,target:[salinityGoal(),salinityGoal()],decimals:1,...finalSalStatus,estimated:!!salMeta?.waterEstimated,meta:salMeta});
     ORDER.forEach(key=>{
       const def=REFS[key],value=Number.isFinite(Number(data[key]))?Number(data[key]):null,[lo,hi]=scaledRange(key,sal);
       const m=meta[key]||null;
       let status=statusRange(value,lo,hi);
       if(m?.pending)status={state:'pending',label:'Pendiente de medición',severity:null};
       else if(m?.stale)status={state:'stale',label:'Dato antiguo',severity:null};
-      rows.push({key,label:def.label,unit:def.unit,value,target:[lo,hi],decimals:def.decimals,...status,meta:m});
+      rows.push({key,label:def.label,unit:def.unit,value,target:[lo,hi],decimals:def.decimals,...status,estimated:!!m?.waterEstimated,meta:m});
     });
     return rows;
   }
@@ -7514,8 +7907,9 @@ if ('serviceWorker' in navigator) {
     if(row.state==='missing')return 'Sin medir';
     if(row.state==='pending')return 'Pendiente de medición';
     if(row.state==='stale')return 'Dato antiguo';
-    if(row.state==='correct')return '✓ Correcto';
-    return `${row.state==='low'?'↓':'↑'} ${row.label}`;
+    if(row.state==='correct')return row.estimated?'≈ Correcto':'✓ Correcto';
+    const base=`${row.state==='low'?'↓':'↑'} ${row.label}`;
+    return row.estimated?`≈ ${base}`:base;
   }
   function targetText(row){
     if(row.key==='sal')return `objetivo ${fmt(row.target[0],1)} ppt`;
@@ -7524,7 +7918,7 @@ if ('serviceWorker' in navigator) {
   function rowHtml(row){
     const meta=row.meta;
     const rawValue=row.value===null&&meta?.stale&&Number.isFinite(Number(meta.measured))?Number(meta.measured):row.value;
-    const valueText=rawValue===null||rawValue===undefined?'Sin medición':`${fmt(rawValue,row.decimals)} ${row.unit}`;
+    const valueText=rawValue===null||rawValue===undefined?'Sin medición':`${row.estimated?'≈':''}${fmt(rawValue,row.decimals)} ${row.unit}`;
     return `<div class="manual-eval-row" data-param="${row.key}"><div class="manual-eval-param"><strong>${valueText}</strong></div><div class="manual-eval-target">${targetText(row)}</div><div class="manual-eval-status ${row.state}">${statusText(row)}</div></div>`;
   }
   function renderEvaluation(){
@@ -7538,18 +7932,22 @@ if ('serviceWorker' in navigator) {
       else context.innerHTML=`Referencia ajustada a <strong>${fmt(ctx.salinity,1)} ppt</strong> (${ctx.label}). Factor respecto a 33 ppt: <strong>×${fmt(scale,3)}</strong>.`;
     }
     if(list)list.innerHTML=rows.map(rowHtml).join('');
-    const measured=rows.filter(r=>r.state!=='missing'),correct=measured.filter(r=>r.state==='correct').length,low=measured.filter(r=>r.state==='low').length,high=measured.filter(r=>r.state==='high').length,pending=measured.filter(r=>r.state==='pending').length,stale=measured.filter(r=>r.state==='stale').length;
-    if(summary)summary.innerHTML=measured.length?`<span class="eval-summary-chip">${measured.length} con dato</span><span class="eval-summary-chip">✓ ${correct} correctos</span>${low?`<span class="eval-summary-chip">↓ ${low} bajos</span>`:''}${high?`<span class="eval-summary-chip">↑ ${high} altos</span>`:''}${pending?`<span class="eval-summary-chip">⏳ ${pending} pendientes</span>`:''}${stale?`<span class="eval-summary-chip">◷ ${stale} antiguos</span>`:''}`:'<span class="eval-summary-chip">Esperando mediciones</span>';
+    const measured=rows.filter(r=>r.state!=='missing'),correct=measured.filter(r=>r.state==='correct').length,low=measured.filter(r=>r.state==='low').length,high=measured.filter(r=>r.state==='high').length,pending=measured.filter(r=>r.state==='pending').length,stale=measured.filter(r=>r.state==='stale').length,estimated=measured.filter(r=>r.estimated).length;
+    if(summary)summary.innerHTML=measured.length?`<span class="eval-summary-chip">${measured.length} con dato</span><span class="eval-summary-chip">✓ ${correct} correctos</span>${low?`<span class="eval-summary-chip">↓ ${low} bajos</span>`:''}${high?`<span class="eval-summary-chip">↑ ${high} altos</span>`:''}${estimated?`<span class="eval-summary-chip">≈ ${estimated} estimados por agua</span>`:''}${pending?`<span class="eval-summary-chip">⏳ ${pending} pendientes</span>`:''}${stale?`<span class="eval-summary-chip">◷ ${stale} antiguos</span>`:''}`:'<span class="eval-summary-chip">Esperando mediciones</span>';
     return {rows,context:ctx,source:src.source};
   }
   function latestEvaluation(){
     const snap=currentSnapshot(),ls=latestSalinity();
     let ctx={salinity:salinityGoal(),source:'goal',label:'salinidad objetivo configurada'};
-    if(ls){
+
+    if(Number.isFinite(Number(snap.data.sal))&&snap.meta.sal?.waterEstimated){
+      ctx={salinity:Number(snap.data.sal),source:'water-estimate',label:'salinidad estimada tras cambio de agua'};
+    }else if(ls){
       const ageDays=Math.max(0,(Date.now()-+new Date(ls.ts))/86400000);
       if(ageDays<=7)ctx={salinity:Number(ls.sal),source:'latest',label:'última salinidad registrada'};
       else ctx={salinity:salinityGoal(),source:'goal',label:'salinidad objetivo configurada · última medición de salinidad demasiado antigua'};
     }
+
     return {measurement:Object.keys(snap.data).length?snap.data:null,meta:snap.meta,context:ctx,rows:evaluate(snap.data,ctx,snap.meta)};
   }
   function renderManualHome(){
@@ -7559,8 +7957,10 @@ if ('serviceWorker' in navigator) {
     if(goal)goal.textContent=`${fmt(lo,1)}–${fmt(hi,1)}`;
     if(goalLabel)goalLabel.textContent='Rango esperado';if(goalUnit)goalUnit.textContent='dKH';
     const correctionPending=document.getElementById('homeCorrectionState')&&!document.getElementById('homeCorrectionState').hidden;
+    const homeKh=document.getElementById('homeKh');
+    if(homeKh&&kh?.value!==null&&kh?.value!==undefined)homeKh.textContent=`${kh.estimated?'≈':''}${fmt(kh.value,1)}`;
     if(khState&&!correctionPending){
-      khState.textContent=kh.state==='correct'?'☺ Correcto':kh.state==='low'?'↓ Bajo':kh.state==='high'?'↑ Alto':kh.state==='pending'?'⏳ Pendiente de medición':kh.state==='stale'?'◷ Dato antiguo':'— Sin medir';
+      khState.textContent=kh.state==='correct'?(kh.estimated?'≈ Correcto':'☺ Correcto'):kh.state==='low'?(kh.estimated?'≈ ↓ Bajo':'↓ Bajo'):kh.state==='high'?(kh.estimated?'≈ ↑ Alto':'↑ Alto'):kh.state==='pending'?'⏳ Pendiente de medición':kh.state==='stale'?'◷ Dato antiguo':'— Sin medir';
     }
     if(status&&!correctionPending){
       const measured=ev.rows.filter(r=>r.state!=='missing');
@@ -7912,6 +8312,93 @@ if ('serviceWorker' in navigator) {
   }
   updateUI=finalUpdateUI;
   window.updateUI=finalUpdateUI;
+})();
+</script>
+
+
+<script id="reef-marine-control-v63-water-ui-finalizer">
+(function(){
+  function applyWaterProjectionUI(){
+    if(state.settings?.maintenanceMethod!=='manual')return;
+    const M=window.ReefMath;
+    const kh=M?.projectParamThroughWaterChanges?.('kh',Date.now());
+    if(kh?.known&&kh.estimated&&!M?.pendingCorrectionFor?.('kh')){
+      const el=document.getElementById('homeKh');
+      if(el)el.textContent=`≈${nf(Number(kh.value),1)}`;
+    }
+  }
+
+  const previous=updateUI;
+  updateUI=function(){
+    previous();
+    applyWaterProjectionUI();
+  };
+  window.updateUI=updateUI;
+})();
+</script>
+
+
+<script id="reef-marine-control-v64-integration-audit">
+(function(){
+  function chemistryFingerprint(){
+    return JSON.stringify({
+      aquarium:ACTIVE_AQUARIUM_ID,
+      measurements:(state.measurements||[]).map(m=>[m.ts,m.kh,m.ca,m.mg,m.no3,m.po4,m.sal,m.recordedAt]),
+      corrections:(state.parameterCorrections||[]).map(c=>[c.id,c.ts,c.parameter,c.delta,c.applied,c.cancelledAt]),
+      events:(state.events||[]).map(e=>[e.ts,e.type,e.parameter,e.liters,e.newKh,e.newCa,e.newMg,e.newSal,e.newVolume,e.newGoal,e.newDailyDose,e.recordedAt]),
+      volumeHistory:state.volumeHistory||[],
+      doseHistory:state.doseHistory||[],
+      methodHistory:state.maintenanceMethodHistory||[],
+      settings:{
+        volume:state.settings?.volume,
+        khGoal:state.settings?.khGoal,
+        salinityGoal:state.settings?.salinityGoal,
+        maintenanceMethod:state.settings?.maintenanceMethod,
+        testUncertainty:state.settings?.testUncertainty,
+        khDoses:state.settings?.khDoses,
+        otherDoses:state.settings?.otherDoses,
+        khDoseWindowStart:state.settings?.khDoseWindowStart,
+        khDoseWindowEnd:state.settings?.khDoseWindowEnd,
+        otherDoseWindowStart:state.settings?.otherDoseWindowStart,
+        otherDoseWindowEnd:state.settings?.otherDoseWindowEnd
+      }
+    });
+  }
+
+  window.ReefMarineIntegrationAudit={
+    fingerprint:chemistryFingerprint,
+    chartEvents:(key,start,end)=>window.ReefMarineChartDebug?.eventsInWindow?.(key,start,end)||[],
+    stateSummary:()=>({
+      measurements:(state.measurements||[]).length,
+      events:(state.events||[]).length,
+      corrections:(state.parameterCorrections||[]).length,
+      volumeSnapshots:(state.volumeHistory||[]).length,
+      doseSnapshots:(state.doseHistory||[]).length,
+      methodSnapshots:(state.maintenanceMethodHistory||[]).length
+    })
+  };
+
+  /* Última barrera: una mutación que llame updateUI termina siempre
+     redibujando los canvases visibles después de que el DOM haya terminado
+     de actualizarse. */
+  const previous=updateUI;
+  let active=false,pending=false;
+  function integratedUpdateUI(){
+    if(active){pending=true;return}
+    active=true;
+    try{
+      previous();
+      requestAnimationFrame(()=>drawAllCharts?.());
+    }finally{
+      active=false;
+      if(pending){
+        pending=false;
+        requestAnimationFrame(integratedUpdateUI);
+      }
+    }
+  }
+  updateUI=integratedUpdateUI;
+  window.updateUI=integratedUpdateUI;
 })();
 </script>
 
