@@ -150,8 +150,8 @@ Los datos del usuario siguen almacenándose en localStorage con la misma clave, 
 - Eliminado el ajuste puntual KH duplicado de Dosificación; las correcciones se centralizan en Historial > Eventos.
 - Nuevo evento `Corrección de parámetros` para KH, Mg y Ca con cálculo automático según volumen neto.
 - Xepta KH+: gramos = incremento dKH × volumen L / 30.
-- Aquaforest MG Plus: ml = incremento ppm × volumen L / 50.
-- Aquaforest Ca Plus: ml = incremento ppm × volumen L / 100.
+- Aquaforest MG Plus: 10 ml → +7,5 ppm en 100 L; ml = incremento ppm × volumen L / 75.
+- Aquaforest Ca Plus: 10 ml → +15 ppm en 100 L; ml = incremento ppm × volumen L / 150.
 - Los eventos estructurados de corrección KH/Ca se incorporan directamente al balance químico de consumo sin descontar inventario Balling; el propio evento es la fuente única del dato.
 - H2Ocean P4 Pro: validación del mínimo 0,1 ml por toma y reparto exacto en incrementos de trabajo de 0,1 ml.
 - Sustituido el antiguo control Ca del 25 % por deriva prevista frente a incertidumbre estadística.
@@ -353,3 +353,46 @@ Los datos del usuario siguen almacenándose en localStorage con la misma clave, 
 - Si no hay dato, se muestra **“Sin medición”**.
 - Se eliminó cualquier texto adicional en la izquierda para evitar confusión.
 - El estado **Bajo / Correcto / Alto / Sin medir** permanece únicamente en la pastilla de la derecha.
+
+## v60 — Relaciones fijas de corrección revisadas
+
+Las relaciones de los productos se definen como constantes del motor y no cambian con el volumen:
+
+- **Xepta KH+**: 5 g → +1,5 dKH en 100 L.
+  - `g = ΔKH × volumen(L) / 30`
+- **Aquaforest MG Plus**: 10 ml → +7,5 ppm en 100 L.
+  - `ml = ΔMg(ppm) × volumen(L) / 75`
+- **Aquaforest Ca Plus**: 10 ml → +15 ppm en 100 L.
+  - `ml = ΔCa(ppm) × volumen(L) / 150`
+
+El volumen neto configurado es variable y únicamente escala la cantidad resultante.  
+Se eliminaron del motor las relaciones anteriores incorrectas de Mg (`/50`) y Ca (`/100`).
+
+Ejemplos de control:
+- 100 L: +1,5 dKH = 5 g KH+; +7,5 ppm Mg = 10 ml; +15 ppm Ca = 10 ml.
+- 75 L: +1 dKH = 2,5 g KH+; +10 ppm Mg = 10 ml; +20 ppm Ca = 10 ml.
+- 300 L: las cantidades de la referencia de 100 L se multiplican exactamente ×3.
+
+
+## v61 — Mejor contraste en etiquetas de gráficas
+
+- Se cambió el color del número dentro de los círculos rosados/rojos de las gráficas.
+- Antes: blanco, con visibilidad insuficiente sobre algunos fondos y degradados.
+- Ahora: azul marino oscuro (`#17385D`) para mejorar lectura y contraste.
+
+## v62 — Revisión final de seguridad
+- Fórmulas fijas conservadas: Xepta KH+ `/30`, MG Plus `/75`, Ca Plus `/150`.
+- Consumo normalizado por salinidad reconvertido a consumo físico antes de calcular ml/día.
+- Una corrección teórica nunca se presenta como medición real.
+- Una segunda corrección del mismo parámetro queda bloqueada hasta una nueva medición real.
+- Intervalos con correcciones o cambios de agua no gobiernan dosificación automática.
+- Intervenciones en el mismo minuto que una medición invalidan ese intervalo para consumo.
+- Eventos futuros bloqueados.
+- Xepta exige salinidad, KH y Ca recientes, modelos completos sin supuestos y ninguna corrección pendiente antes de poder quedar listo para programar.
+- Cambios de método y horarios/repartos requieren confirmación física.
+- Frescura UI: KH 7 días; Ca/Mg 14 días; salinidad 7 días. Son reglas de vigencia de dato, no límites biológicos.
+- Escritura local verificada tras cada guardado.
+- Importación histórica no destructiva.
+- Perfiles locales separados para varios acuarios; sin nube ni sistema de respaldo.
+- PWA completa restaurada con manifest y Service Worker.
+- updateUI protegido por un dispatcher final contra reentradas.

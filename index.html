@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<meta name="reef-marine-control-version" content="59">
+<meta name="reef-marine-control-version" content="62">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#f8fbfc" />
 <title>Reef Marine Control · Gestión inteligente del arrecife</title>
@@ -3224,7 +3224,7 @@ canvas{
 .eval-summary-chip{padding:5px 8px;border-radius:999px;font-size:10px;font-weight:1000;background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.9);color:var(--navy)}
 .manual-eval-list{display:grid;gap:7px;margin-top:9px}.manual-eval-row{display:grid;grid-template-columns:minmax(118px,1fr) minmax(86px,auto) minmax(72px,auto);align-items:center;gap:7px;padding:8px 9px;border-radius:16px;background:rgba(255,255,255,.58);border:1px solid rgba(255,255,255,.88)}
 .manual-eval-param{display:flex;align-items:center;min-height:24px}.manual-eval-param strong{display:block;color:var(--navy);font-size:12px}.manual-eval-param small{display:none}.manual-eval-target{text-align:right;font-size:10px;color:#668096;font-weight:800}.manual-eval-status{justify-self:end;display:inline-flex;align-items:center;gap:4px;padding:5px 7px;border-radius:999px;font-size:9px;font-weight:1000;white-space:nowrap}
-.manual-eval-status.correct{color:#43885d;background:rgba(222,247,228,.78);border:1px solid rgba(104,194,129,.25)}.manual-eval-status.low{color:#367cae;background:rgba(225,244,255,.82);border:1px solid rgba(94,177,222,.25)}.manual-eval-status.high{color:#b76857;background:rgba(255,237,231,.84);border:1px solid rgba(234,137,112,.26)}.manual-eval-status.missing{color:#7b899b;background:rgba(241,245,248,.8);border:1px solid rgba(164,180,191,.20)}
+.manual-eval-status.correct{color:#43885d;background:rgba(222,247,228,.78);border:1px solid rgba(104,194,129,.25)}.manual-eval-status.low{color:#367cae;background:rgba(225,244,255,.82);border:1px solid rgba(94,177,222,.25)}.manual-eval-status.high{color:#b76857;background:rgba(255,237,231,.84);border:1px solid rgba(234,137,112,.26)}.manual-eval-status.missing{color:#7b899b;background:rgba(241,245,248,.8);border:1px solid rgba(164,180,191,.20)}.manual-eval-status.pending{color:#8a6416;background:rgba(255,245,204,.88);border:1px solid rgba(211,170,68,.28)}.manual-eval-status.stale{color:#6f718a;background:rgba(239,239,249,.88);border:1px solid rgba(145,147,175,.25)}
 .manual-eval-status.important{box-shadow:0 0 0 2px rgba(231,111,124,.10);color:#b6465c;background:rgba(255,227,234,.9)}
 .manual-eval-foot{margin-top:9px;font-size:9px;line-height:1.4;color:var(--muted);opacity:.9}
 @media(max-width:390px){.manual-trace-grid{grid-template-columns:1fr}.manual-eval-row{grid-template-columns:1fr auto}.manual-eval-target{grid-column:1/2;text-align:left}.manual-eval-status{grid-column:2/3;grid-row:1/3}}
@@ -3924,6 +3924,17 @@ html{scroll-behavior:auto !important}
         <div><div class="kicker">Configuración</div><h1>Mi acuario</h1></div>
         <span style="font-size:30px">⚙️</span>
       </div>
+      <div class="card" id="aquariumProfileCard">
+        <div class="card-title"><div class="title">Acuario activo</div></div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Perfil local</label>
+            <select id="aquariumProfileSelect"></select>
+          </div>
+        </div>
+        <div class="small" style="margin-top:8px">Cada acuario mantiene por separado sus mediciones, eventos, volumen, correcciones y configuración en este dispositivo.</div>
+        <button class="quick-btn secondary" style="margin-top:10px" id="createAquariumProfile" type="button">Crear otro acuario</button>
+      </div>
       <div class="card">
         <div class="card-title"><div class="title">Sistema</div></div>
         <div class="form-grid">
@@ -4032,7 +4043,40 @@ const seed = {
   measurements:[],
   events:[]
 };
-let state = JSON.parse(localStorage.getItem('aquabalance-v1')||'null') || seed;
+const AQUARIUM_REGISTRY_KEY='reef-marine-control-aquariums-v1';
+const AQUARIUM_ACTIVE_KEY='reef-marine-control-active-aquarium-v1';
+const LEGACY_STATE_KEY='aquabalance-v1';
+
+function cloneSeed(){return JSON.parse(JSON.stringify(seed))}
+function loadAquariumRegistry(){
+  try{
+    const raw=JSON.parse(localStorage.getItem(AQUARIUM_REGISTRY_KEY)||'[]');
+    return Array.isArray(raw)?raw.filter(x=>x&&x.id&&x.name):[];
+  }catch(_){return []}
+}
+function saveAquariumRegistry(registry){localStorage.setItem(AQUARIUM_REGISTRY_KEY,JSON.stringify(registry))}
+function aquariumStorageKey(id){return `aquabalance-v1:${id}`}
+
+let aquariumRegistry=loadAquariumRegistry();
+if(!aquariumRegistry.length){
+  aquariumRegistry=[{id:'principal',name:'Acuario principal',createdAt:new Date().toISOString()}];
+  saveAquariumRegistry(aquariumRegistry);
+}
+let ACTIVE_AQUARIUM_ID=localStorage.getItem(AQUARIUM_ACTIVE_KEY)||aquariumRegistry[0].id;
+if(!aquariumRegistry.some(x=>x.id===ACTIVE_AQUARIUM_ID))ACTIVE_AQUARIUM_ID=aquariumRegistry[0].id;
+localStorage.setItem(AQUARIUM_ACTIVE_KEY,ACTIVE_AQUARIUM_ID);
+
+let ACTIVE_STATE_KEY=aquariumStorageKey(ACTIVE_AQUARIUM_ID);
+const legacyStatePayload=localStorage.getItem(LEGACY_STATE_KEY);
+if(ACTIVE_AQUARIUM_ID==='principal'&&!localStorage.getItem(ACTIVE_STATE_KEY)&&legacyStatePayload){
+  localStorage.setItem(ACTIVE_STATE_KEY,legacyStatePayload);
+}
+const statePayload=localStorage.getItem(ACTIVE_STATE_KEY);
+let state=statePayload?JSON.parse(statePayload):cloneSeed();
+
+window.__RMC_ACTIVE_AQUARIUM_ID=ACTIVE_AQUARIUM_ID;
+window.__RMC_ACTIVE_STATE_KEY=ACTIVE_STATE_KEY;
+window.__RMC_AQUARIUM_REGISTRY=()=>aquariumRegistry;
 
 /* v50 · Carga única del histórico real proporcionado por el usuario.
    Las mediciones en rango se almacenan por su punto medio, conservando
@@ -4042,11 +4086,32 @@ let state = JSON.parse(localStorage.getItem('aquabalance-v1')||'null') || seed;
 (function importUserHistoricalDataset2026(){
   const importId='reef-history-2026-09-01-v1';
   state.dataImports ||= {};
+  if(ACTIVE_AQUARIUM_ID!=='principal')return;
   if(state.dataImports.historicalMeasurements===importId)return;
 
   const measurements=[{"ts":"2026-05-08T12:00:00","no3":5.0,"po4":0.0,"kh":7.7,"mg":1440.0,"ca":420.0,"rawOriginal":{"no3":"5","po4":"0","kh":"7,7","mg":"1440","ca":"420","sg":"—"},"source":"user-historical-import","historicalContextIncomplete":true},{"ts":"2026-05-18T12:00:00","no3":5.0,"po4":0.0,"kh":8.3,"mg":1425.0,"ca":425.0,"sal":39.0,"rawOriginal":{"no3":"5","po4":"0","kh":"8,3","mg":"1440–1410","ca":"425","sg":"1.030 / 39 ppt"},"source":"user-historical-import","historicalContextIncomplete":true},{"ts":"2026-05-26T12:00:00","no3":3.5,"po4":0.0,"kh":7.85,"mg":1425.0,"ca":410.0,"rawOriginal":{"no3":"2–5","po4":"0","kh":"7,7–8,0","mg":"1440–1410","ca":"400/420","sg":"—"},"source":"user-historical-import","historicalContextIncomplete":true},{"ts":"2026-05-28T12:00:00","kh":6.85,"mg":1440.0,"ca":422.5,"sgRaw":1.026,"rawOriginal":{"no3":"—","po4":"—","kh":"7,0–6,7","mg":"1440","ca":"420/425","sg":"1.026"},"source":"user-historical-import","historicalContextIncomplete":true},{"ts":"2026-06-08T12:00:00","no3":5.0,"po4":0.065,"kh":7.7,"mg":1380.0,"ca":405.0,"rawOriginal":{"no3":"5","po4":"0,10–0,03","kh":"7,7","mg":"1380","ca":"400/410","sg":"—"},"source":"user-historical-import","historicalContextIncomplete":true},{"ts":"2026-06-22T12:00:00","no3":5.0,"po4":0.25,"kh":7.7,"mg":1305.0,"ca":425.0,"sgRaw":1.025,"rawOriginal":{"no3":"5","po4":"0,25","kh":"7,7","mg":"1320/1290","ca":"430/420","sg":"1.025"},"source":"user-historical-import","historicalContextIncomplete":true},{"ts":"2026-07-08T12:00:00","no3":7.5,"po4":0.25,"kh":8.6,"mg":1290.0,"ca":425.0,"rawOriginal":{"no3":"5–10","po4":"0,25","kh":"8,6","mg":"1290","ca":"430/420","sg":"—"},"source":"user-historical-import","historicalContextIncomplete":true},{"ts":"2026-07-14T12:00:00","no3":7.5,"po4":0.03,"kh":8.6,"mg":1290.0,"ca":380.0,"rawOriginal":{"no3":"5–10","po4":"0,03","kh":"8,6","mg":"1290","ca":"380","sg":"—"},"source":"user-historical-import","historicalContextIncomplete":true},{"ts":"2026-07-24T12:00:00","no3":7.5,"po4":0.03,"kh":7.15,"mg":1395.0,"ca":425.0,"rawOriginal":{"no3":"5–10","po4":"0,03","kh":"7–7,3","mg":"1380–1410","ca":"420–430","sg":"—"},"source":"user-historical-import","historicalContextIncomplete":true},{"ts":"2026-07-31T12:00:00","no3":7.5,"po4":0.03,"kh":7.15,"mg":1380.0,"ca":420.0,"rawOriginal":{"no3":"5–10","po4":"0,03","kh":"7–7,3","mg":"1380","ca":"420","sg":"—"},"source":"user-historical-import","historicalContextIncomplete":true},{"ts":"2026-08-06T12:00:00","no3":10.0,"po4":0.065,"kh":7.15,"mg":1410.0,"ca":440.0,"rawOriginal":{"no3":"10","po4":"0,10–0,03","kh":"7–7,3","mg":"1410","ca":"440","sg":"—"},"source":"user-historical-import","historicalContextIncomplete":true},{"ts":"2026-08-25T12:00:00","no3":10.0,"po4":0.065,"kh":7.15,"mg":1380.0,"ca":440.0,"rawOriginal":{"no3":"10","po4":"0,03–0,10","kh":"7,0–7,3","mg":"1380","ca":"440","sg":"—"},"source":"user-historical-import","historicalContextIncomplete":true}];
   const importTs=new Date().toISOString();
   const firstTs=measurements[0].ts;
+
+  const hasExistingUserData=
+    (state.measurements||[]).length>0 ||
+    (state.events||[]).length>0 ||
+    (state.parameterCorrections||[]).length>0 ||
+    (state.volumeHistory||[]).length>0;
+
+  if(hasExistingUserData){
+    state.measurements ||= [];
+    measurements.forEach(m=>{
+      const existing=state.measurements.find(x=>x.ts===m.ts);
+      if(!existing)state.measurements.push(m);
+      else Object.entries(m).forEach(([k,v])=>{if(existing[k]===undefined)existing[k]=v});
+    });
+    state.measurements.sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+    state.dataImports.historicalMeasurements=importId;
+    state.mathMeta={...(state.mathMeta||{}),historicalContextIncomplete:true};
+    persist();
+    return;
+  }
 
   const existingSalinityGoal=Number(state.settings?.salinityGoal);
   const existingTestUncertainty=state.settings?.testUncertainty;
@@ -4081,7 +4146,7 @@ let state = JSON.parse(localStorage.getItem('aquabalance-v1')||'null') || seed;
     historicalContextNote:'Mediciones anteriores importadas sin registro completo de cambios de agua/correcciones; excluidas del cálculo retrospectivo de consumo.'
   };
   state.dataImports.historicalMeasurements=importId;
-  localStorage.setItem('aquabalance-v1',JSON.stringify(state));
+  persist();
 })();
 
 /* v18: elimina únicamente los registros DEMO heredados de las versiones de desarrollo.
@@ -4115,7 +4180,39 @@ let state = JSON.parse(localStorage.getItem('aquabalance-v1')||'null') || seed;
   state.mathMeta = {...(state.mathMeta||{}), demoSeedCleaned:true};
 })();
 
-function persist(){localStorage.setItem('aquabalance-v1',JSON.stringify(state))}
+function persist(){
+  const payload=JSON.stringify(state);
+  let previous=null;
+  try{
+    previous=localStorage.getItem(ACTIVE_STATE_KEY);
+    localStorage.setItem(ACTIVE_STATE_KEY,payload);
+    if(localStorage.getItem(ACTIVE_STATE_KEY)!==payload)throw new Error('Verificación de almacenamiento fallida');
+    if(ACTIVE_AQUARIUM_ID==='principal'){
+      try{localStorage.setItem(LEGACY_STATE_KEY,payload)}catch(_){}
+    }
+    window.__RMC_LAST_PERSIST_OK=true;
+    return true;
+  }catch(err){
+    window.__RMC_LAST_PERSIST_OK=false;
+    window.__RMC_LAST_PERSIST_ERROR=String(err?.message||err);
+    try{
+      if(previous){
+        const restored=JSON.parse(previous);
+        if(restored&&typeof restored==='object')state=restored;
+      }
+    }catch(_){}
+    setTimeout(()=>{
+      const t=document.getElementById('toast');
+      if(t){
+        t.textContent='ERROR: no se pudo guardar en el dispositivo. Los cambios no se han confirmado.';
+        t.classList.add('show');
+        clearTimeout(window.__toast);
+        window.__toast=setTimeout(()=>t.classList.remove('show'),5000);
+      }
+    },0);
+    throw err;
+  }
+}
 function toast(msg){
   const t=$('#toast');t.textContent=msg;t.classList.add('show');
   clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove('show'),1800);
@@ -5306,20 +5403,65 @@ window.addEventListener('resize',drawAllCharts);
     return (state.parameterCorrections||[]).filter(c=>c.applied!==false&&c.parameter===param&&+new Date(c.ts)>=a&&+new Date(c.ts)<b).length;
   }
 
+  function minuteStamp(ts){
+    const t=+new Date(ts);
+    return Number.isFinite(t)?Math.floor(t/60000):NaN;
+  }
+  function endpointInterventionAmbiguous(start,end){
+    const sm=minuteStamp(start),em=minuteStamp(end);
+    const physicalTypes=new Set(['water','dose','parameterCorrection','correction','maintenanceMethod']);
+    return (state.events||[]).some(e=>{
+      if(!physicalTypes.has(e.type))return false;
+      const m=minuteStamp(e.ts);
+      return m===sm||m===em;
+    });
+  }
+  function measurementConfirmsCorrection(m,c){
+    if(!m||!c||!Number.isFinite(Number(m[c.parameter])))return false;
+    if(m.source==='correctionBaseline')return false;
+    const mt=+new Date(m.ts),ct=+new Date(c.ts);
+    if(mt>ct)return true;
+    if(mt<ct)return false;
+    if(!m.recordedAt)return false;
+    const mr=+new Date(m.recordedAt),applied=+new Date(c.appliedAt||c.ts);
+    return Number.isFinite(mr)&&Number.isFinite(applied)&&mr>applied;
+  }
+  function pendingCorrectionFor(param){
+    const corrections=(state.parameterCorrections||[])
+      .filter(c=>c.applied!==false&&c.parameter===param)
+      .sort((a,b)=>new Date(a.ts)-new Date(b.ts));
+    const latest=corrections.at(-1);
+    if(!latest)return null;
+    return (state.measurements||[]).some(m=>measurementConfirmsCorrection(m,latest))?null:latest;
+  }
+  function latestMeasuredParam(param,{excludeBaseline=false}={}){
+    return [...(state.measurements||[])]
+      .filter(m=>Number.isFinite(Number(m[param]))&&(!excludeBaseline||m.source!=='correctionBaseline'))
+      .sort((a,b)=>{
+        const dt=new Date(a.ts)-new Date(b.ts);
+        if(dt)return dt;
+        return new Date(a.recordedAt||a.ts)-new Date(b.recordedAt||b.ts);
+      }).at(-1)||null;
+  }
+  function recentMeasurementInfo(param,maxAgeDays){
+    const m=latestMeasuredParam(param,{excludeBaseline:true});
+    if(!m)return {known:false,measurement:null,ageDays:Infinity};
+    const ageDays=Math.max(0,(Date.now()-+new Date(m.ts))/DAY);
+    return {known:ageDays<=maxAgeDays,measurement:m,ageDays};
+  }
+
   function intervalIsModelable(start,end,product,param=null){
     if(methodChangeInInterval(start,end))return {ok:false,reason:'cambio de método de mantenimiento'};
+    if(endpointInterventionAmbiguous(start,end))return {ok:false,reason:'intervención en el mismo minuto que una medición'};
     const waters=waterEventsInInterval(start,end);
-    if(waters.length){
-      if(!param)return {ok:false,reason:'cambio de agua sin parámetro de modelo'};
-      const bad=waters.find(e=>!waterEventModelable(e,param));
-      if(bad)return {ok:false,reason:`cambio de agua sin química suficiente para ${String(param).toUpperCase()}`};
-    }
-    if(eventInInterval(start,end,e=>e.type==='dose' && !(Number.isFinite(Number(e.newDailyDose)) && e.product)))return {ok:false,reason:'cambio de dosis no estructurado'};
-    if(eventInInterval(start,end,e=>e.type==='correction' && !(Number.isFinite(Number(e.amountMl)) && e.product)))return {ok:false,reason:'corrección no cuantificada'};
-    if(eventInInterval(start,end,e=>e.type==='parameterCorrection' && !(e.parameter && Number.isFinite(Number(e.effectUnits)))))return {ok:false,reason:'corrección de parámetro no cuantificada'};
+    if(waters.length)return {ok:false,reason:'cambio de agua dentro del intervalo'};
+    if(param&&correctionsCountInInterval(param,start,end)>0)return {ok:false,reason:'corrección del parámetro dentro del intervalo'};
+    if(eventInInterval(start,end,e=>e.type==='dose'&&!(Number.isFinite(Number(e.newDailyDose))&&e.product)))return {ok:false,reason:'cambio de dosis no estructurado'};
+    if(eventInInterval(start,end,e=>e.type==='correction'))return {ok:false,reason:'corrección manual antigua dentro del intervalo'};
     const a=+new Date(start),b=+new Date(end);
-    if((state.parameterCorrections||[]).some(c=>c.applied!==false && +new Date(c.ts)>=a && +new Date(c.ts)<b && !(c.parameter && Number.isFinite(Number(c.delta ?? c.effectUnits)))))return {ok:false,reason:'corrección estructurada inválida'};
-    return {ok:true,waterEvents:waters};
+    if((state.parameterCorrections||[]).some(c=>c.applied!==false&&c.parameter===param&&+new Date(c.ts)>=a&&+new Date(c.ts)<b))
+      return {ok:false,reason:'corrección estructurada dentro del intervalo'};
+    return {ok:true,waterEvents:[]};
   }
 
   function parseClockMinutes(value,fallback='00:00'){
@@ -5711,8 +5853,17 @@ window.addEventListener('resize',drawAllCharts);
 
     score=clamp(Math.round(score),0,100);
     const label=score>=75?'alta':score>=50?'media':'baja';
+    const salNow=salinityInfoAt(new Date().toISOString(),7);
+    const refSal=referenceSalinity();
+    const fullyNormalized=segment.every(r=>r.normalized===true)&&!salinityAssumed;
+    const physicalScale=fullyNormalized&&salNow.known?salNow.value/refSal:null;
+    const physicalValue=physicalScale!==null?value*physicalScale:null;
+    const physicalSigma=physicalScale!==null?robustSigma*physicalScale:null;
     return {
-      value,score,label,qualityLabel:label,raw,used:segment,
+      value,normalizedValue:value,physicalValue,physicalSigma,
+      referenceSalinity:refSal,currentSalinity:salNow.known?salNow.value:null,
+      fullyNormalized,
+      score,label,qualityLabel:label,raw,used:segment,
       mad:usedMad,sigma:robustSigma,observedSigma,dataSigma,
       uncertaintyFloor:uncertaintySlopeFloor,testUncertainty:unc,
       assumed,salinityAssumed,correctionCount,waterModeled,
@@ -5723,11 +5874,21 @@ window.addEventListener('resize',drawAllCharts);
   estimateConsumption = function(){return robustConsumption('kh').value ?? 0};
   confidence = function(){return robustConsumption('kh').label};
 
+  function physicalConsumptionFromNormalized(param,consumption){
+    if(!Number.isFinite(consumption))return null;
+    if(!['kh','ca','mg'].includes(param))return consumption;
+    const sal=salinityInfoAt(new Date().toISOString(),7);
+    if(!sal.known||!(sal.value>0))return null;
+    return Number(consumption)*sal.value/referenceSalinity();
+  }
+
   function maintenanceDoseFromConsumption(param,consumption){
     if(methodAt(new Date().toISOString())!=='xepta')return null;
     const volume=Number(state.settings.volume||0),chem=CHEM[param];
     if(!(volume>0)||!chem||!Number.isFinite(consumption))return null;
-    return consumption*volume/(chem.unitsPerMlAt100L*100);
+    const physical=physicalConsumptionFromNormalized(param,consumption);
+    if(!Number.isFinite(physical))return null;
+    return physical*volume/(chem.unitsPerMlAt100L*100);
   }
 
   /* ---------- Inventory from actual dose history + manual corrections ---------- */
@@ -5768,7 +5929,7 @@ window.addEventListener('resize',drawAllCharts);
     const t=+new Date(ts);
     if(!Number.isFinite(t)){toast('Fecha u hora no válida');return}
     if(t>Date.now()+300000){toast('La medición no puede estar en el futuro');return}
-    const m={ts,kh,recordedAt:new Date().toISOString()};
+    const m={ts,kh,recordedAt:new Date().toISOString(),source:'user-measurement'};
     if(full){
       const defs=[['caInput','ca'],['mgInput','mg'],['no3Input','no3'],['po4Input','po4'],['salInput','sal']];
       for(const [id,key] of defs){
@@ -5847,7 +6008,10 @@ window.addEventListener('resize',drawAllCharts);
     eventSave.onclick=()=>{
       const type=eventType.value, ts=document.getElementById('eventDate').value, detail=document.getElementById('eventDetail').value.trim();
       if(!ts){toast('Selecciona fecha y hora');return}
-      const event={ts,type,detail};
+      const eventMs=+new Date(ts);
+      if(!Number.isFinite(eventMs)){toast('Fecha u hora no válida');return}
+      if(eventMs>Date.now()+300000){toast('El evento no puede registrarse en el futuro');return}
+      const event={ts,type,detail,recordedAt:new Date().toISOString()};
       if(type==='water'){
         const liters=asNum(document.getElementById('eventWaterLiters').value);
         if(Number.isFinite(liters)&&liters>0){
@@ -5910,7 +6074,7 @@ window.addEventListener('resize',drawAllCharts);
     ctx.beginPath(); ctx.arc(cx,cy,radius,0,Math.PI*2); ctx.fill();
     ctx.shadowBlur=0;
     ctx.lineWidth=1.8; ctx.strokeStyle=stroke; ctx.stroke();
-    ctx.fillStyle='rgba(255,255,255,.98)';
+    ctx.fillStyle='#17385d';
     ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.font=font;
     ctx.fillText(label,cx,cy+0.5);
     ctx.restore();
@@ -6141,7 +6305,10 @@ window.addEventListener('resize',drawAllCharts);
     const caDose=ca.value===null?null:maintenanceDoseFromConsumption('ca',ca.value);
     const consEl=document.getElementById('consumption');
     const consMeta=document.getElementById('consumptionMeta');
-    if(consEl)consEl.textContent=displayKh?.value===null||displayKh?.value===undefined?'—':`${displayKh?.historical?'≈':''}${nf(displayKh.value,2)}`;
+    if(consEl){
+      const physicalDisplay=!displayKh?.historical&&Number.isFinite(Number(displayKh?.physicalValue))?Number(displayKh.physicalValue):displayKh?.value;
+      consEl.textContent=physicalDisplay===null||physicalDisplay===undefined?'—':`${displayKh?.historical?'≈':''}${nf(physicalDisplay,2)}`;
+    }
     if(consMeta){
       consMeta.textContent=kh.value!==null
         ?`Modelo estructurado · calidad ${kh.label}`
@@ -6184,24 +6351,25 @@ window.addEventListener('resize',drawAllCharts);
         const homeState=document.getElementById('homeCorrectionState');
         const homeKh=document.getElementById('homeKh');
         if(homeKh)homeKh.textContent=nf(measured,1);
-        if(correction>0){
+        const pendingCorrection=window.ReefMath?.pendingCorrectionFor?.('kh');
+        if(pendingCorrection){
           if(homeState){
             homeState.hidden=false;
-            homeState.textContent=`Corrección aplicada: +${nf(correction,1)} dKH · estado estimado ~${nf(effective,1)} dKH · pendiente de confirmar con una nueva medición.`;
+            homeState.textContent=`Corrección de KH aplicada · última medición real ${nf(measured,1)} dKH · pendiente de una nueva medición.`;
           }
           const statusPill=document.getElementById('statusPill'),khState=document.getElementById('khState');
-          if(statusPill)statusPill.textContent='≈ Pendiente de confirmar';
-          if(khState)khState.textContent='≈ Tras corrección';
-          list.push(`<strong>Corrección KH aplicada.</strong> Última medición real ${nf(measured,1)} dKH + ${nf(correction,1)} dKH de intervención = estado estimado ~${nf(effective,1)} dKH. La siguiente medición confirmará el resultado.`);
-        }else if(homeState){
-          homeState.hidden=true;homeState.textContent='';
+          if(statusPill)statusPill.textContent='⏳ Pendiente de medición';
+          if(khState)khState.textContent='⏳ Pendiente';
+          list.push(`<strong>Corrección KH aplicada.</strong> El último valor confirmado sigue siendo ${nf(measured,1)} dKH. No se considera alcanzado ningún valor teórico hasta volver a medir.`);
+        }else{
+          if(homeState){homeState.hidden=true;homeState.textContent='';}
+          if(Math.abs(measured-goal)<=.2)list.push(`<strong>Estado KH medido cerca del objetivo.</strong> La última medición está dentro de ±0,2 dKH del objetivo.`);
+          else if(measured-goal<-.2)list.push('<strong>KH medido por debajo del objetivo.</strong> Confirma la tendencia antes de corregir.');
+          else list.push('<strong>KH medido por encima del objetivo.</strong> Evita ajustar por una única lectura.');
         }
-        if(Math.abs(delta)<=.2)list.push(`<strong>Estado KH ${correction>0?'estimado':'medido'} cerca del objetivo.</strong> ${correction>0?'Pendiente de confirmación mediante una nueva medición.':'La última medición está dentro de ±0,2 dKH del objetivo.'}`);
-        else if(delta<-.2)list.push(`<strong>KH ${correction>0?'estimado ':' '}por debajo del objetivo.</strong> ${correction>0?'No añadas otra corrección sin confirmar primero con una nueva medición.':'Confirma la tendencia antes de corregir.'}`);
-        else list.push(`<strong>KH ${correction>0?'estimado ':' '}por encima del objetivo.</strong> ${correction>0?'Confirma con una nueva medición antes de modificar el mantenimiento.':'Evita ajustar por una única lectura.'}`);
       }
       if(kh.value!==null){
-        list.push(`<strong>Consumo KH modelado:</strong> ${nf(kh.value,2)} dKH/día usando ${kh.used.length} intervalo${kh.used.length===1?'':'s'} válido${kh.used.length===1?'':'s'} · calidad del modelo ${kh.label} (${kh.score}/100).`);
+        list.push(`<strong>Consumo KH modelado:</strong> ${nf(Number.isFinite(Number(kh.physicalValue))?kh.physicalValue:kh.value,2)} dKH/día usando ${kh.used.length} intervalo${kh.used.length===1?'':'s'} válido${kh.used.length===1?'':'s'} · calidad del modelo ${kh.label} (${kh.score}/100).`);
         list.push(`<strong>Dosis balanceada calculada:</strong> ${nf(khDose,1)} ml/día por cada componente (KH, Ca y Trazas) para ${nf(state.settings.volume,0)} L · relación fija 1:1:1.`);
       }else list.push('<strong>Consumo KH:</strong> todavía no hay intervalos suficientes y modelables. Cambios de agua y correcciones no cuantificadas se excluyen.');
       if(ca.value!==null)list.push(`<strong>Control de Ca:</strong> tendencia modelada ${nf(ca.value,1)} ppm/día · calidad del modelo ${ca.label} (${ca.score}/100). Se usa como validación del modelo; nunca para establecer una dosis de Ca distinta.`);
@@ -6240,6 +6408,12 @@ window.addEventListener('resize',drawAllCharts);
     integratedDoseMl,
     waterEventsInInterval,
     salinityInfoAt,
+    physicalConsumptionFromNormalized,
+    pendingCorrectionFor,
+    measurementConfirmsCorrection,
+    latestMeasuredParam,
+    recentMeasurementInfo,
+    endpointInterventionAmbiguous,
     testUncertainty,
     buildConsumptionIntervals,
     doseAt,
@@ -6282,7 +6456,7 @@ if ('serviceWorker' in navigator) {
     const date=document.getElementById('measureDate')?.value,time=document.getElementById('measureTime')?.value||'00:00';
     if(!date){toast('Selecciona una fecha');return}
     const ts=`${date}T${time}`,t=+new Date(ts);if(!Number.isFinite(t)){toast('Fecha u hora no válida');return}if(t>Date.now()+300000){toast('La medición no puede estar en el futuro');return}
-    const m={ts,kh,recordedAt:new Date().toISOString(),maintenanceMethod:state.settings?.maintenanceMethod||'xepta'};
+    const m={ts,kh,recordedAt:new Date().toISOString(),source:'user-measurement',maintenanceMethod:state.settings?.maintenanceMethod||'xepta'};
     if(full){const defs=[['caInput','ca'],['mgInput','mg'],['no3Input','no3'],['po4Input','po4'],['salInput','sal']];for(const [id,key] of defs){const el=document.getElementById(id);if(!el)continue;const edited=el.dataset.userEdited==='1',raw=String(el.value??'').trim();if(!edited&&(raw===''||raw==='0'||raw==='0.0'||raw==='0,0'))continue;if(raw==='')continue;const val=num(raw),rule=optionalRules[key];if(!Number.isFinite(val)||val<rule.min||val>rule.max){toast(`${rule.label} fuera del rango admitido (${rule.min}–${rule.max} ${rule.unit})`);el.focus();return}m[key]=val}}
     if(state.settings?.maintenanceMethod==='manual'&&window.RMCManualChem){const rc=window.RMCManualChem.referenceContextFromInputs?.();if(rc){m.manualReferenceSalinity=rc.salinity;m.manualReferenceSource=rc.source}}
     const idx=state.measurements.findIndex(x=>x.ts===ts);if(idx>=0)state.measurements[idx]={...state.measurements[idx],...m};else state.measurements.push(m);
@@ -6414,14 +6588,37 @@ if ('serviceWorker' in navigator) {
     const kh=M.robustConsumption('kh');
     const ca=M.robustConsumption('ca');
     const raw=kh.value===null?null:M.maintenanceDoseFromConsumption('kh',kh.value);
+    const salNow=M.salinityInfoAt?.(new Date().toISOString(),7);
+    const khFresh=M.recentMeasurementInfo?.('kh',7);
+    const caFresh=M.recentMeasurementInfo?.('ca',14);
+    const khPending=M.pendingCorrectionFor?.('kh');
+    const caPending=M.pendingCorrectionFor?.('ca');
 
     if(!Number.isFinite(raw)){
-      return {raw:null,program:null,score:0,label:'baja',actionable:false,source:'Necesita suficientes mediciones de KH modelables para calcular el mantenimiento.',warning:'',kh,ca,caDrift:null};
+      const reason=kh.value===null
+        ?'Necesita suficientes mediciones de KH modelables para calcular el mantenimiento.'
+        :'El consumo puede estimarse, pero falta una salinidad reciente para convertirlo con seguridad a una dosis física.';
+      return {raw:null,program:null,score:0,label:'baja',actionable:false,source:reason,warning:'',kh,ca,caDrift:null};
     }
 
     const pump=pumpProgram(Math.max(0,raw));
     let score=kh.score;
-    let actionable=kh.score>=MIN_ACTION_SCORE && pump.ok;
+    const physicalDataComplete=
+      !!salNow?.known &&
+      !!khFresh?.known &&
+      !!caFresh?.known &&
+      !khPending &&
+      !caPending &&
+      !kh.assumed &&
+      !kh.salinityAssumed &&
+      kh.fullyNormalized===true &&
+      ca.value!==null &&
+      ca.score>=MIN_ACTION_SCORE &&
+      !ca.assumed &&
+      !ca.salinityAssumed &&
+      ca.fullyNormalized===true;
+
+    let actionable=kh.score>=MIN_ACTION_SCORE && pump.ok && physicalDataComplete;
     let warning=pump.reason||'';
     let source=`KH es el controlador principal · ${nf(kh.value,2)} dKH/día · ${kh.method||'modelo robusto'}.`;
     let caDrift=null,caTolerance=null;
@@ -6430,10 +6627,13 @@ if ('serviceWorker' in navigator) {
        aplicamos exactamente la misma dosis diaria 1:1:1 calculada por KH. */
     if(pump.value!==null && ca.value!==null){
       const caAdded=pump.value*60/volume;
-      caDrift=caAdded-ca.value; // ppm/día: + sube, - baja
+      const caPhysical=Number.isFinite(Number(ca.physicalValue))
+        ?Number(ca.physicalValue)
+        :M.physicalConsumptionFromNormalized?.('ca',ca.value);
+      caDrift=Number.isFinite(caPhysical)?caAdded-caPhysical:null;
 
-      if(ca.score>=MIN_ACTION_SCORE){
-        const sigma=Math.max(0,Number(ca.sigma||0));
+      if(ca.score>=MIN_ACTION_SCORE&&Number.isFinite(caDrift)){
+        const sigma=Math.max(0,Number(ca.physicalSigma??ca.sigma??0));
         caTolerance=Math.max(.5,2*sigma);
 
         if(Math.abs(caDrift)>caTolerance){
@@ -6444,7 +6644,7 @@ if ('serviceWorker' in navigator) {
         }else{
           score=clamp(Math.round(score+Math.min(10,ca.score/10)),0,100);
           source=`KH calcula la dosis común y Ca la valida: deriva prevista ${caDrift>=0?'+':''}${nf(caDrift,1)} ppm/día.`;
-          actionable=score>=MIN_ACTION_SCORE && pump.ok;
+          actionable=score>=MIN_ACTION_SCORE && pump.ok && physicalDataComplete;
         }
       }else{
         source+=' Ca ya aporta tendencia, pero todavía no tiene calidad suficiente para bloquear o validar el cambio.';
@@ -6453,8 +6653,21 @@ if ('serviceWorker' in navigator) {
       source+=' El Ca se incorporará como control predictivo cuando disponga de una tendencia temporal suficiente.';
     }
 
+    if(!physicalDataComplete){
+      actionable=false;
+      const missing=[];
+      if(!salNow?.known)missing.push('salinidad reciente');
+      if(!khFresh?.known)missing.push('KH reciente');
+      if(!caFresh?.known)missing.push('Ca reciente');
+      if(khPending)missing.push('KH pendiente de confirmar');
+      if(caPending)missing.push('Ca pendiente de confirmar');
+      if(kh.assumed||kh.salinityAssumed||kh.fullyNormalized!==true)missing.push('intervalos KH completamente documentados');
+      if(ca.value===null||ca.score<MIN_ACTION_SCORE||ca.assumed||ca.salinityAssumed||ca.fullyNormalized!==true)missing.push('validación temporal fiable de Ca');
+      const physicalWarning=`No se autoriza un cambio físico de dosificación: falta ${missing.join(', ')}.`;
+      warning=warning?`${warning} ${physicalWarning}`:physicalWarning;
+    }
     const label=score>=75?'alta':score>=50?'media':'baja';
-    return {raw,program:pump.value,score,label,actionable,source,warning,kh,ca,caDrift,caTolerance,pump};
+    return {raw,program:pump.value,score,label,actionable,source,warning,kh,ca,caDrift,caTolerance,pump,physicalDataComplete};
   }
 
   function currentProgram(){
@@ -6494,7 +6707,7 @@ if ('serviceWorker' in navigator) {
     }
 
     const volume=Number(state.settings.volume||0);
-    const modelDoseNoise=Math.max(0,Number(result.kh?.sigma||0))*volume/10;
+    const modelDoseNoise=Math.max(0,Number(result.kh?.physicalSigma??result.kh?.sigma??0))*volume/10;
     const pumpNoise=Math.max(0,Number(result.pump?.toleranceMl||0))*2;
     const hysteresis=Math.max(DOSING_PUMP.modelProgramStepMl,modelDoseNoise,pumpNoise);
 
@@ -6702,6 +6915,17 @@ if ('serviceWorker' in navigator) {
         String(oldSettings.otherDoseWindowStart||'00:30')!==otherStart||
         String(oldSettings.otherDoseWindowEnd||'00:30')!==otherEnd;
 
+      if(!manual&&scheduleChanged){
+        const physicalScheduleConfirmed=window.confirm(
+          'Has cambiado repartos u horarios. Confirma solo si YA has programado exactamente estos repartos y horarios en la H2Ocean.'
+        );
+        if(!physicalScheduleConfirmed){
+          toast('Configuración no guardada: el reparto físico no fue confirmado');
+          syncStrictSettingsInputs?.();
+          return;
+        }
+      }
+
       state.settings={
         ...state.settings,volume,salinityGoal,testUncertainty:{kh:testKh,ca:testCa,mg:testMg},
         ...(manual?{}:{
@@ -6712,7 +6936,7 @@ if ('serviceWorker' in navigator) {
       };
 
       if(M&&!manual&&scheduleChanged){
-        M.recordDoseSnapshot(ts,{kh:Number(state.doses.kh||0),ca:Number(state.doses.ca||0),trace:Number(state.doses.trace||0)},'schedule-settings');
+        M.recordDoseSnapshot(ts,{kh:Number(state.doses.kh||0),ca:Number(state.doses.ca||0),trace:Number(state.doses.trace||0)},'schedule-physical-confirmed');
       }
       persist();updateUI();toast(manual?'Configuración guardada':'Configuración guardada · modelo recalculado');
     };
@@ -6737,11 +6961,65 @@ if ('serviceWorker' in navigator) {
 
 <script id="reef-marine-control-v39-parameter-correction-script">
 (function(){
-  const SPECS=Object.freeze({
-    kh:{label:'KH',unit:'dKH',supplement:'Xepta KH+',amountUnit:'g',amountDecimals:2,valueDecimals:1,min:3,max:15,calculate:(delta,volume)=>delta*volume/30},
-    mg:{label:'Mg',unit:'ppm',supplement:'Aquaforest MG Plus',amountUnit:'ml',amountDecimals:1,valueDecimals:0,min:500,max:2500,calculate:(delta,volume)=>delta*volume/50},
-    ca:{label:'Ca',unit:'ppm',supplement:'Aquaforest Ca Plus',amountUnit:'ml',amountDecimals:1,valueDecimals:0,min:100,max:800,calculate:(delta,volume)=>delta*volume/100}
+  /* v60 · Relaciones FIJAS de producto.
+     Estas constantes NO dependen del volumen configurado.
+     El volumen solo escala proporcionalmente la cantidad final. */
+  const CORRECTION_RULES=Object.freeze({
+    kh:Object.freeze({
+      supplement:'Xepta KH+',
+      referenceAmount:5,
+      amountUnit:'g',
+      referenceEffect:1.5,
+      effectUnit:'dKH',
+      referenceVolume:100
+    }),
+    mg:Object.freeze({
+      supplement:'Aquaforest MG Plus',
+      referenceAmount:10,
+      amountUnit:'ml',
+      referenceEffect:7.5,
+      effectUnit:'ppm',
+      referenceVolume:100
+    }),
+    ca:Object.freeze({
+      supplement:'Aquaforest Ca Plus',
+      referenceAmount:10,
+      amountUnit:'ml',
+      referenceEffect:15,
+      effectUnit:'ppm',
+      referenceVolume:100
+    })
   });
+
+  function correctionAmount(rule,delta,volume){
+    /* Cantidad = dosis_ref × (volumen / volumen_ref) × (incremento / efecto_ref) */
+    return rule.referenceAmount
+      * (Number(volume)/rule.referenceVolume)
+      * (Number(delta)/rule.referenceEffect);
+  }
+
+  const SPECS=Object.freeze({
+    kh:{
+      label:'KH',unit:'dKH',supplement:'Xepta KH+',amountUnit:'g',
+      amountDecimals:2,valueDecimals:1,min:3,max:15,
+      rule:CORRECTION_RULES.kh,
+      calculate:(delta,volume)=>correctionAmount(CORRECTION_RULES.kh,delta,volume)
+    },
+    mg:{
+      label:'Mg',unit:'ppm',supplement:'Aquaforest MG Plus',amountUnit:'ml',
+      amountDecimals:1,valueDecimals:0,min:500,max:2500,
+      rule:CORRECTION_RULES.mg,
+      calculate:(delta,volume)=>correctionAmount(CORRECTION_RULES.mg,delta,volume)
+    },
+    ca:{
+      label:'Ca',unit:'ppm',supplement:'Aquaforest Ca Plus',amountUnit:'ml',
+      amountDecimals:1,valueDecimals:0,min:100,max:800,
+      rule:CORRECTION_RULES.ca,
+      calculate:(delta,volume)=>correctionAmount(CORRECTION_RULES.ca,delta,volume)
+    }
+  });
+
+  window.ReefMarineCorrectionRules=CORRECTION_RULES;
   window.ReefMarineCorrectionSpec=SPECS;
   state.parameterCorrections ||= [];
 
@@ -6791,7 +7069,20 @@ if ('serviceWorker' in navigator) {
     updateLabels();
     if(safetyEl){safetyEl.hidden=true;safetyEl.textContent='';}
     const parameter=paramEl?.value||'kh',spec=SPECS[parameter],v=volume(),current=parse(currentEl?.value),target=parse(targetEl?.value);
+    const M=window.ReefMath;
+    const pending=M?.pendingCorrectionFor?.(parameter)||null;
     const vInfo=volumeInfo();
+    if(pending){
+      if(deltaEl)deltaEl.textContent='Pendiente';
+      if(resultEl)resultEl.textContent='Nueva medición requerida';
+      if(formulaEl)formulaEl.textContent=`Ya existe una corrección de ${spec.label} aplicada y todavía no confirmada por una nueva medición real. No se permite otra corrección del mismo parámetro.`;
+      if(referenceEl)referenceEl.textContent='';
+      if(safetyEl){
+        safetyEl.hidden=false;
+        safetyEl.textContent='Bloqueo de seguridad: mide de nuevo este parámetro antes de calcular otra corrección.';
+      }
+      return null;
+    }
     if(volumeEl)volumeEl.value=v>0?`${nf(v,0)} L${vInfo.assumed?' · estimado':' · histórico'}`:'Sin configurar';
     if(!(v>0)){
       if(deltaEl)deltaEl.textContent='—';if(resultEl)resultEl.textContent='Configura el volumen';
@@ -6802,7 +7093,10 @@ if ('serviceWorker' in navigator) {
     if(!Number.isFinite(current)||!Number.isFinite(target)){
       if(deltaEl)deltaEl.textContent='—';if(resultEl)resultEl.textContent='—';
       if(formulaEl)formulaEl.textContent='Introduce el nivel actual y el nivel objetivo.';
-      if(referenceEl)referenceEl.textContent=parameter==='kh'&&v>0?`Referencia: ${nf(5*(v/100),1)} g = +1,5 dKH en ${nf(v,0)} L.`:'';
+      if(referenceEl){
+        const r=spec.rule;
+        referenceEl.textContent=`Referencia fija: ${nf(r.referenceAmount,parameter==='kh'?0:0)} ${r.amountUnit} → +${nf(r.referenceEffect,parameter==='kh'?1:1)} ${r.effectUnit} en ${nf(r.referenceVolume,0)} L.`;
+      }
       return null;
     }
     if(current<spec.min||current>spec.max||target<spec.min||target>spec.max){
@@ -6828,16 +7122,17 @@ if ('serviceWorker' in navigator) {
     if(deltaEl)deltaEl.textContent=`+${nf(delta,spec.valueDecimals)} ${spec.unit}`;
     if(resultEl)resultEl.textContent=`${nf(amount,spec.amountDecimals)} ${spec.amountUnit} · ${spec.supplement}`;
     if(referenceEl){
-      if(parameter==='kh')referenceEl.textContent=`Referencia para ${nf(v,0)} L: ${nf(5*(v/100),1)} g = +1,5 dKH · ${nf(amount,2)} g = +${nf(delta,1)} dKH.`;
-      else referenceEl.textContent='';
+      const r=spec.rule;
+      referenceEl.textContent=`Referencia fija: ${nf(r.referenceAmount,0)} ${r.amountUnit} → +${nf(r.referenceEffect,parameter==='kh'?1:1)} ${r.effectUnit} en ${nf(r.referenceVolume,0)} L.`;
     }
     if(formulaEl){
-      if(parameter==='kh'){
-        const referenceAmount=5*(v/100);
-        formulaEl.textContent=`Xepta KH+: en ${nf(v,0)} L, ${nf(referenceAmount,1)} g suben +1,5 dKH. Tu corrección es +${nf(delta,1)} dKH, por eso: ${nf(referenceAmount,1)} × (${nf(delta,1)} / 1,5) = ${nf(amount,2)} g.`;
-      }
-      if(parameter==='mg')formulaEl.textContent=`Aquaforest MG Plus: 10 ml → +5 ppm / 100 L · ${nf(current,0)} → ${nf(target,0)} ppm en ${nf(v,0)} L.`;
-      if(parameter==='ca')formulaEl.textContent=`Aquaforest Ca Plus: 10 ml → +10 ppm / 100 L · ${nf(current,0)} → ${nf(target,0)} ppm en ${nf(v,0)} L.`;
+      const r=spec.rule;
+      const deltaDecimals=parameter==='kh'?1:0;
+      const refEffectDecimals=parameter==='kh'?1:1;
+      formulaEl.textContent=
+        `${spec.supplement}: ${nf(r.referenceAmount,0)} ${r.amountUnit} × (${nf(v,0)} / ${nf(r.referenceVolume,0)}) × `+
+        `(${nf(delta,deltaDecimals)} / ${nf(r.referenceEffect,refEffectDecimals)}) = `+
+        `${nf(amount,spec.amountDecimals)} ${spec.amountUnit}.`;
     }
     return {parameter,spec,volume:v,current,target,delta,amount};
   }
@@ -6894,8 +7189,13 @@ if ('serviceWorker' in navigator) {
       if(!ts){toast('Selecciona fecha y hora');return}
       const t=+new Date(ts);if(!Number.isFinite(t)){toast('Fecha u hora no válida');return}
       if(t>Date.now()+300000){toast('La corrección no puede estar en el futuro');return}
+      const selectedParam=paramEl?.value||'kh';
+      const pending=window.ReefMath?.pendingCorrectionFor?.(selectedParam);
+      if(pending){
+        toast(`No puedes corregir ${SPECS[selectedParam].label} otra vez hasta registrar una nueva medición real`);
+        return;
+      }
       if(!calc){toast(volume()>0?'Revisa nivel actual y nivel objetivo':'Configura primero el volumen neto del acuario');return}
-
       const duplicate=duplicateCorrection(calc,ts);
       if(duplicate){toast('Ya existe una corrección equivalente en ese momento. Anúlala antes de registrar otra.');return}
 
@@ -6920,7 +7220,7 @@ if ('serviceWorker' in navigator) {
       state.parameterCorrections.sort((a,b)=>new Date(a.ts)-new Date(b.ts));
       state.events.push({
         ts,type:'parameterCorrection',correctionId:id,parameter:calc.parameter,current:calc.current,target:calc.target,effectUnits:calc.delta,effectUnit:calc.spec.unit,
-        supplement:calc.spec.supplement,amount:calc.amount,amountUnit:calc.spec.amountUnit,volume:calc.volume,theoreticalEffect:true,applied:true,
+        supplement:calc.spec.supplement,amount:calc.amount,amountUnit:calc.spec.amountUnit,volume:calc.volume,theoreticalEffect:true,applied:true,recordedAt:new Date().toISOString(),
         detail:`${calc.spec.label}: ${nf(calc.current,calc.spec.valueDecimals)} → ${nf(calc.target,calc.spec.valueDecimals)} ${calc.spec.unit} · +${nf(calc.delta,calc.spec.valueDecimals)} · ${nf(calc.amount,calc.spec.amountDecimals)} ${calc.spec.amountUnit} ${calc.spec.supplement}${note?` · ${note}`:''}`
       });
       persist();updateUI();closeEventModal();toast(`Corrección aplicada y registrada · ${calc.spec.label} +${nf(calc.delta,calc.spec.valueDecimals)} ${calc.spec.unit}`);
@@ -6999,7 +7299,18 @@ if ('serviceWorker' in navigator) {
     if(!['xepta','manual'].includes(method))return;
     const old=currentMethod();
     if(old===method){renderMaintenanceMethodUI();return}
-
+    const select=document.getElementById('methodSelect');
+    const confirmed=window.confirm(
+      method==='manual'
+        ?'Confirma únicamente si YA has detenido físicamente la dosificación continua en la H2Ocean. ¿El cambio físico ya está hecho?'
+        :'Confirma únicamente si YA has configurado físicamente la H2Ocean para volver a Xepta Reef Balance Next. ¿El cambio físico ya está hecho?'
+    );
+    if(!confirmed){
+      if(select)select.value=old;
+      renderMaintenanceMethodUI();
+      toast('Método sin cambios: falta confirmación física');
+      return;
+    }
     const M=window.ReefMath,ts=new Date().toISOString();
     state.mathMeta ||= {};
     state.mathMeta.pendingAutoProgram=null;
@@ -7014,7 +7325,7 @@ if ('serviceWorker' in navigator) {
     }
 
     state.settings={...(state.settings||{}),maintenanceMethod:method};
-    M?.recordMethodSnapshot?.(ts,method,'user-selector');
+    M?.recordMethodSnapshot?.(ts,method,'user-physical-confirmed');
 
     /* El cambio es físico y temporal. Al entrar en Manual se registra el cese
        de cualquier dosificación continua. Al volver a Xepta arrancamos desde
@@ -7026,8 +7337,8 @@ if ('serviceWorker' in navigator) {
 
     state.events ||= [];
     state.events.push({
-      ts,type:'maintenanceMethod',method,
-      detail:`Método activo → ${METHOD_LABELS[method]}`
+      ts,type:'maintenanceMethod',method,confirmedPhysical:true,recordedAt:new Date().toISOString(),
+      detail:`Método físicamente confirmado → ${METHOD_LABELS[method]}`
     });
 
     persist();
@@ -7093,36 +7404,40 @@ if ('serviceWorker' in navigator) {
     .filter(m=>Number.isFinite(Number(m[key])))
     .sort((a,b)=>new Date(a.ts)-new Date(b.ts)).at(-1)||null;
   const latestSalinity=()=>latestFor('sal');
-  const correctionsAfter=(key,measurement)=>{
-    if(!measurement)return 0;
-    const mt=+new Date(measurement.ts),recorded=measurement.recordedAt?+new Date(measurement.recordedAt):NaN;
-    return (state.parameterCorrections||[])
-      .filter(c=>{
-        if(c.applied===false||c.parameter!==key)return false;
-        const ct=+new Date(c.ts);
-        if(ct>mt)return true;
-        if(ct<mt)return false;
-        if(!Number.isFinite(recorded))return true;
-        const applied=+new Date(c.appliedAt||c.ts);
-        return Number.isFinite(applied)?applied>recorded:true;
-      })
-      .reduce((s,c)=>s+Number(c.delta??c.effectUnits??0),0);
-  };
+  const FRESH_DAYS=Object.freeze({kh:7,ca:14,mg:14,sal:7});
+  function correctionPendingFor(key){return window.ReefMath?.pendingCorrectionFor?.(key)||null}
+  function waterAfterMeasurement(measurement){
+    if(!measurement)return null;
+    const mt=+new Date(measurement.ts);
+    return [...(state.events||[])]
+      .filter(e=>e.type==='water'&&+new Date(e.ts)>=mt)
+      .sort((a,b)=>new Date(a.ts)-new Date(b.ts))
+      .find(e=>{
+        const et=+new Date(e.ts);
+        return et>mt||Math.floor(et/60000)===Math.floor(mt/60000);
+      })||null;
+  }
   function currentSnapshot(){
     const data={},meta={};
     ORDER.forEach(key=>{
       const last=latestFor(key);
       if(!last)return;
-      const measured=Number(last[key]),correction=correctionsAfter(key,last),estimated=measured+correction;
-      data[key]=estimated;
-      meta[key]={ts:last.ts,measured,estimated,correction,pending:Math.abs(correction)>1e-9};
+      const measured=Number(last[key]);
+      const ageDays=Math.max(0,(Date.now()-+new Date(last.ts))/86400000);
+      const correction=correctionPendingFor(key);
+      const water=waterAfterMeasurement(last);
+      const stale=ageDays>FRESH_DAYS[key];
+      data[key]=measured;
+      meta[key]={ts:last.ts,measured,ageDays,stale,pendingCorrection:correction,pendingWater:water,pending:!!correction||!!water};
     });
     const sal=latestSalinity();
     if(sal){
       const ageDays=Math.max(0,(Date.now()-+new Date(sal.ts))/86400000);
-      if(ageDays<=7){
+      if(ageDays<=FRESH_DAYS.sal){
         data.sal=Number(sal.sal);
-        meta.sal={ts:sal.ts,measured:Number(sal.sal),estimated:Number(sal.sal),correction:0,pending:false,ageDays};
+        meta.sal={ts:sal.ts,measured:Number(sal.sal),ageDays,stale:false,pending:false};
+      }else{
+        meta.sal={ts:sal.ts,measured:Number(sal.sal),ageDays,stale:true,pending:false};
       }
     }
     return {data,meta};
@@ -7182,15 +7497,23 @@ if ('serviceWorker' in navigator) {
     const sal=Number(context.salinity)||salinityGoal(),rows=[];
     const salMeasured=Number.isFinite(Number(data.sal))?Number(data.sal):null;
     const salStatus=statusSalinity(salMeasured,salinityGoal());
-    rows.push({key:'sal',label:'Salinidad',unit:'ppt',value:salMeasured,target:[salinityGoal(),salinityGoal()],decimals:1,...salStatus,meta:meta.sal||null});
+    const salMeta=meta.sal||null;
+    const finalSalStatus=salMeta?.stale?{state:'stale',label:'Dato antiguo',severity:null}:salStatus;
+    rows.push({key:'sal',label:'Salinidad',unit:'ppt',value:salMeasured,target:[salinityGoal(),salinityGoal()],decimals:1,...finalSalStatus,meta:salMeta});
     ORDER.forEach(key=>{
-      const def=REFS[key],value=Number.isFinite(Number(data[key]))?Number(data[key]):null,[lo,hi]=scaledRange(key,sal),status=statusRange(value,lo,hi);
-      rows.push({key,label:def.label,unit:def.unit,value,target:[lo,hi],decimals:def.decimals,...status,meta:meta[key]||null});
+      const def=REFS[key],value=Number.isFinite(Number(data[key]))?Number(data[key]):null,[lo,hi]=scaledRange(key,sal);
+      const m=meta[key]||null;
+      let status=statusRange(value,lo,hi);
+      if(m?.pending)status={state:'pending',label:'Pendiente de medición',severity:null};
+      else if(m?.stale)status={state:'stale',label:'Dato antiguo',severity:null};
+      rows.push({key,label:def.label,unit:def.unit,value,target:[lo,hi],decimals:def.decimals,...status,meta:m});
     });
     return rows;
   }
   function statusText(row){
     if(row.state==='missing')return 'Sin medir';
+    if(row.state==='pending')return 'Pendiente de medición';
+    if(row.state==='stale')return 'Dato antiguo';
     if(row.state==='correct')return '✓ Correcto';
     return `${row.state==='low'?'↓':'↑'} ${row.label}`;
   }
@@ -7199,12 +7522,10 @@ if ('serviceWorker' in navigator) {
     return `${fmt(row.target[0],row.decimals)}–${fmt(row.target[1],row.decimals)} ${row.unit}`;
   }
   function rowHtml(row){
-    const valueText=row.value===null?'Sin medición':`${fmt(row.value,row.decimals)} ${row.unit}`;
     const meta=row.meta;
-    const primary=meta?.pending
-      ?`${fmt(meta.estimated,row.decimals)} ${row.unit}`
-      :valueText;
-    return `<div class="manual-eval-row" data-param="${row.key}"><div class="manual-eval-param"><strong>${primary}</strong></div><div class="manual-eval-target">${targetText(row)}</div><div class="manual-eval-status ${row.state}">${statusText(row)}</div></div>`;
+    const rawValue=row.value===null&&meta?.stale&&Number.isFinite(Number(meta.measured))?Number(meta.measured):row.value;
+    const valueText=rawValue===null||rawValue===undefined?'Sin medición':`${fmt(rawValue,row.decimals)} ${row.unit}`;
+    return `<div class="manual-eval-row" data-param="${row.key}"><div class="manual-eval-param"><strong>${valueText}</strong></div><div class="manual-eval-target">${targetText(row)}</div><div class="manual-eval-status ${row.state}">${statusText(row)}</div></div>`;
   }
   function renderEvaluation(){
     const card=document.getElementById('manualSmartEvalCard');
@@ -7217,8 +7538,8 @@ if ('serviceWorker' in navigator) {
       else context.innerHTML=`Referencia ajustada a <strong>${fmt(ctx.salinity,1)} ppt</strong> (${ctx.label}). Factor respecto a 33 ppt: <strong>×${fmt(scale,3)}</strong>.`;
     }
     if(list)list.innerHTML=rows.map(rowHtml).join('');
-    const measured=rows.filter(r=>r.state!=='missing'),correct=measured.filter(r=>r.state==='correct').length,low=measured.filter(r=>r.state==='low').length,high=measured.filter(r=>r.state==='high').length;
-    if(summary)summary.innerHTML=measured.length?`<span class="eval-summary-chip">${measured.length} medidos</span><span class="eval-summary-chip">✓ ${correct} correctos</span>${low?`<span class="eval-summary-chip">↓ ${low} bajos</span>`:''}${high?`<span class="eval-summary-chip">↑ ${high} altos</span>`:''}`:'<span class="eval-summary-chip">Esperando mediciones</span>';
+    const measured=rows.filter(r=>r.state!=='missing'),correct=measured.filter(r=>r.state==='correct').length,low=measured.filter(r=>r.state==='low').length,high=measured.filter(r=>r.state==='high').length,pending=measured.filter(r=>r.state==='pending').length,stale=measured.filter(r=>r.state==='stale').length;
+    if(summary)summary.innerHTML=measured.length?`<span class="eval-summary-chip">${measured.length} con dato</span><span class="eval-summary-chip">✓ ${correct} correctos</span>${low?`<span class="eval-summary-chip">↓ ${low} bajos</span>`:''}${high?`<span class="eval-summary-chip">↑ ${high} altos</span>`:''}${pending?`<span class="eval-summary-chip">⏳ ${pending} pendientes</span>`:''}${stale?`<span class="eval-summary-chip">◷ ${stale} antiguos</span>`:''}`:'<span class="eval-summary-chip">Esperando mediciones</span>';
     return {rows,context:ctx,source:src.source};
   }
   function latestEvaluation(){
@@ -7238,26 +7559,32 @@ if ('serviceWorker' in navigator) {
     if(goal)goal.textContent=`${fmt(lo,1)}–${fmt(hi,1)}`;
     if(goalLabel)goalLabel.textContent='Rango esperado';if(goalUnit)goalUnit.textContent='dKH';
     const correctionPending=document.getElementById('homeCorrectionState')&&!document.getElementById('homeCorrectionState').hidden;
-    if(khState&&!correctionPending)khState.textContent=kh.state==='correct'?'☺ Correcto':kh.state==='low'?'↓ Bajo':kh.state==='high'?'↑ Alto':'— Sin medir';
+    if(khState&&!correctionPending){
+      khState.textContent=kh.state==='correct'?'☺ Correcto':kh.state==='low'?'↓ Bajo':kh.state==='high'?'↑ Alto':kh.state==='pending'?'⏳ Pendiente de medición':kh.state==='stale'?'◷ Dato antiguo':'— Sin medir';
+    }
     if(status&&!correctionPending){
-      const measured=ev.rows.filter(r=>r.state!=='missing'),off=measured.some(r=>r.state==='low'||r.state==='high');
-      status.textContent=!measured.length?'— Sin datos':off?'◌ Parámetros a revisar':'☺ Parámetros correctos';
+      const measured=ev.rows.filter(r=>r.state!=='missing');
+      const unresolved=measured.some(r=>r.state==='pending'||r.state==='stale');
+      const off=measured.some(r=>r.state==='low'||r.state==='high');
+      status.textContent=!measured.length?'— Sin datos':unresolved?'⏳ Requiere nueva medición':off?'◌ Parámetros a revisar':'☺ Parámetros correctos';
     }
   }
   function renderManualHistoryInsights(){
     if(state.settings?.maintenanceMethod!=='manual')return;
     const el=document.getElementById('insights');if(!el)return;
-    const ev=latestEvaluation(),measured=ev.rows.filter(r=>r.state!=='missing'),off=measured.filter(r=>r.state==='low'||r.state==='high');
+    const ev=latestEvaluation(),measured=ev.rows.filter(r=>r.state!=='missing'),off=measured.filter(r=>r.state==='low'||r.state==='high'),pending=measured.filter(r=>r.state==='pending'),stale=measured.filter(r=>r.state==='stale');
     const lines=[];
     if(!ev.measurement)lines.push('<strong>Evaluación manual:</strong> todavía no hay mediciones registradas.');
     else{
       lines.push(`<strong>Referencia química:</strong> rangos ajustados proporcionalmente a ${fmt(ev.context.salinity,1)} ppt desde Xepta Balanced Reef Salt a 33 ppt.`);
-      if(!off.length&&measured.length)lines.push(`<strong>Estado actual:</strong> los ${measured.length} parámetros evaluados están dentro de sus rangos esperados.`);
+      if(pending.length)lines.push(`<strong>Pendiente de medición:</strong> ${pending.map(r=>r.label).join(', ')}. No se clasifica como correcto/bajo/alto hasta medir de nuevo.`);
+      if(stale.length)lines.push(`<strong>Datos antiguos:</strong> ${stale.map(r=>r.label).join(', ')}. Se conservan en historial pero no describen el estado actual.`);
+      if(!off.length&&!pending.length&&!stale.length&&measured.length)lines.push(`<strong>Estado actual:</strong> los ${measured.length} parámetros evaluados están dentro de sus rangos esperados.`);
       else if(off.length)lines.push(`<strong>Atención:</strong> ${off.map(r=>`${r.label} ${r.state==='low'?'bajo':'alto'}`).join(' · ')}.`);
       const M=window.ReefMath,khCons=M?.robustConsumption?.('kh');
       const histCons=khCons?.value===null?M?.historicalKhConsumptionEstimate?.():null;
       if(khCons?.value!==null&&Number.isFinite(Number(khCons?.value))){
-        lines.push(`<strong>Consumo KH modelado:</strong> ${fmt(khCons.value,2)} dKH/día · calidad del modelo ${khCons.label} (${khCons.score}/100). En Corrección Manual no se convierte en una dosis Balling diaria.`);
+        lines.push(`<strong>Consumo KH modelado:</strong> ${fmt(Number.isFinite(Number(khCons.physicalValue))?khCons.physicalValue:khCons.value,2)} dKH/día · calidad del modelo ${khCons.label} (${khCons.score}/100). En Corrección Manual no se convierte en una dosis Balling diaria.`);
       }else if(histCons?.value!==null&&Number.isFinite(Number(histCons?.value))){
         lines.push(`<strong>Consumo KH histórico orientativo:</strong> ≈${fmt(histCons.value,2)} dKH/día · calidad baja. Se obtiene de ${histCons.used.length} descensos de KH mayores que la incertidumbre de la medición; ${histCons.inferredInterventions} subida${histCons.inferredInterventions===1?'':'s'} significativa${histCons.inferredInterventions===1?'':'s'} se excluye${histCons.inferredInterventions===1?'':'n'} como posible intervención no documentada. Esta cifra no se usa para dosificar.`);
       }else if(state.mathMeta?.historicalContextIncomplete){
@@ -7525,6 +7852,66 @@ if ('serviceWorker' in navigator) {
   }else{
     resetAfterLayout();
   }
+})();
+</script>
+
+
+<script id="reef-marine-control-v62-aquarium-profiles">
+(function(){
+  function registry(){return loadAquariumRegistry()}
+  function renderProfiles(){
+    const select=document.getElementById('aquariumProfileSelect');
+    if(!select)return;
+    const list=registry();
+    select.innerHTML=list.map(x=>`<option value="${x.id}">${x.name}</option>`).join('');
+    select.value=ACTIVE_AQUARIUM_ID;
+  }
+  document.getElementById('aquariumProfileSelect')?.addEventListener('change',e=>{
+    const id=e.target.value;
+    if(id===ACTIVE_AQUARIUM_ID)return;
+    if(!registry().some(x=>x.id===id)){renderProfiles();return}
+    try{persist()}catch(_){renderProfiles();return}
+    localStorage.setItem(AQUARIUM_ACTIVE_KEY,id);
+    location.reload();
+  });
+  document.getElementById('createAquariumProfile')?.addEventListener('click',()=>{
+    const name=window.prompt('Nombre del nuevo acuario:','Nuevo acuario');
+    if(!name||!name.trim())return;
+    const id=`aq-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
+    const list=registry(),cleanName=name.trim().slice(0,60);
+    list.push({id,name:cleanName,createdAt:new Date().toISOString()});
+    const blank=cloneSeed();
+    blank.settings={...blank.settings,maintenanceMethod:'manual',volume:0};
+    blank.dataImports={historicalMeasurements:'skip-new-profile'};
+    blank.profile={id,name:cleanName};
+    blank.mathMeta={version:6,historicalContextIncomplete:false};
+    try{
+      localStorage.setItem(aquariumStorageKey(id),JSON.stringify(blank));
+      saveAquariumRegistry(list);
+      localStorage.setItem(AQUARIUM_ACTIVE_KEY,id);
+      location.reload();
+    }catch(_){toast('No se pudo crear el perfil local en este dispositivo')}
+  });
+  renderProfiles();
+})();
+</script>
+
+
+<script id="reef-marine-control-v62-update-dispatcher">
+(function(){
+  const composedUpdateUI=updateUI;
+  let running=false,rerun=false;
+  function finalUpdateUI(){
+    if(running){rerun=true;return}
+    running=true;
+    try{composedUpdateUI()}
+    finally{
+      running=false;
+      if(rerun){rerun=false;requestAnimationFrame(finalUpdateUI)}
+    }
+  }
+  updateUI=finalUpdateUI;
+  window.updateUI=finalUpdateUI;
 })();
 </script>
 

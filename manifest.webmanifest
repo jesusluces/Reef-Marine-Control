@@ -1,31 +1,22 @@
 {
   "name": "Reef Marine Control",
-  "short_name": "Reef Control",
-  "description": "Gestión inteligente, dosificación predictiva e historial para acuarios marinos de arrecife.",
-  "lang": "es",
-  "id": "./",
-  "start_url": "./",
+  "short_name": "Reef Marine",
+  "description": "Gestión local de acuarios marinos y arrecife.",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "display_override": [
-    "standalone",
-    "minimal-ui"
-  ],
-  "orientation": "portrait-primary",
-  "background_color": "#eef9fc",
-  "theme_color": "#eef9fc",
+  "background_color": "#f8fbfc",
+  "theme_color": "#f8fbfc",
   "icons": [
     {
       "src": "./icon-192.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "./icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
+      "type": "image/png"
     },
     {
       "src": "./icon-maskable-512.png",
