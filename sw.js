@@ -1,4 +1,4 @@
-const CACHE='reef-marine-control-v74';
+const CACHE='reef-marine-control-v75';
 const ASSETS=[
   './','./index.html','./app.js','./manifest.webmanifest',
   './brand-title.png','./dose-ca.png','./dose-kh.png','./dose-trace.png',

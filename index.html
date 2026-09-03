@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<meta name="reef-marine-control-version" content="72">
+<meta name="reef-marine-control-version" content="75">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
 <meta name="theme-color" content="#f8fbfc" />
 <title>Reef Marine Control · Gestión inteligente del arrecife</title>
@@ -3708,8 +3708,8 @@ html,body{background:#e8f7fb !important;}
           <div class="measure-illustrated-title-row">
             <span class="measure-head-star">✨</span>
             <div class="measure-head-copy">
-              <div class="title">Medición completa <small>(opcional)</small></div>
-              <div class="measure-head-note">Introduce el resto de parámetros si los has medido para enriquecer el historial.</div>
+              <div class="title">Resto de parámetros <small>(opcionales)</small></div>
+              <div class="measure-head-note">Puedes guardar KH, Ca, Mg, NO₃, PO₄ o salinidad de forma independiente. No es obligatorio medirlos todos a la vez.</div>
             </div>
           </div>
           <div class="measure-head-wave" aria-hidden="true"></div>
@@ -4052,7 +4052,7 @@ html,body{background:#e8f7fb !important;}
       <div class="field"><label>Fecha y hora</label><input type="datetime-local" id="eventDate"></div>
       <div class="field event-structured event-water-field"><label>Volumen cambiado (L)</label><input id="eventWaterLiters" inputmode="decimal" placeholder="Ej.: 40"></div>
       <div class="event-structured event-water-field water-chemistry-box">
-        <div class="small"><strong>Química del agua nueva · recomendada</strong><br>Si introduces KH, Ca, Mg y/o salinidad del agua nueva, Reef Marine Control calculará el valor estimado inmediatamente después del cambio mediante mezcla. Si falta un parámetro, ese parámetro quedará pendiente de una nueva medición.</div>
+        <div class="small"><strong>Química del agua nueva · recomendada</strong><br>Los valores medidos del agua nueva tienen prioridad. Si seleccionas Xepta Balanced Reef Salt, KH/Ca/Mg que falten pueden estimarse desde la ficha declarada a 33 ppt y la salinidad real preparada.</div>
         <div class="water-chemistry-grid">
           <div class="field"><label>KH agua nueva (dKH)</label><input id="eventWaterKh" inputmode="decimal" placeholder="Ej.: 8,2"></div>
           <div class="field"><label>Ca agua nueva (ppm)</label><input id="eventWaterCa" inputmode="decimal" placeholder="Ej.: 440"></div>

@@ -1,7 +1,7 @@
 {
   "name": "Reef Marine Control",
   "short_name": "Reef Control",
-  "description": "Control local de mediciones, correcciones y mantenimiento de un acuario marino.",
+  "description": "Gestión inteligente y local de mediciones, correcciones, consumo, Balling e historial matemático de un acuario marino.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
