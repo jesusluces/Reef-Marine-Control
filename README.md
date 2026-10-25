@@ -29,7 +29,7 @@ npm run e2e                  # prueba en Chromium a 412 px (necesita Playwright)
 npm run check                # todo lo anterior salvo simulación y e2e
 ```
 
-`index.html` en la raíz es la aplicación ya compilada (copia de `app/dist/acuario.html`), lista para abrirse en el navegador o servirse con GitHub Pages. Tras cambiar la app, `npm run app` y copiarla de nuevo.
+La raíz del repositorio contiene la aplicación instalable (PWA) lista para GitHub Pages: `index.html`, `manifest.webmanifest`, `sw.js` e `icons/`. `npm run app` la regenera (también en `app/dist/pwa/`) junto con `app/dist/acuario.html`, la versión de un solo archivo sin instalación. En GitHub: Settings → Pages → Deploy from a branch → `main` / `(root)`. En Android, Chrome ofrece «Instalar»; en iPhone, Safari → Compartir → «Añadir a pantalla de inicio». Los iconos de instalación salen de `app/assets/pwa/make-icons.mjs`.
 
 Las versiones de desarrollo están fijadas en `package.json` a las probadas. GitHub Actions ejecuta lo mismo en Node 22 y 24 (`.github/workflows/ci.yml`). TypeScript verifica los tipos por separado; ejecutar `.ts` con Node no los comprueba.
 

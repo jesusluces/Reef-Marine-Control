@@ -1,5 +1,9 @@
 # Cambios
 
+## App · instalable como PWA (2026-10-25)
+
+- Manifest, service worker (funciona sin conexión) e iconos de instalación; barra «Instalar» en Android y aviso para iPhone. Se genera en la raíz para GitHub Pages. Sin cambios en el motor.
+
 ## App · iconos con el dibujo del fondo marino (2026-10-25)
 
 - Contorno azul marino, acuarela en la paleta del arrecife, motas y semitono, manteniendo el estilo pegatina (ver CAMBIOS-VISUALES.md).

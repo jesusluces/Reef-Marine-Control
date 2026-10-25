@@ -1,24 +1,45 @@
-const CACHE='reef-marine-control-v75';
-const ASSETS=[
-  './','./index.html','./app.js','./manifest.webmanifest',
-  './brand-title.png','./dose-ca.png','./dose-kh.png','./dose-trace.png',
-  './icon-180.png','./icon-192.png','./icon-512.png','./icon-maskable-512.png',
-  './measure-ca.png','./measure-mg.png','./measure-no3.png','./measure-po4.png','./measure-salinity.png',
-  './nav-dose.png','./nav-history.png','./nav-home.png','./nav-measure.png','./reef-background.png','./reef-art-background.png'
-];
-self.addEventListener('install',event=>{
-  event.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));
+// Service worker de Mi Acuario Marino (generado por app/build.ts; versión 4cc9d9ac1991).
+const CACHE = 'mam-4cc9d9ac1991';
+const FONTS = 'mam-fonts';
+const SHELL = ["./","./index.html","./manifest.webmanifest","./icons/icon-192.png","./icons/icon-512.png","./icons/icon-maskable-512.png","./icons/apple-touch-icon.png"];
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
 });
-self.addEventListener('activate',event=>{
-  event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(k => k !== CACHE && k !== FONTS).map(k => caches.delete(k))))
+      .then(() => self.clients.claim()),
+  );
 });
-self.addEventListener('fetch',event=>{
-  if(event.request.method!=='GET')return;
-  const url=new URL(event.request.url);
-  if(url.origin!==location.origin)return;
-  if(event.request.mode==='navigate'){
-    event.respondWith(fetch(event.request).then(r=>{const copy=r.clone();caches.open(CACHE).then(c=>c.put('./index.html',copy));return r}).catch(()=>caches.match('./index.html')));
+self.addEventListener('fetch', e => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  // Página: primero la red (así llegan las versiones nuevas) y, sin conexión, la guardada.
+  if (req.mode === 'navigate') {
+    e.respondWith(
+      fetch(req)
+        .then(res => {
+          if (res.ok) { const copy = res.clone(); caches.open(CACHE).then(c => c.put('./index.html', copy)); }
+          return res;
+        })
+        .catch(() => caches.match('./index.html', { ignoreSearch: true })),
+    );
     return;
   }
-  event.respondWith(caches.match(event.request).then(cached=>cached||fetch(event.request).then(r=>{const copy=r.clone();caches.open(CACHE).then(c=>c.put(event.request,copy));return r})));
+  // Tipografías de Google: la guardada al momento y se refresca por detrás.
+  if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
+    e.respondWith(
+      caches.open(FONTS).then(c =>
+        c.match(req).then(hit => {
+          const net = fetch(req).then(res => { if (res.ok || res.type === 'opaque') c.put(req, res.clone()); return res; }).catch(() => hit);
+          return hit || net;
+        }),
+      ),
+    );
+    return;
+  }
+  if (url.origin === self.location.origin)
+    e.respondWith(caches.match(req, { ignoreSearch: true }).then(hit => hit || fetch(req)));
 });
