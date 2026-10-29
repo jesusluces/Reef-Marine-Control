@@ -1,5 +1,25 @@
 # Cambios
 
+## 0.7.0 · 2026-10-29
+
+Corregir, verificar y activar el Balling, sin periodo base. Detalle en [docs/cambios-0.7.md](docs/cambios-0.7.md).
+
+- Historial inicial: las 12 mediciones del 26 al 29/10/2026 se cargan solas y no se duplican.
+- Antes del Balling, KH+, Ca+ y MG+ corrigen lo que esté fuera del objetivo; una lectura nueva lo verifica y el usuario activa el Balling con la dosis calculada con su consumo real (correcciones descontadas). Por seguridad, con un consumo de 0,5 dKH/día o más se puede activar sin esperar.
+- Avisos de subidas inesperadas y de desequilibrios de Ca o Mg con el KH bien.
+- Sin calibración ni verificación con patrón: los equipos se dan por calibrados.
+- Fauna y corales sólo como inventario, sin avisos de riesgo ni compatibilidad.
+- Política `peninsula105-policy-v6` (hay que aceptarla de nuevo). 231 pruebas.
+
+## 0.6.1 · 2026-10-29
+
+Revisión con los datos reales del 26 al 29 de octubre (KH 7,6 → 6,7 en tres días, sin prueba de repetibilidad). Detalle en [docs/cambios-0.6.md](docs/cambios-0.6.md#061--datos-reales-del-26-al-29-de-octubre).
+
+- Arranque prudente del Balling: con el KH bajo el objetivo y un descenso claro pero sin cota que excluya el cero, se arranca con el 70 % del consumo medido. Antes el acuario quedaba atrapado entre correcciones de KH+ que reiniciaban el periodo base.
+- Lecturas sin lote del mismo método cuentan como el mismo kit (`requireLotForCancellation: false`): al quitar el lote de la app, el motor había perdido la cancelación del sesgo del test (simulación de arranque: 27 correcciones de KH+ y el Balling sin arrancar).
+- La app tampoco pide lote en la prueba de repetibilidad ni en la verificación con patrón.
+- Política `peninsula105-policy-v5` (hay que aceptarla de nuevo). 232 pruebas.
+
 ## App · instalable como PWA (2026-10-25)
 
 - Manifest, service worker (funciona sin conexión) e iconos de instalación; barra «Instalar» en Android y aviso para iPhone. Se genera en la raíz para GitHub Pages. Sin cambios en el motor.

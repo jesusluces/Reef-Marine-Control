@@ -103,3 +103,10 @@ Sustituye el bloque `maqueta` por `clasico` (`app/src/page.html`), tomando sólo
 - Los 47 iconos toman el estilo del fondo IL07 sin tocar sus SVG: contorno azul marino (#0d2b8a) como los corales, algo más fino; acuarela suave en la paleta del arrecife (verde alga, azul roca, violeta coral, naranja coral, agua azul); motas oscuras y claras como la estrella de mar y semitono en la zona de sombra.
 - IC30 (corales) e IC33 (objetivos) pasan del violeta al rosa de la estrella de mar.
 - Siguen siendo pegatinas: mismo borde blanco troquelado y sombra. Se genera en `app/gen-assets.ts` (`fondo()`, `fondoDefs()`).
+
+## Activación del Balling y limpieza (29 de octubre de 2026)
+
+- Dosificación → Programas: tarjeta «Activar el Balling» con los tres pasos (Corregir, Verificar, Activar), el estado de KH, Ca y Mg frente a su objetivo, el consumo de KH del historial, las correcciones propuestas y, en el paso 3, la dosis por cabezal con la casilla «Ya está cargado» y el botón «Activar Balling». Si faltan las garrafas, un botón las registra llenas de 5 L.
+- Inicio: la tarjeta de estado indica el paso («Paso 1 · Corrige KH», «Paso 2 · Mide KH», «Paso 3 · Activa el Balling»).
+- Quitadas la calibración de cabezales, la verificación con patrón, el chip «Sin verificar con patrón» y la tapa antisaltos. «Instrumentos y calibraciones» pasa a «Tests de medición», con la prueba de precisión como opcional.
+- Fauna y corales: sin avisos de convivencia ni «Si lo añades»; las fichas muestran nombre, tamaño, calcificación y dieta.

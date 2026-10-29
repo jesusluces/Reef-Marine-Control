@@ -1,6 +1,6 @@
-# Mi Acuario Marino · Final Boss · Reef Core Engine 0.6.0
+# Mi Acuario Marino · Final Boss · Reef Core Engine 0.7.0
 
-**0.6.0 · periodo base y caídas anormales.** El Balling no arranca hasta tener cinco días seguidos de KH medido sin aditar; entonces propone la primera dosis 1:1:1. Las caídas anormales de KH, Ca o Mg piden repetir el test y, confirmadas, una corrección puntual aparte. Ver [cambios 0.6](docs/cambios-0.6.md).
+**0.7.0 · corregir, verificar y activar.** La app parte de las mediciones reales del 26 al 29/10/2026, corrige con KH+, Ca+ o MG+ lo que esté fuera del objetivo, espera una lectura que lo confirme y deja activar el Balling con la dosis calculada con el consumo real. Después la ajusta sola, siempre con confirmación. Avisa de caídas, subidas y desequilibrios. Sin calibraciones; fauna y corales sólo como inventario. Ver [cambios 0.7](docs/cambios-0.7.md).
 
 **0.5.0 · correcciones del informe definitivo.** Estrategia única XEPTA Reef Balance Next 1:1:1 con proporción obligatoria, seguimiento del nivel de KH, confirmación del perfil antes de dosificar, migración de historiales sin pérdidas, guardado verificable y la aplicación móvil de cuatro pantallas. Ver [cambios 0.5](docs/cambios-0.5.md) y [CHANGELOG](CHANGELOG.md).
 
@@ -24,7 +24,7 @@ npm run typecheck            # motor y aplicación
 npm test                     # 212 pruebas
 npm run build                # dist/ del motor
 npm run app                  # aplicación en app/dist/acuario.html (un único HTML)
-npm run simulate:peninsula   # lazo cerrado del perfil → reports/peninsula-0.6.0.*
+npm run simulate:peninsula   # lazo cerrado del perfil → reports/peninsula-0.7.0.*
 npm run e2e                  # prueba en Chromium a 412 px (necesita Playwright)
 npm run check                # todo lo anterior salvo simulación y e2e
 ```
