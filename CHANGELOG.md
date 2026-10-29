@@ -1,5 +1,23 @@
 # Cambios
 
+## 0.7.2 · 2026-10-29
+
+KH objetivo 8 dKH y cambios de agua con la sal del usuario. Detalle en [docs/cambios-0.7.md](docs/cambios-0.7.md#072--kh-objetivo-8-y-cambios-de-agua-con-la-sal).
+
+- Las correcciones de KH apuntan siempre a 8 dKH (antes de activar el Balling apuntaban a 8,5).
+- Cambio de agua: litros (40 por defecto, ±5 L), KH y salinidad del agua nueva. Calcio y magnesio se estiman con Xepta Balanced Reef Salt (ficha a 33 ppt, escalada a la salinidad real); el KH, si no se mide, también. Cada cambio muestra su efecto estimado en el acuario.
+- El balance de KH, Ca, Mg y salinidad descuenta el cambio con sus incertidumbres (litros, test y ficha), así que no se confunde con consumo ni dispara avisos o correcciones; el Balling espera la lectura posterior y el seguimiento del nivel no deshace el cambio durante 7 días.
+- Simulaciones con un cambio de agua semanal de ~40 L (36–44 L reales). 236 pruebas.
+
+## 0.7.1 · 2026-10-29
+
+Sección «Correcciones» con acciones concretas. Detalle en [docs/cambios-0.7.md](docs/cambios-0.7.md#071--sección-correcciones).
+
+- Dosificación → Correcciones: estado de KH, Ca y Mg y, para cada corrección, «Tu KH actual es 6,7 dKH y el objetivo es 8,0», el cálculo (gramos de KH+ que suben 1 dKH en tus litros y el total necesario), lo que se añade hoy por seguridad y los días siguientes.
+- Botón «He añadido la corrección»: queda en el historial, el motor la descuenta en el consumo y pide medir de nuevo tras la mezcla. Lista «Correcciones realizadas» con su verificación.
+- El KH primero (lleva el Balling); Ca+ y MG+, en versión más sencilla, sólo si bajan del objetivo.
+- Motor: cada corrección incluye `correction` (de dónde a dónde, producto por unidad con el volumen, total y, si hoy ya se corrigió al máximo, desde cuándo se puede seguir). Las decisiones no cambian (simulaciones idénticas). 232 pruebas.
+
 ## 0.7.0 · 2026-10-29
 
 Corregir, verificar y activar el Balling, sin periodo base. Detalle en [docs/cambios-0.7.md](docs/cambios-0.7.md).

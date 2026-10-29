@@ -110,3 +110,11 @@ Sustituye el bloque `maqueta` por `clasico` (`app/src/page.html`), tomando sólo
 - Inicio: la tarjeta de estado indica el paso («Paso 1 · Corrige KH», «Paso 2 · Mide KH», «Paso 3 · Activa el Balling»).
 - Quitadas la calibración de cabezales, la verificación con patrón, el chip «Sin verificar con patrón» y la tapa antisaltos. «Instrumentos y calibraciones» pasa a «Tests de medición», con la prueba de precisión como opcional.
 - Fauna y corales: sin avisos de convivencia ni «Si lo añades»; las fichas muestran nombre, tamaño, calcificación y dieta.
+
+## Sección «Correcciones» (29 de octubre de 2026, tarde)
+
+- La pestaña «Dosificación manual» pasa a «Correcciones»: estado de KH, Ca y Mg, tarjetas con «Tu KH actual es… y el objetivo es…», el cálculo en un recuadro, «Añade hoy X g», el plan por días y el botón «He añadido la corrección»; debajo, «Correcciones realizadas» con su verificación, el producto elegido y otras adiciones.
+
+## Cambio de agua con la sal (29 de octubre de 2026, noche)
+
+- Correcciones → «Cambio de agua»: litros (40), margen (±5 L), KH y salinidad del agua nueva y la fecha; debajo, lo que se estima de Ca y Mg con Xepta Balanced Reef Salt y la lista de cambios registrados con su efecto estimado en KH, Ca, Mg y salinidad.
