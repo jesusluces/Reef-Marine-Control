@@ -2,9 +2,10 @@
   "compilerOptions": {
     "target": "ES2023", "lib": ["ES2023"], "module": "NodeNext",
     "strict": true, "noUncheckedIndexedAccess": true, "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true, "noUnusedParameters": true, "noFallthroughCasesInSwitch": true, "noImplicitReturns": true,
     "verbatimModuleSyntax": true, "erasableSyntaxOnly": true,
     "rewriteRelativeImportExtensions": true, "skipLibCheck": true,
     "noEmit": true, "types": ["node"]
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts"]
+  "include": ["src/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts", "app/build.ts", "app/gen-assets.ts", "app/e2e/seed.ts"]
 }

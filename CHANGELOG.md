@@ -1,5 +1,28 @@
 # Cambios
 
+## 0.8.0 · 2026-10-29
+
+Revisión final: código depurado, matemática verificada y todo probado. Detalle en [docs/cambios-0.8.md](docs/cambios-0.8.md).
+
+- Fuera lo que quedaba de versiones anteriores:
+  - módulos y scripts sin uso (corrección manual antigua, selectores, almacén en memoria, demo y simulador genérico, flujo de CI duplicado);
+  - funciones de calibración y de verificación con patrón;
+  - códigos del periodo base;
+  - el dibujo del pie oculto y más de 30 reglas CSS sin uso.
+
+  TypeScript más estricto (sin variables ni parámetros sin usar).
+- Cada fórmula (KH+, Ca+, MG+, límites diarios, consumo con balance de masas, dosis inicial del Balling, sal escalada y cambio de agua) se ha recalculado de forma independiente con los datos reales y coincide con el motor.
+- Tras un cambio de agua con el KH y la salinidad del agua nueva ya no hace falta medir de nuevo Mg y salinidad para que el Balling decida (el efecto se propaga con su incertidumbre). Para el KH se sigue esperando la lectura posterior.
+- Las caídas o subidas inesperadas, los desequilibrios y la deriva aparecen en Alertas con su propio título, en vez de «Tendencia de X» en Inicio.
+- La prueba de extremo a extremo vuelve a generar sus datos sin la calibración retirada.
+- Simulaciones idénticas a 0.7.2. 223 pruebas.
+
+## 0.7.3 · 2026-10-29
+
+- Correcciones: si has añadido más de lo recomendado (p. ej. 18 g de KH+ cuando hoy tocaban 10,7 g), la app ya no lo bloquea. Avisa de cuánto sube el KH con esa cantidad, pide una segunda pulsación por si es un error de tecleo y la registra tal cual. El motor la descuenta en el balance y no propone más corrección hasta que vuelvas a medir.
+- El cálculo explica por qué parte de un KH algo menor que la última lectura (sigue bajando desde entonces).
+- Sin cambios en las decisiones del motor. 237 pruebas.
+
 ## 0.7.2 · 2026-10-29
 
 KH objetivo 8 dKH y cambios de agua con la sal del usuario. Detalle en [docs/cambios-0.7.md](docs/cambios-0.7.md#072--kh-objetivo-8-y-cambios-de-agua-con-la-sal).
