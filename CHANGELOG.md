@@ -1,5 +1,14 @@
 # Cambios
 
+## 0.8.1 · 2026-10-30
+
+Con el KH ya corregido y verificado, el Balling no se dejaba activar: el botón no aparecía y en Inicio salía «Paso 3 · Casi listo». Ocurría en dos casos:
+
+- **La lectura de verificación era algo más alta de lo esperado** (p. ej. 8,3 con ~7,9 previsto tras 18 g de KH+). Esto entra en el error del test, pero el último tramo parecía «producción neta» y bloqueaba la activación. Ahora ese tramo no bloquea antes de activar, porque la dosis inicial sale del balance de toda la ventana.
+- **La corrección no estaba registrada en la app.** El balance completo no daba consumo y la activación se quedaba sin dosis. Ahora se usa el consumo medido antes de la subida (7,6 → 6,7: 0,29 dKH/día), se arranca prudente (70 %) y se avisa: «¿falta registrar alguna corrección?».
+
+En Inicio, «Casi listo» dice ahora qué falta en concreto. Las simulaciones no cambian. Hay 2 pruebas nuevas, 225 en total.
+
 ## 0.8.0 · 2026-10-29
 
 Revisión final: código depurado, matemática verificada y todo probado. Detalle en [docs/cambios-0.8.md](docs/cambios-0.8.md).

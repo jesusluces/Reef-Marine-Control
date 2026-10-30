@@ -1,4 +1,4 @@
-# Mi Acuario Marino · Final Boss · Reef Core Engine 0.8.0
+# Mi Acuario Marino · Final Boss · Reef Core Engine 0.8.1
 
 Aplicación móvil (PWA) y motor TypeScript para llevar la química de un acuario de arrecife con Balling XEPTA Reef Balance Next 1:1:1 en una ReefDose de Red Sea. Perfil incluido: Península 105 × 60 × 60 (≈ 375 L efectivos).
 
@@ -17,7 +17,7 @@ Node.js 22.6 o posterior (probado con 22.22; los scripts pasan `--experimental-s
 ```sh
 npm install
 npm run typecheck            # motor y aplicación
-npm test                     # 223 pruebas
+npm test                     # 225 pruebas
 npm run build                # dist/ del motor
 npm run app                  # aplicación en app/dist/acuario.html (un único HTML)
 npm run simulate:peninsula   # lazo cerrado del perfil → reports/peninsula-<versión>.json
