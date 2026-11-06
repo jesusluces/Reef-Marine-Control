@@ -1,10 +1,10 @@
-# Mi Acuario Marino · Final Boss · Reef Core Engine 0.8.1
+# Mi Acuario Marino · Final Boss · Reef Core Engine 0.9.1
 
 Aplicación móvil (PWA) y motor TypeScript para llevar la química de un acuario de arrecife con Balling XEPTA Reef Balance Next 1:1:1 en una ReefDose de Red Sea. Perfil incluido: Península 105 × 60 × 60 (≈ 375 L efectivos).
 
-**Qué hace.** Parte de las mediciones reales del 26 al 29/10/2026. Antes del Balling corrige con KH+, Ca+ o MG+ lo que esté fuera del objetivo (KH ideal 8 dKH), espera una lectura que lo confirme y deja activar el Balling con la dosis calculada a partir del consumo real, con las correcciones descontadas. Después ajusta el programa solo, siempre con confirmación, y avisa de caídas o subidas inesperadas y de desequilibrios. Los cambios de agua se registran con los litros, el KH y la salinidad del agua nueva; Ca y Mg salen de la ficha de la sal. Fauna y corales son sólo inventario; los equipos se dan por calibrados.
+**Qué hace.** Incluye el historial real del acuario desde el 26/10/2026. Antes del Balling corrige con KH+, Ca+ o MG+ lo que esté fuera del objetivo (KH ideal 8 dKH), espera una lectura que lo confirme y deja activar el Balling con la dosis calculada a partir del consumo real, con las correcciones descontadas. Después ajusta el programa solo, siempre con confirmación, y avisa de caídas o subidas inesperadas y de desequilibrios. Los cambios de agua se registran con los litros, el KH y la salinidad del agua nueva; Ca y Mg salen de la ficha de la sal. Fauna y corales son sólo inventario; los equipos se dan por calibrados.
 
-**0.8.0 · revisión final.** Código depurado (restos de versiones anteriores fuera), fórmulas verificadas con cálculos independientes, avisos de vigilancia con título propio en Alertas y, tras un cambio de agua con su química conocida, ya no hace falta repetir Mg y salinidad para que el Balling decida. Ver [CHANGELOG](CHANGELOG.md) y [cambios 0.8](docs/cambios-0.8.md); el historial de versiones anteriores está en `docs/` (cambios 0.5–0.7, auditorías).
+**0.9.0 · modelo del acuario y asistente.** Todo el historial real desde el 26/10/2026 viene incluido (se añade lo que falte sin duplicar nada). El consumo de KH, Ca y Mg sale de un balance de masas bayesiano con todas las lecturas a la vez y la precisión del test aprendida; el asistente explica en pocas frases qué pasa y qué va a pasar (KH, calcio, nutrientes, salinidad), distinguiendo lo medido de lo estimado. Ver [CHANGELOG](CHANGELOG.md), [cambios 0.9](docs/cambios-0.9.md), que incluye el análisis completo de la aplicación, y [cambios 0.9.1](docs/cambios-0.9.1.md), con la respuesta a la auditoría de 0.9.0 (3 dosis al día, salinidad 34 ppt, límites de la ReefDose); el historial de versiones anteriores está en `docs/`.
 
 **Regla estructural:** el núcleo es puro (sin UI, DOM ni control de bombas) y la aplicación sólo llama al motor. Mantenimiento (Balling) y correcciones (KH+, Ca+, MG+) son independientes: una corrección conserva el balance completo, pero un ajuste del Balling exige evidencia posterior. Ver [correcciones transversales](docs/corrections.md).
 
@@ -17,7 +17,7 @@ Node.js 22.6 o posterior (probado con 22.22; los scripts pasan `--experimental-s
 ```sh
 npm install
 npm run typecheck            # motor y aplicación
-npm test                     # 225 pruebas
+npm test                     # pruebas del motor, la aplicación y el modelo
 npm run build                # dist/ del motor
 npm run app                  # aplicación en app/dist/acuario.html (un único HTML)
 npm run simulate:peninsula   # lazo cerrado del perfil → reports/peninsula-<versión>.json

@@ -1,5 +1,5 @@
-// Service worker de Mi Acuario Marino (generado por app/build.ts; versión f963c9428329).
-const CACHE = 'mam-f963c9428329';
+// Service worker de Mi Acuario Marino (generado por app/build.ts; versión 26e2e5dda633).
+const CACHE = 'mam-26e2e5dda633';
 const FONTS = 'mam-fonts';
 const SHELL = ["./","./index.html","./manifest.webmanifest","./icons/icon-192.png","./icons/icon-512.png","./icons/icon-maskable-512.png","./icons/apple-touch-icon.png"];
 self.addEventListener('install', e => {

@@ -1,5 +1,29 @@
 # Cambios
 
+## 0.9.1 · 2026-11-05
+
+Auditoría de 0.9.0 aplicada; detalle hallazgo por hallazgo en [docs/cambios-0.9.1.md](docs/cambios-0.9.1.md).
+
+- **La ReefDose hace 3 dosis al día** (el registro decía 24): el historial y el programa actual se corrigen una sola vez (mismos ml/día), las propuestas usan las dosis que hace la bomba y, con menos de 24 dosis a horas desconocidas, el margen de fase es el de un día entero.
+- **Salinidad ideal 34 ppt** (objetivo 33–35, seguro 32–36), aplicada una vez a registros anteriores. Los objetivos se pueden cambiar en Gestión → Objetivos y rangos, con validación.
+- **Sólo programas posibles en la ReefDose 4**: 1–24 dosis, 0,2–1000 ml/día en pasos de 0,1 ml y ≥ 0,2 ml por dosis, con el motivo en castellano; los registros antiguos se siguen leyendo y avisan en Alertas.
+- **Efecto de cada cambio de agua** con el volumen y el nivel estimado justo antes (modelo), no con los de ahora ni con la última lectura.
+- **Mediciones**: «1.350» se entiende como 1350 en Mg (y se dice), lo ambiguo se pregunta y un valor muy raro pide confirmar. «Hoy/ayer» y el progreso del día cuadran con el cambio de hora. Aviso de potencia al elegir Ca+ o MG+ en solución.
+- 7 pruebas nuevas (`tests/audit.test.ts`).
+
+## 0.9.0 · 2026-11-04
+
+Modelo del acuario, asistente y todo el historial desde el primer día. Detalle y análisis completo de la aplicación en [docs/cambios-0.9.md](docs/cambios-0.9.md).
+
+- **Historial completo incluido.** Las 28 mediciones del 26/10 al 3/11, el KH+ de 18 g del 29/10, las garrafas nuevas y el programa de 5,5 ml/día del 30/10 y el cambio de agua de 40 L del 1/11 (KH 7,7 y 34 ppt, datos confirmados por el usuario) vienen en la aplicación. Al abrirla se añade lo que falte en el registro, sin duplicar nada (se compara por tipo y hora, nunca por valor). Si el cambio de agua del 1/11 quedó con otros datos (p. ej. los 35 ppt que proponía el formulario), se corrige con una revisión; el original se conserva.
+- **Consumo con todas las lecturas a la vez.** Antes se comparaban lecturas de dos en dos con el peor error del test sumado dos veces, y desde el 31/10 el motor se quedaba en «repite el test» sin proponer nada mientras la bomba cubría sólo ~65 % del consumo. Ahora un balance de masas bayesiano usa todas las lecturas, lo dosificado, las correcciones y los cambios de agua, y aprende la precisión real del test (±0,15 dKH con tus lecturas, frente a ±0,7 supuestos). Caso real: consumo ≈ 0,22 dKH/día (0,15–0,30); con 5,5 ml/día el KH bajaría de 7,5 en unos 2 días; propuesta: 11,0 ml/día por cabezal, con tu confirmación.
+- **Asistente.** En Inicio, como mucho dos notas con lo importante; en Gestión → Análisis, todo con sus números: KH (consumo, nivel estimado, previsión a 7 días), calcio y magnesio, nutrientes (NO₃ a 0 y PO₄ 0,25 → 0,03 en una semana), salinidad en el límite bajo y la precisión de tu test. Cada nota dice si es medido, estimado o ambos. Las alertas ya no repiten lo que explica el asistente. La gráfica de Mediciones añade la previsión a 7 días sin cambios (punteada, con su margen).
+- **Lecturas raras y adiciones sin registrar.** Una lectura que no encaja con las demás ni con lo dosificado (más allá de la exactitud del test) pide repetir antes de tocar nada. Si otra lectura la confirma al mismo nivel, se trata como una adición sin registrar: el consumo sale de las lecturas anteriores y la app pregunta si falta registrar algo.
+- **Ajustes más rápidos cuando los datos son concluyentes.** Si el modelo ya era concluyente tras cada una de las dos o más últimas lecturas con el programa actual (separadas 36 h o más), esa es la confirmación que pide la histéresis. Antes había que tener la app abierta entre una lectura y otra. Además, el paso puede superar el 10 % cuando el KH no puede pasar de 9 antes de volver a medir.
+- **Resumen para compartir** (Gestión → Exportar / importar): todo el historial y el estado en un texto corto para enviarlo por chat o correo; la copia JSON se descarga como archivo también desde la app instalada. El diario va por fecha y los cambios de agua muestran el KH y la salinidad del agua nueva; el formulario propone la salinidad del último cambio en vez de 35.
+- Simulaciones (20 escenarios de 60–90 días): días fuera del objetivo 233 → 139 y correcciones de KH 53 → 26. Con lecturas difíciles (ruido de ±0,25 dKH, 5 % erróneas, horas variables): 805 → 292 días fuera del objetivo, 157 → 3 fuera del rango seguro y 156 → 25 correcciones de KH. 241 pruebas.
+- La política pasa a `peninsula105-policy-v7`: hay que aceptarla de nuevo en Gestión → Ajustes. Esquema de eventos 4 (lee los anteriores).
+
 ## 0.8.1 · 2026-10-30
 
 Con el KH ya corregido y verificado, el Balling no se dejaba activar: el botón no aparecía y en Inicio salía «Paso 3 · Casi listo». Ocurría en dos casos:
