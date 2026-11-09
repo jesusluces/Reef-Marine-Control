@@ -1,6 +1,6 @@
 {
   "name": "@reef/core-engine",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
@@ -19,7 +19,7 @@
     "test": "node --experimental-strip-types --no-warnings --test tests/*.test.ts",
     "build": "tsc -p tsconfig.build.json",
     "app": "node --experimental-strip-types --no-warnings app/build.ts",
-    "e2e": "node --experimental-strip-types --no-warnings app/e2e/seed.ts app/e2e/out/seed.json && node app/e2e/run.mjs",
+    "e2e": "node --experimental-strip-types --no-warnings app/e2e/seed.ts app/e2e/out/seed.json && node --experimental-strip-types --no-warnings app/e2e/phone.ts app/e2e/out/phone-0.9.1.json && node app/e2e/run.mjs",
     "simulate:peninsula": "node --experimental-strip-types --no-warnings scripts/simulate-peninsula.ts",
     "check": "npm run typecheck && npm test && npm run build && npm run app"
   },

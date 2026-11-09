@@ -1,5 +1,18 @@
 # Cambios
 
+## 0.10.0 · 2026-11-09
+
+Gráficas con sus causas, balance diario y KH 7,7–8,3. Detalle en [docs/cambios-0.10.md](docs/cambios-0.10.md).
+
+- **Datos del 6 al 9/11 precargados**: KH 7,5 (6/11), 7,6 (8/11), KH+ 5 g (8/11) y KH 8,1 (9/11), con Ca, Mg, NO₃, PO₄ y salinidad del 6 y del 9/11. Al abrir la app se añade lo que falte sin duplicar nada; sobre un registro como el del móvil sólo se añade el nuevo objetivo del KH.
+- **KH objetivo 7,7–8,3** (ideal 8), aplicado una vez a registros anteriores y nunca por encima de un cambio tuyo posterior. Con un rango más estrecho que la exactitud declarada del test, el techo de seguridad de las correcciones y de la pausa preventiva es 9,0 (ideal + 1, política v8): sin él, el 8/11 no se podía proponer ningún KH+; ahora 5,9 g hacia 8. Si se propone un KH+ que hoy cubre al menos la mitad de lo necesario, el Balling sólo iguala el consumo (antes también empujaba hacia el ideal el mismo día y el KH se pasaba). Una subida anormal sin confirmar ya no para el Balling.
+- **Gráficas algo más grandes** (236 px de alto en el móvil, textos de 12,5 px, cinco marcas en el eje) con **las intervenciones marcadas**: + correcciones, gota cambios de agua, B cambios del Balling, i otras; la lectura que muestra el efecto lleva un anillo del mismo color, y debajo va la lista con la fecha y el efecto previsto (p. ej. «KH+ en polvo 18 g · +1,44 dKH»). Las barras de cada lectura son la precisión aprendida de tu test (KH ±0,27 dKH) en vez de la exactitud del fabricante (±0,7).
+- **Balance debajo de cada gráfica**: consumo, aporte del Balling y qué parte cubre (KH, Ca, Mg; estimado), o la variación diaria de las lecturas (NO₃, PO₄, salinidad; medido), con el veredicto («Compensa», «No llega», «Se pasa», «Estable», «Sube», «Baja») y si se mantiene en el objetivo. Caso real del 9/11: KH compensa (84 %, la diferencia está dentro del margen), Ca no llega (48 %, Ca+ al bajar de 400), Mg se mantiene.
+- Arreglos: la previsión a 7 días del asistente ya no sale «7,9–7,9»; una propuesta de 0 ml/día ya no hace fallar el análisis.
+- Simulación de un acuario como el tuyo (24 escenarios de 90 días, rango anterior frente al nuevo con el mismo motor): el KH queda igual o algo más cerca de 8 (0,257 → 0,254 dKH; con lecturas difíciles 0,277 → 0,262) y oscila algo menos (σ 0,216 → 0,209), con más correcciones pequeñas (0,3 → 1,3 cada 90 días) y nunca fuera del rango seguro. En el informe de siempre, los escenarios con el Balling en marcha quedan como en 0.9.1; el arranque de un acuario sin Balling es más lento con el rango estrecho (ver la limitación en el detalle).
+- 267 pruebas (19 nuevas: 11 en `tests/charts.test.ts` y 8 de lazo cerrado con el objetivo nuevo) y la prueba en el navegador, con un escenario nuevo que carga la versión sobre un registro como el del móvil.
+- La política pasa a `peninsula105-policy-v8`: hay que aceptarla de nuevo en Gestión → Ajustes.
+
 ## 0.9.1 · 2026-11-05
 
 Auditoría de 0.9.0 aplicada; detalle hallazgo por hallazgo en [docs/cambios-0.9.1.md](docs/cambios-0.9.1.md).
