@@ -1,12 +1,14 @@
-# Mi Acuario Marino · Final Boss · Reef Core Engine 0.10.0
+# Mi Acuario Marino · Final Boss · Reef Core Engine 0.11.0
 
 Aplicación móvil (PWA) y motor TypeScript para llevar la química de un acuario de arrecife con Balling XEPTA Reef Balance Next 1:1:1 en una ReefDose de Red Sea. Perfil incluido: Península 105 × 60 × 60 (≈ 375 L efectivos).
 
-**Qué hace.** Incluye el historial real del acuario desde el 26/10/2026. Antes del Balling corrige con KH+, Ca+ o MG+ lo que esté fuera del objetivo (KH 7,7–8,3 dKH, ideal 8), espera una lectura que lo confirme y deja activar el Balling con la dosis calculada a partir del consumo real, con las correcciones descontadas. Después ajusta el programa solo, siempre con confirmación, y avisa de caídas o subidas inesperadas y de desequilibrios. Los cambios de agua se registran con los litros, el KH y la salinidad del agua nueva; Ca y Mg salen de la ficha de la sal. Fauna y corales son sólo inventario; los equipos se dan por calibrados.
+**Qué hace.** Incluye el historial real del acuario desde el 26/10/2026. Antes del Balling corrige con KH+, Ca+ o MG+ lo que esté fuera del objetivo (KH 7,7–8,3 dKH, ideal 8), espera una lectura que lo confirme y deja activar el Balling con la dosis calculada a partir del consumo real, con las correcciones descontadas. Después propone el programa con un control predictivo (consumo previsto + vuelta suave a 8), siempre con confirmación, y avisa de caídas o subidas inesperadas y de desequilibrios. Los cambios de agua se registran con los litros, el KH y la salinidad del agua nueva; Ca y Mg salen de la ficha de la sal. Fauna y corales son sólo inventario; los equipos se dan por calibrados y la app no pide calibraciones ni pruebas de precisión.
 
 **0.9.0 · modelo del acuario y asistente.** Todo el historial real desde el 26/10/2026 viene incluido (se añade lo que falte sin duplicar nada). El consumo de KH, Ca y Mg sale de un balance de masas bayesiano con todas las lecturas a la vez y la precisión del test aprendida; el asistente explica en pocas frases qué pasa y qué va a pasar (KH, calcio, nutrientes, salinidad), distinguiendo lo medido de lo estimado. Ver [CHANGELOG](CHANGELOG.md), [cambios 0.9](docs/cambios-0.9.md), que incluye el análisis completo de la aplicación, y [cambios 0.9.1](docs/cambios-0.9.1.md), con la respuesta a la auditoría de 0.9.0 (3 dosis al día, salinidad 34 ppt, límites de la ReefDose); el historial de versiones anteriores está en `docs/`.
 
 **0.10.0 · gráficas con sus causas.** Las gráficas son algo más grandes y marcan las correcciones, los cambios de agua y los cambios del Balling, con su efecto previsto y la lectura que lo muestra. Debajo de cada una, el consumo o la variación diaria y si el Balling lo compensa y mantiene el valor en el objetivo (estimado con el modelo para KH, Ca y Mg; medido para NO₃, PO₄ y salinidad). El KH objetivo pasa a 7,7–8,3, con un techo de tolerancia de 9,0 para las correcciones y la pausa preventiva (política v8). Datos precargados hasta el 9/11/2026. Ver [cambios 0.10](docs/cambios-0.10.md).
+
+**0.11.0 · control predictivo del KH.** El Balling se ajusta en dKH/día con el consumo previsto por el modelo y un término suave que devuelve el KH a 8, con pasos acotados y sin salir del objetivo antes de volver a medir (política v9). Fuera todo lo relacionado con la calibración de los tests; la app conoce los tests que tienes y cuál usas. Código revisado y limpio. Datos precargados hasta el 12/11/2026. Ver [cambios 0.11](docs/cambios-0.11.md).
 
 **Regla estructural:** el núcleo es puro (sin UI, DOM ni control de bombas) y la aplicación sólo llama al motor. Mantenimiento (Balling) y correcciones (KH+, Ca+, MG+) son independientes: una corrección conserva el balance completo, pero un ajuste del Balling exige evidencia posterior. Ver [correcciones transversales](docs/corrections.md).
 
@@ -35,15 +37,16 @@ Las versiones de desarrollo están fijadas en `package.json` a las probadas. Git
 
 ## Entrada principal
 
-`computeAquarium()` recibe eventos, `now`, `knownAt`, política con procedencia, estrategia validada, identidades de productos confirmadas, historial de dosis completo desde una fecha, reservas futuras y estado explícito de histéresis. Devuelve estado reconstruido, medidas originales, tendencias observadas, consumo estimado, incertidumbre, recomendaciones, alertas, inventario e información faltante.
+`computeAquarium()` recibe eventos, `now`, `knownAt`, política con procedencia, estrategia validada, identidades de productos confirmadas, historial de dosis completo desde una fecha, y reservas futuras (sin estado: el último cambio del programa sale del historial). Devuelve estado reconstruido, medidas originales, tendencias observadas, consumo estimado, incertidumbre, recomendaciones, alertas, inventario e información faltante.
 
 Consultar [app/src/engine.ts](app/src/engine.ts) para una llamada completa con el perfil y [src/index.ts](src/index.ts) para la API pública. Las fórmulas pueden usarse por separado:
 
 ```ts
-import { calculateKhCorrection, dkh, liters, PRODUCTS } from './dist/index.js';
+import { calculateDose, liters, PRODUCTS } from './dist/index.js';
 
-const calculation = calculateKhCorrection({
-  deltaDkh: dkh(0.5),
+const calculation = calculateDose({
+  parameter: 'kh',
+  delta: 0.5,
   volumeLiters: liters(180),
   product: PRODUCTS.khPlus,
 });
@@ -54,20 +57,20 @@ const calculation = calculateKhCorrection({
 ## Organización
 
 - `src/core/system`: geometría y volumen con intervalos.
-- `src/core/measurement`: métodos de test, incertidumbre, repetibilidad y patrones.
+- `src/core/measurement`: métodos de test y su incertidumbre declarada.
 - `src/core/livestock`, `src/core/planning`: fauna/corales y plan de tests.
 - `src/profiles`: perfiles de acuarios reales (Península 105).
 - `src/application/messages.es.ts`, `guidance.ts`: textos y próximos pasos para la interfaz.
 - `app/`: aplicación web (sin química: sólo llama al motor).
 - `src/core/types`: unidades, lecturas, eventos, errores.
 - `src/core/products`: formulaciones versionadas y registro de fuentes.
-- `src/core/chemistry`: fórmulas únicas para dosis, mezcla y normalización.
+- `src/core/chemistry`: fórmulas únicas para dosis, mezcla y agua nueva (ficha de la sal).
 - `src/core/temporal`: orden, revisiones, replay y propagación afín con cotas.
 - `src/core/consumption`, `confidence`: intervalos, mediana/MAD, tendencia y evidencia.
-- `src/core/dosing`, `safety`: Balling, correcciones, histéresis, inventario y ventanas móviles.
+- `src/core/dosing`, `safety`: Balling, control predictivo del KH (`khController.ts`), correcciones, inventario y ventanas móviles.
 - `src/core/recommendations`, `alerts`: decisiones explicables y evaluación por peor parámetro.
 - `src/application`: orquestación, acciones del usuario como eventos, historial inicial y archivo JSON.
-- `src/core/simulation`: simulador reproducible con semilla; políticas exclusivamente sintéticas.
+- `src/core/simulation`: lazo cerrado reproducible con semilla y equipos con sesgos reales (`realistic.ts`).
 - `tests`: unidades, integración, regresión, propiedades y escenarios de 7/30/90 días.
 - `reports`: resultados reproducibles y ejemplo de historial.
 
@@ -77,7 +80,7 @@ const calculation = calculateKhCorrection({
 2. Efecto desconocido no significa efecto cero. Puede haber un valor nominal calculable sin evidencia suficiente para dosificar.
 3. «Consumo» significa desaparición neta equivalente bajo el modelo; no demuestra consumo biológico.
 4. Targets, tiempos de mezcla, incertidumbres y límites operativos necesitan configuración justificada para el acuario. Los valores de `simulation/policy.ts` no son recomendaciones de mantenimiento.
-5. Los planes son propuestas. La programación real de ReefBeat, sus horarios, zona horaria, cola, compensación de dosis, calibración, precisión y fraccionamiento deben reconciliarse antes de ejecutar. No existe integración de hardware en este repositorio.
+5. Los planes son propuestas. La programación real de ReefBeat, sus horarios, zona horaria, cola, compensación de dosis, precisión y fraccionamiento deben reconciliarse antes de ejecutar. No existe integración de hardware en este repositorio.
 6. El motor no declara seguridad biológica ni certificación. No calcula pH ni predice precipitación/equilibrio iónico completo.
 
 Las decisiones de diseño, fórmulas, límites y pruebas están en [algoritmos](docs/algorithms.md), [validación](docs/validation.md), [fuentes](docs/sources.md) y [modelo temporal](docs/temporal-design.md). Cualquier cambio matemático requiere nueva validación y versión; véase `AGENTS.md`.

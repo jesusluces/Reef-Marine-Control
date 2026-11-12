@@ -1,5 +1,16 @@
 # Cambios
 
+## 0.11.0 · 2026-11-12
+
+Control predictivo del KH, sin calibraciones y código limpio. Detalle en [docs/cambios-0.11.md](docs/cambios-0.11.md).
+
+- **Datos del 10 y 12/11 precargados** (KH 8,0 y 7,7). Sobre el registro del móvil no se añade nada: ya los tiene.
+- **Sin calibración ni pruebas de precisión.** Tests de medición muestra los tests que tienes y cuál usas (el de tu última lectura). La incertidumbre de cada lectura es la exactitud del fabricante y la precisión real la aprende el modelo de tus lecturas. Fuera la prueba de precisión, la verificación con patrón, los lotes y la calibración de cabezales; los registros antiguos que las tengan se leen y no cambian nada.
+- **Mantenimiento del KH predictivo.** Aporte = consumo previsto (con su tendencia) + lo que devuelve el KH a 8 en ~5 días (≤ 0,05 dKH/día), en dKH/día y no en ml: con 5,5 ml/día, la banda de 1,5 ml de 0.10 era el 27 % del aporte. Pasos de ≤ 0,08 dKH/día (≈ 3 ml), sólo si el KH no puede pasar de 8,3 (ni bajar de 7,7) antes de volver a medir; una lectura suelta que se aparta de lo previsto espera a la siguiente. Sin estado guardado. Caso real del 12/11: **de 5,5 a 8,4 ml/día por cabezal** (0.10.0 no proponía nada). La tarjeta explica de dónde sale.
+- Simulación (48 escenarios como tu acuario, sin pruebas de precisión): días fuera de 7,7–8,3 148 → 85 (lecturas difíciles 340 → 161; midiendo cada 2 días 236 → 120), desvío medio de 8 0,131 → 0,092 dKH, correcciones de KH 25 → 17, con cambios de programa más pequeños (3,6 ml frente a 5,6) y más frecuentes (cada ~11 días frente a ~21).
+- **Código revisado**: fuera el modo sin contexto, la histéresis, el seguimiento del nivel, el simulador sintético, la política de medición y de calibración y las funciones sin uso (−1876 / +661 líneas de producción). El modelo ya no falla con lecturas sin método. 238 pruebas y la prueba en el navegador sobre el registro del móvil del 12/11.
+- La política pasa a `peninsula105-policy-v9`: hay que aceptarla de nuevo en Gestión → Ajustes.
+
 ## 0.10.0 · 2026-11-09
 
 Gráficas con sus causas, balance diario y KH 7,7–8,3. Detalle en [docs/cambios-0.10.md](docs/cambios-0.10.md).
